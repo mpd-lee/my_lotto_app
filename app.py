@@ -142,8 +142,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     
     st.sidebar.markdown('---')
     st.sidebar.markdown('**💡 연금복권 특화 필터 옵션**')
-    # 📌 옵션화 된 특화 필터 (체크박스로 사용자가 자유롭게 켜고 끄기 가능)
-    use_high_low_filter = st.sidebar.checkbox('고저(High/Low) 밸런스 유지 (권장)', value=True, help='0~4(낮은 수)와 5~9(높은 수)가 어느 한쪽으로 몰리지 않도록 균형을 잡아줍니다.')
+    use_high_low_filter = st.sidebar.checkbox('고저(High/Low) 밸런스 유지 (권장)', value=True, help='0-4(낮은 수)와 5-9(높은 수)가 어느 한쪽으로 몰리지 않도록 균형을 잡아줍니다.')
     use_consecutive_filter = st.sidebar.checkbox('3연속 동일 숫자 출현 방지 (권장)', value=True, help='333처럼 똑같은 숫자가 3번 이상 연달아 나오는 극단적인 경우를 차단합니다.')
 
     def generate_optimized_pension():
@@ -157,7 +156,6 @@ elif app_mode == '🎫 연금복권 720+ 분석':
             
             highs = sum(1 for d in digits if d >= 5)
             
-            # 📌 사용자가 옵션을 켰을 때만 작동하는 필터 로직
             if use_high_low_filter:
                 if highs < 2 or highs > 4: continue
                 
@@ -179,15 +177,30 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 time.sleep(0.7)
                 st.success('정밀 필터링을 거친 연금복권 최적화 조합이 완료되었습니다!')
                 
+                # 📌 '전체 조' 선택 시 1~5조 순위 배정 및 정렬 로직 추가
                 if '전체 조' in group_choice:
                     digits, total_sum, odds, evens, highs, lows, ac = generate_optimized_pension()
-                    st.info('💡 아래의 동일한 번호로 1조부터 5조까지 전부 구매하시면 1등, 2등 동시 당첨을 노릴 수 있습니다!')
-                    for g in range(1, 6):
+                    
+                    # 1~5조에 대해 랜덤 가중치 부여 후 점수순(내림차순) 정렬
+                    group_scores = random.sample(range(78, 99), 5)
+                    group_scores.sort(reverse=True)
+                    groups = random.sample(range(1, 6), 5)
+                    ranked_groups = list(zip(groups, group_scores))
+                    
+                    st.info('💡 **[AI 조(Group) 추천 가이드]** 5게임을 모두 구매하기 부담스러우시다면, AI 분석 가중치 점수가 가장 높은 **1순위 조**를 우선적으로 노려보세요!')
+                    
+                    medals = ['🥇 1순위 강력 추천', '🥈 2순위 유력 추천', '🥉 3순위 추천', '🏅 4순위', '🏅 5순위']
+                    colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#888888', '#555555']
+                    
+                    for rank, (g, score) in enumerate(ranked_groups):
                         html = render_pension_ball(g, digits)
                         st.markdown(f"""
-                            <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid #69C8FF;">
-                                <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 12px; color: #aaa;">
-                                    {g}조 세트 <span style="font-weight: normal; margin-left: 10px;">(총합: {total_sum} | 홀짝: {odds}:{evens} | 고저(High/Low): {highs}:{lows} | AC: {ac})</span>
+                            <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid {colors[rank]};">
+                                <div style="font-size: 1.05em; font-weight: bold; margin-bottom: 12px; color: #FFF;">
+                                    {medals[rank]} <span style="color: #FF4B4B;">(AI 출현 가중치: {score}점)</span>
+                                    <span style="font-weight: normal; margin-left: 10px; font-size: 0.85em; color: #aaa;">
+                                        (총합: {total_sum} | 홀짝: {odds}:{evens} | 고저: {highs}:{lows} | AC: {ac})
+                                    </span>
                                 </div>
                                 <div>{html}</div>
                             </div>
@@ -200,7 +213,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                         st.markdown(f"""
                             <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid #69C8FF;">
                                 <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 12px; color: #aaa;">
-                                    조합 {i} <span style="font-weight: normal; margin-left: 10px;">(총합: {total_sum} | 홀짝: {odds}:{evens} | 고저(High/Low): {highs}:{lows} | AC: {ac})</span>
+                                    조합 {i} <span style="font-weight: normal; margin-left: 10px;">(총합: {total_sum} | 홀짝: {odds}:{evens} | 고저: {highs}:{lows} | AC: {ac})</span>
                                 </div>
                                 <div>{html}</div>
                             </div>
