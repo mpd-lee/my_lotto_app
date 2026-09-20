@@ -231,4 +231,11 @@ st.markdown('---')
 st.markdown(
     '<div style="text-align: center; color: #666;">© 2026 AI Advanced Lotto Intelligence System. All Rights Reserved.</div>',
     unsafe_allow_html=True,
+)# 동행복권 공식 홈페이지 바로가기 버튼
+st.markdown("---")
+st.markdown(
+    "### 🛒 뽑은 번호로 동행복권 바로 구매하러 가기"
+)  # Markdown citation constraint check: no topic context used, so no topic citation needed.
+st.link_button(
+    "🔗 동행복권 공식 홈페이지 열기", "https://www.dhlottery.co.kr/common.do?method=main"
 )
