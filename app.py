@@ -44,16 +44,13 @@ st.markdown("""
 # ----------------------------------------------------
 # 1. 공통 렌더링 및 계산 함수 모음
 # ----------------------------------------------------
-# 복잡도(AC값) 계산 함수 - 로또/연금 공통 적용
 def calculate_ac(numbers):
     diffs = set()
     for i in range(len(numbers)):
         for j in range(i + 1, len(numbers)):
             diffs.add(abs(numbers[i] - numbers[j]))
-    # 중복 번호가 있는 연금복권 특성을 고려해 0 이하로 내려가지 않도록 보정
     return max(0, len(diffs) - (len(numbers) - 1))
 
-# 로또 당구공 렌더링
 def render_billiard_ball(num):
     num_int = int(num)
     if 1 <= num_int <= 10: bg, fg = '#FBC400', '#000000'
@@ -63,7 +60,6 @@ def render_billiard_ball(num):
     else: bg, fg = '#B0D840', '#000000'
     return f"""<span style="display: inline-block; width: 46px; height: 46px; line-height: 46px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 19px; margin: 0 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
 
-# 연금복권 전용 UI 렌더링
 def render_pension_ball(group, digits):
     colors = ['#5A5A5A', '#FF4B4B', '#FFAE00', '#FBC400', '#69C8FF', '#B0D840', '#AAAAAA']
     html = f"""<span style="display: inline-block; width: 60px; height: 46px; line-height: 46px; border-radius: 8px; background-color: {colors[0]}; color: white; text-align: center; font-weight: bold; font-size: 18px; margin-right: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">{group} 조</span>"""
@@ -79,7 +75,7 @@ app_mode = st.sidebar.radio('원하시는 복권 종류를 선택하세요', ['�
 st.sidebar.markdown('---')
 
 # ====================================================
-# [모드 1] 로또 6/45 분석 시스템 (기존과 동일하게 유지)
+# [모드 1] 로또 6/45 분석 시스템
 # ====================================================
 if app_mode == '🎱 로또 6/45 분석':
     st.title('🎱 AI 고성능 로또 당첨 번호 추천 시스템')
@@ -131,9 +127,8 @@ if app_mode == '🎱 로또 6/45 분석':
         chart_data = pd.DataFrame(np.random.randn(20, 3) * 4 + 50, columns=['1~15구간', '16~30구간', '31~45구간'])
         st.line_chart(chart_data)
 
-
 # ====================================================
-# [모드 2] 연금복권 720+ 분석 시스템 (완전 고도화)
+# [모드 2] 연금복권 720+ 분석 시스템
 # ====================================================
 elif app_mode == '🎫 연금복권 720+ 분석':
     st.title('🎫 AI 패턴 분석 연금복권 720+ 추출기')
@@ -145,7 +140,11 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     p_sum_min, p_sum_max = st.sidebar.slider('각 자리 합계 범위 (평균 27)', 0, 54, (15, 39))
     p_odd_even = st.sidebar.selectbox('홀짝 비율 (연금 전용)', ['균등 (3:3 또는 4:2)', '모든 경우의 수 허용'])
     
-    st.sidebar.info('💡 **연금복권 특화 필터**\n- **고저(High/Low) 필터**: 0~4와 5~9의 쏠림을 방지\n- **연속수 방지**: 같은 숫자가 3개 이상 반복되는 극단적 배열 차단')
+    st.sidebar.markdown('---')
+    st.sidebar.markdown('**💡 연금복권 특화 필터 옵션**')
+    # 📌 옵션화 된 특화 필터 (체크박스로 사용자가 자유롭게 켜고 끄기 가능)
+    use_high_low_filter = st.sidebar.checkbox('고저(High/Low) 밸런스 유지 (권장)', value=True, help='0~4(낮은 수)와 5~9(높은 수)가 어느 한쪽으로 몰리지 않도록 균형을 잡아줍니다.')
+    use_consecutive_filter = st.sidebar.checkbox('3연속 동일 숫자 출현 방지 (권장)', value=True, help='333처럼 똑같은 숫자가 3번 이상 연달아 나오는 극단적인 경우를 차단합니다.')
 
     def generate_optimized_pension():
         for _ in range(10000):
@@ -156,14 +155,15 @@ elif app_mode == '🎫 연금복권 720+ 분석':
             odds = sum(1 for d in digits if d % 2 != 0)
             if '균등' in p_odd_even and odds not in [2, 3, 4]: continue
             
-            # 고저(High/Low) 분석: 0~4는 저, 5~9는 고
             highs = sum(1 for d in digits if d >= 5)
-            # 고저 비율이 한쪽으로 극단적으로 쏠리지 않도록 필터링 (최소 2개 이상 섞이게)
-            if highs < 2 or highs > 4: continue
             
-            # 특정 숫자 3개 이상 연속 중복 차단 (예: 111XXX 방지)
-            has_triple = any(digits.count(d) >= 3 for d in set(digits))
-            if has_triple: continue
+            # 📌 사용자가 옵션을 켰을 때만 작동하는 필터 로직
+            if use_high_low_filter:
+                if highs < 2 or highs > 4: continue
+                
+            if use_consecutive_filter:
+                has_triple = any(digits.count(d) >= 3 for d in set(digits))
+                if has_triple: continue
 
             ac = calculate_ac(digits)
             return digits, total_sum, odds, 6-odds, highs, 6-highs, ac
@@ -216,20 +216,19 @@ elif app_mode == '🎫 연금복권 720+ 분석':
             st.markdown("""
                 <div class="metric-card">
                     <h4 style="color: #69C8FF;">⚖️ 고저(High & Low) 밸런스</h4>
-                    <p>연금복권 당첨번호는 0~4(Low)와 5~9(High)가 고르게 섞이는 패턴이 다수입니다.<br>본 엔진은 한쪽으로 치우친(예: 8,7,9,6,9,8) 극단적 배열을 <b>원천 차단</b>합니다.</p>
+                    <p>연금복권 당첨번호는 0~4(Low)와 5~9(High)가 고르게 섞이는 패턴이 다수입니다.<br>왼쪽 사이드바의 <b>필터 옵션을 켜두시면</b> 한쪽으로 치우친(예: 8,7,9,6,9,8) 극단적 배열을 <b>원천 차단</b>할 수 있습니다.</p>
                 </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
                 <div class="metric-card">
                     <h4 style="color: #FF7272;">🚫 연속 중복수 제한 (AC 필터)</h4>
-                    <p>로또와 달리 중복이 허용되지만, 당첨 통계상 특정 숫자(예: 333xxx)가 연속 출현할 확률은 극히 희박합니다.<br>이러한 조합을 필터링하여 복잡도(AC)를 높였습니다.</p>
+                    <p>로또와 달리 중복이 허용되지만, 당첨 통계상 특정 숫자(예: 333xxx)가 연속 출현할 확률은 극히 희박합니다.<br>이 기능 역시 <b>필터 옵션</b>을 통해 간편하게 제어할 수 있습니다.</p>
                 </div>
             """, unsafe_allow_html=True)
         
         st.markdown('---')
         st.markdown('#### 📊 최근 회차 자리수별 출현 분포도')
-        # 연금복권용 가상 통계 그래프 (각 번호 0~9의 출현 빈도 느낌)
         p_chart = pd.DataFrame(np.random.randint(10, 50, size=(10, 6)), columns=['십만', '만', '천', '백', '십', '일'])
         st.bar_chart(p_chart)
 
