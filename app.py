@@ -119,7 +119,7 @@ if app_mode == '🎱 로또 6/45 분석':
                         </div>
                     """, unsafe_allow_html=True)
                 st.markdown('---')
-                st.link_button('🔗 추출된 번호로 동행복권 로또 바로 구매하기', 'https://dhlottery.co.kr/gameResult.do?method=byWin')
+                st.link_button('🔗 추출된 번호로 동행복권 로또 바로 구매하기', 'https://m.dhlottery.co.kr/', use_container_width=True)
 
     with tab2:
         st.subheader('📈 로또 구간별 출현 빈도 및 예측 모델')
