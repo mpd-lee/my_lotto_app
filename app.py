@@ -35,7 +35,7 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* 🚀 하단 번호 추출 버튼 스타일 */
+    /* 🚀 하단 번호 추출 버튼 및 상단 선택 버튼 스타일 (기본 주황톤) */
     .stButton>button {
         background: linear-gradient(45deg, #FF4B4B, #FF8E53);
         color: white; font-weight: 900; border-radius: 12px;
@@ -48,13 +48,22 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 글씨 크기 */
-    div.stButton > button {
+    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (원래 예쁜 주황 그라데이션 복구) */
+    div.row-widget.stHorizontal > div:nth-child(1) button,
+    div.row-widget.stHorizontal > div:nth-child(2) button {
+        background: linear-gradient(135deg, #FF7E5F, #FEB47B) !important;
+        border: 2px solid rgba(255, 255, 255, 0.4) !important;
+        box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4) !important;
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        -webkit-text-stroke: 0.4px #000000;
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+    
+    div.row-widget.stHorizontal > div:nth-child(1) button:hover,
+    div.row-widget.stHorizontal > div:nth-child(2) button:hover {
+        background: linear-gradient(135deg, #FF6A48, #FF9B51) !important;
+        transform: scale(1.02);
     }
     
     div.stButton > button p, div.stButton > button span {
@@ -169,7 +178,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 최상단 통합 홍보 배너 (100% 무료 분석 번쩍임 적용)
+# 최상단 통합 홍보 배너 (100% 무료 분석 빨간색 번쩍임 적용)
 # ----------------------------------------------------
 st.markdown("""
 <div class="promo-banner">
@@ -210,7 +219,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 깔끔한 상단 선택 버튼 영역
+# 🟢 상단 선택 버튼 영역 (원래 주황 버튼 복구)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
