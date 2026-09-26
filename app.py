@@ -51,6 +51,13 @@ st.markdown("""
         border: 1px solid #2d3139;
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
+    .sub-title-desc {
+        color: #8b949e;
+        font-size: 0.95em;
+        margin-top: -10px;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -91,7 +98,8 @@ st.sidebar.markdown('---')
 # [모드 1] 로또시스 (LottoSIS) 6/45 분석 시스템
 # ====================================================
 if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
-    st.title('🧧 로또시스 (LottoSIS) - AI 딥러닝 통계 분석기')
+    st.title('🧧 로또시스 (LottoSIS)')
+    st.markdown('<div class="sub-title-desc"><b>LottoSIS</b>: Lottery + Statistical Intelligence System (AI 딥러닝 통계 분석 엔진)</div>', unsafe_allow_html=True)
     st.markdown('통계적 확률 모델, 복잡도(AC값) 필터링 및 딥러닝 가중치 기반 최상위 엔진입니다.')
 
     st.sidebar.subheader('⚙️ 로또 세부 설정')
@@ -137,12 +145,12 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
 
         st.divider()
 
-        # 하단 VIP 결제 유도 구역 (유료 전환 설계)
+        # 하단 VIP 결제 유도 구역 (대표님 최종 수정 문구 반영)
         st.markdown("""
         <div class="premium-box">
             <h3 style="color: #ffd700; margin-top: 0;">👑 로또시스 VIP - S등급 정밀 분석 시스템</h3>
-            <p style="color: #ccc; font-size: 0.9em;">운에 의존하지 마세요. 차가운 데이터 과학으로 1등 확률을 극대화합니다.</p>
-            <div class="locked-text">🔒 <b>역대 1등 당첨 패턴 딥러닝 매칭률 (%)</b> 분석 잠금됨</div>
+            <p style="color: #ccc; font-size: 0.95em; line-height: 1.5;">이제 운에만 의존하지 마세요!<br>첨단 데이터 과학, AI 통계로 운과 함께 1등 확률을 극대화합니다.</p>
+            <div class="locked-text" style="margin-top: 15px;">🔒 <b>역대 1등 당첨 패턴 딥러닝 매칭률 (%)</b> 분석 잠금됨</div>
             <div class="locked-text">🔒 <b>AI 초정밀 제외수 (이번 주 미출현 확률 99%)</b> 10개 필터링 잠금됨</div>
             <div class="locked-text">🔒 <b>S등급 고정수 2개 강제 배정 시스템</b> 잠금됨</div>
         </div>
@@ -161,7 +169,8 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
 # [모드 2] 연금복권 720+ 분석 시스템
 # ====================================================
 elif app_mode == '🎫 연금복권 720+ 분석':
-    st.title('🎫 AI 패턴 분석 연금복권 720+ 추출기')
+    st.title('🎫 연금복권 720+ 분석 시스템')
+    st.markdown('<div class="sub-title-desc"><b>PensionSIS</b>: Pension Lottery + Statistical Intelligence System (자리수별 엔트로피 정밀 엔진)</div>', unsafe_allow_html=True)
     st.markdown('자리수별 난수 엔트로피, 홀짝/고저 비율, 복잡도(AC)를 제어하는 정밀 엔진입니다.')
 
     st.sidebar.subheader('⚙️ 연금복권 세부 설정')
