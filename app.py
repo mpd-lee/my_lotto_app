@@ -48,35 +48,13 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (눌러! 눌러! 느낌) */
-    @keyframes luxury-gold-glow {
-        0% { 
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
-            border-color: #d4af37;
-            transform: scale(1);
-        }
-        50% { 
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.95), 0 0 50px rgba(255, 165, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.9); 
-            border-color: #fff68f;
-            transform: scale(1.03);
-        }
-        100% { 
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
-            border-color: #d4af37;
-            transform: scale(1);
-        }
-    }
-    
-    /* 🎯 상단 복권 선택 버튼에 럭셔리 골드 광채 효과 부여 */
+    /* 🎯 상단 복권 선택 버튼 글씨 크기 (20px 적당한 중간 사이즈) */
     div.stButton > button {
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        -webkit-text-stroke: 0.5px #000000;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-        border: 2px solid #FFD700 !important;
-        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
-        animation: luxury-gold-glow 1.6s infinite ease-in-out !important;
+        -webkit-text-stroke: 0.4px #000000;
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
     }
     
     div.stButton > button p, div.stButton > button span {
@@ -85,35 +63,18 @@ st.markdown("""
         color: #FFFFFF !important;
     }
     
-    /* 🔥 "100% 무료 분석" 글씨 번쩍번쩍 네온 레드-골드 깜빡임 효과 */
-    @keyframes text-flash {
-        0% { color: #FF2A2A; text-shadow: 0 0 5px rgba(255, 42, 42, 0.6); }
-        50% { color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 69, 0, 0.8); transform: scale(1.05); }
-        100% { color: #FF2A2A; text-shadow: 0 0 5px rgba(255, 42, 42, 0.6); }
-    }
-    
-    .flashing-free-text {
-        display: inline-block;
-        background-color: rgba(0, 0, 0, 0.4);
-        padding: 4px 12px;
-        border-radius: 8px;
-        font-weight: 900;
-        border: 1.5px dashed #FFD700;
-        animation: text-flash 1.2s infinite ease-in-out;
-    }
-    
-    /* ⚙️ 샴페인 골드 톱니바퀴 회전 애니메이션 */
+    /* ⚙️ 진한 은빛 톱니바퀴 회전 애니메이션 */
     @keyframes spin-gear {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
     
-    .gold-gear {
+    .silver-gear {
         display: inline-block;
         font-size: 22px;
         margin-left: 8px;
         margin-right: 4px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(1.1);
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(0.85);
         animation: spin-gear 4s linear infinite;
         vertical-align: middle;
     }
@@ -146,8 +107,8 @@ st.markdown("""
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         padding: 20px 15px; border-radius: 15px; text-align: center;
-        margin-bottom: 25px; border: 1.5px solid #FFD700;
-        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+        margin-bottom: 25px; border: 1px solid #69C8FF;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .menu-title {
         font-size: 24px; font-weight: 900; color: #FFD700; 
@@ -157,7 +118,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 최상단 통합 홍보 배너 (번쩍이는 무료 분석 적용)
+# 최상단 통합 홍보 배너
 # ----------------------------------------------------
 st.markdown("""
 <div class="promo-banner">
@@ -165,7 +126,7 @@ st.markdown("""
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
     <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
-        지금 접속하신 분들께 <span class="flashing-free-text">100% 무료 분석</span> 제공!<br>
+        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
@@ -198,7 +159,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟡 럭셔리 골드로 번쩍이는 선택 버튼 영역 ("눌러! 눌러!" 느낌)
+# 🟢 깔끔한 상단 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -215,15 +176,15 @@ with col_sel2:
         st.rerun()
 
 # ----------------------------------------------------
-# ⚙️ 회전하는 샴페인 골드 톱니바퀴와 실시간 엔진 가동 상태 바
+# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
 # ----------------------------------------------------
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #1f1b10, #3a2e10); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #FFD700; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255,215,0,0.25);">
+    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
         <span style="font-size: 20px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
-        <span class="gold-gear">⚙️</span>
+        <span class="silver-gear">⚙️</span>
         <span class="live-indicator"></span>
-        <span style="font-size: 16px; color: #FFD700; font-weight: 700;">AI 실시간 분석 엔진 가동 중</span>
+        <span style="font-size: 16px; color: #00FF88; font-weight: 700;">AI 실시간 분석 엔진 가동 중</span>
     </div>
 """, unsafe_allow_html=True)
 
@@ -265,7 +226,7 @@ if app_mode == '🧧 로또 6/45 분석':
                 nums, total_sum, odds, evens, ac = generate_optimized_lotto()
                 balls_html = ''.join([render_billiard_ball(n) for n in nums])
                 st.markdown(f"""
-                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FFD700;">
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FF4B4B;">
                         <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">게임 {i}</div>
                         <div style="text-align: center;">{balls_html}</div>
                     </div>
@@ -294,7 +255,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 digits = generate_pension()
                 html = render_pension_ball(g, digits)
                 st.markdown(f"""
-                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FFD700;">
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #69C8FF;">
                         <div style="font-size: 1em; font-weight: bold; margin-bottom: 10px;">조합 {i}</div>
                         <div style="text-align: center;">{html}</div>
                     </div>
