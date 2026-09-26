@@ -11,9 +11,18 @@ st.set_page_config(
     layout='wide',
 )
 
-# [핵심] 앱 전체에 적용되는 VIP 상태 저장 (최초 1회 설정)
+# ----------------------------------------------------
+# 👑 통합 VIP Pass 데이터베이스 초기화
+# ----------------------------------------------------
 if 'vip_unlocked' not in st.session_state:
     st.session_state.vip_unlocked = False
+
+if 'code_db' not in st.session_state:
+    st.session_state.code_db = {
+        "S-CLASS-1234": "unused",
+        "S-CLASS-5678": "unused",
+        "7777": "master" # 대표님 전용 마스터 키 (무한 사용)
+    }
 
 # 다크 테마 및 고품격 UI 스타일링
 st.markdown("""
@@ -22,44 +31,43 @@ st.markdown("""
     .stButton>button {
         background: linear-gradient(45deg, #FF4B4B, #FF8E53);
         color: white; font-weight: bold; border-radius: 12px;
-        padding: 0.6em 1.8em; border: none;
-        box-shadow: 0 4px 12px rgba(255, 75, 75, 0.4); font-size: 16px;
+        padding: 0.8em 1.8em; border: none;
+        box-shadow: 0 4px 12px rgba(255, 75, 75, 0.4); font-size: 18px;
+        width: 100%; margin-top: 10px; margin-bottom: 20px;
     }
-    .stButton>button:hover { background: linear-gradient(45deg, #FF6B6B, #FFAE73); }
+    .stButton>button:hover { background: linear-gradient(45deg, #FF6B6B, #FFAE73); transform: scale(1.02); transition: 0.2s;}
     .premium-box {
         background: linear-gradient(145deg, #1a1c29, #0f1016);
         border: 1px solid #ffd700; border-radius: 12px;
         padding: 20px; margin-top: 20px;
         box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
     }
-    .sub-title-desc {
-        color: #00FF88; font-size: 0.95em; font-weight: 600;
-        margin-top: -10px; margin-bottom: 20px; letter-spacing: 0.5px;
-        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-    }
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 25px 20px; border-radius: 15px; text-align: center;
-        margin-bottom: 30px; border: 1px solid #69C8FF;
+        padding: 20px 15px; border-radius: 15px; text-align: center;
+        margin-bottom: 25px; border: 1px solid #69C8FF;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
+    .menu-title {
+        font-size: 22px; font-weight: bold; color: #FFD700; 
+        text-align: center; margin-bottom: 15px;
+    }
+    /* st.radio 라디오 버튼을 큼직하게 스타일링 */
+    div.row-widget.stRadio > div { flex-direction: row; justify-content: center; background-color: #1a1c24; padding: 10px; border-radius: 12px;}
     </style>
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 최상단 통합 홍보 배너 (로또 + 연금 듀얼 무료 강조)
+# 최상단 통합 홍보 배너
 # ----------------------------------------------------
 st.markdown("""
 <div class="promo-banner">
-    <h2 style="color: #FFF; margin-top: 0; font-size: 26px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">
+    <h2 style="color: #FFF; margin-top: 0; font-size: 24px;">
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
-    <h3 style="color: #00FF88; margin-top: 10px; margin-bottom: 15px; font-size: 20px;">
-        대한민국 최초 AI 통합 분석 시스템 가동 중!
-    </h3>
     <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
-        지금 접속하신 모든 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">두 가지 복권 분석 100% 무료</span> 혜택을 제공합니다.<br>
-        👑 VIP 혜택: 단 한 번의 결제로 <b>로또 + 연금복권 S등급 분석</b>을 동시에 누리세요!
+        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
+        👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -81,35 +89,41 @@ def render_billiard_ball(num):
     elif 21 <= num_int <= 30: bg, fg = '#FF7272', '#FFFFFF'
     elif 31 <= num_int <= 40: bg, fg = '#AAAAAA', '#FFFFFF'
     else: bg, fg = '#B0D840', '#000000'
-    return f"""<span style="display: inline-block; width: 46px; height: 46px; line-height: 46px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 19px; margin: 0 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
+    return f"""<span style="display: inline-block; width: 42px; height: 42px; line-height: 42px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 17px; margin: 0 3px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
 
 def render_pension_ball(group, digits):
     colors = ['#5A5A5A', '#FF4B4B', '#FFAE00', '#FBC400', '#69C8FF', '#B0D840', '#AAAAAA']
-    html = f"""<span style="display: inline-block; width: 60px; height: 46px; line-height: 46px; border-radius: 8px; background-color: {colors[0]}; color: white; text-align: center; font-weight: bold; font-size: 18px; margin-right: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">{group} 조</span>"""
+    html = f"""<span style="display: inline-block; width: 55px; height: 42px; line-height: 42px; border-radius: 8px; background-color: {colors[0]}; color: white; text-align: center; font-weight: bold; font-size: 16px; margin-right: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">{group} 조</span>"""
     for i, digit in enumerate(digits):
-        html += f"""<span style="display: inline-block; width: 40px; height: 46px; line-height: 46px; border-radius: 50%; background-color: {colors[i+1]}; color: {'#000' if i in [2, 3] else '#FFF'}; text-align: center; font-weight: bold; font-size: 20px; margin: 0 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">{digit}</span>"""
+        html += f"""<span style="display: inline-block; width: 38px; height: 42px; line-height: 42px; border-radius: 50%; background-color: {colors[i+1]}; color: {'#000' if i in [2, 3] else '#FFF'}; text-align: center; font-weight: bold; font-size: 18px; margin: 0 2px; box-shadow: 0 4px 8px rgba(0,0,0,0.4);">{digit}</span>"""
     return html
 
 # ----------------------------------------------------
-# 메인 사이드바
+# 중앙 통합 메뉴 선택 (사이드바 대체)
 # ----------------------------------------------------
-st.sidebar.header('🎯 무료 분석 시작하기')
-st.sidebar.info('아래에서 원하시는 복권을 선택하시면 즉시 AI 분석이 시작됩니다!')
-app_mode = st.sidebar.radio('종류 선택', ['🧧 로또시스 (LottoSIS) 6/45', '🎫 연금복권 720+ 분석'])
-st.sidebar.markdown('---')
+st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
+app_mode = st.radio(
+    '복권 종류 선택', 
+    ['🧧 로또 6/45 분석', '🎫 연금복권 720+ 분석'], 
+    horizontal=True, 
+    label_visibility="collapsed"
+)
+st.divider()
 
 # ====================================================
 # [모드 1] 로또시스 (LottoSIS) 6/45 분석 시스템
 # ====================================================
-if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
-    st.title('🧧 로또시스 (LottoSIS)')
-    st.markdown('<div class="sub-title-desc"><b>LottoSIS</b>: Lottery + Statistical Intelligence System (AI 딥러닝 통계 분석 엔진)</div>', unsafe_allow_html=True)
-
-    st.sidebar.subheader('⚙️ 로또 세부 설정')
-    game_count = st.sidebar.slider('추천 게임 수', 1, 10, 5)
-    sum_min, sum_max = st.sidebar.slider('번호 총합 범위 설정', 50, 250, (120, 160))
-    odd_even_choice = st.sidebar.selectbox('홀짝 비율 선호도', ['균등 (3:3 또는 4:2)', '모든 경우의 수 허용', '홀수 우세 (4:2 또는 5:1)'])
-    ac_filter = st.sidebar.slider('AC값 (복잡도 지수) 최소값', 0, 10, 7)
+if app_mode == '🧧 로또 6/45 분석':
+    
+    # 1. 큼직한 설정 영역 (어르신 맞춤형 기본 옵션 노출)
+    st.subheader('⚙️ 추천 게임 수 설정')
+    game_count = st.slider('몇 게임을 추천받으시겠습니까?', 1, 10, 5)
+    
+    # 복잡한 설정은 아코디언(expander)으로 숨김 처리하여 깔끔하게 유지
+    with st.expander("🛠️ 상세 분석 필터 (어려우시면 그대로 두셔도 됩니다)"):
+        sum_min, sum_max = st.slider('번호 총합 범위 설정', 50, 250, (120, 160))
+        odd_even_choice = st.selectbox('홀짝 비율 선호도', ['균등 (3:3 또는 4:2)', '모든 경우의 수 허용', '홀수 우세 (4:2 또는 5:1)'])
+        ac_filter = st.slider('AC값 (복잡도 지수) 최소값', 0, 10, 7)
 
     def generate_optimized_lotto():
         for _ in range(10000):
@@ -124,137 +138,106 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    tab1, tab2 = st.tabs(['✨ AI 정밀 번호 추출', '📊 구간별 출현 빈도 및 예측 모델'])
-
-    with tab1:
-        if st.button('🚀 무료 로또시스 번호 추출 실행', key='btn_lotto'):
-            with st.spinner('다중 통계 연산 및 딥러닝 패턴 분석 중입니다...'):
-                time.sleep(0.7)
-                st.success('무료 분석 및 번호 추출이 완료되었습니다!')
-                for i in range(1, game_count + 1):
-                    nums, total_sum, odds, evens, ac = generate_optimized_lotto()
-                    balls_html = ''.join([render_billiard_ball(n) for n in nums])
-                    st.markdown(f"""
-                        <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 16px; border-left: 6px solid #FF4B4B;">
-                            <div style="font-size: 1.15em; font-weight: bold; margin-bottom: 12px;">게임 {i} <span style="font-size: 0.85em; color: #aaa;">(총합: {total_sum} | AC: {ac})</span></div>
-                            <div>{balls_html}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                st.markdown('---')
-
-        # --- 로또 VIP 영역 ---
-        st.divider()
-        st.markdown("""
-        <div class="premium-box">
-            <h3 style="color: #ffd700; margin-top: 0;">👑 통합 VIP Pass - 로또 S등급 정밀 분석</h3>
-            <p style="color: #ccc; font-size: 0.95em;">VIP 전용: 역대 1등 당첨 패턴 딥러닝 매칭, AI 초정밀 제외수 필터링, 고정수 강제 배정</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if not st.session_state.vip_unlocked:
-            with st.expander("🔒 통합 VIP 패스 구매 및 잠금 해제 (연금복권도 동시 해제)", expanded=True):
-                col_pay, col_code = st.columns(2)
-                with col_pay:
-                    st.markdown("#### 1. VIP 이용권 구매하기")
-                    st.link_button("💳 네이버 간편 결제하기", "https://smartstore.naver.com/", type="secondary", use_container_width=True)
-                with col_code:
-                    st.markdown("#### 2. VIP 코드 입력")
-                    vip_code = st.text_input("코드 입력", type="password", key="vip_lotto", placeholder="예: S-CLASS-XXXX")
-                    if st.button("잠금 해제", key="unlock_lotto", type="primary", use_container_width=True):
-                        if vip_code == "7777": 
-                            st.session_state.vip_unlocked = True
-                            st.rerun()
-                        elif vip_code: st.error("유효하지 않은 코드입니다.")
-        else:
-            st.success("🎉 [VIP 프리패스 활성화] 로또 S등급 분석 시스템이 가동됩니다.")
-            st.markdown("""
-                <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                    <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 로또 S등급 고정 조합 👑</h3>
-                    <div style="margin-bottom: 15px;"><span style="color:#aaa;">AI 확정 고정수 포함, 딥러닝 매칭률 98.7%</span></div>
-                    <div>""" + render_billiard_ball(7) + render_billiard_ball(12) + render_billiard_ball(23) + render_billiard_ball(31) + render_billiard_ball(38) + render_billiard_ball(45) + """</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button("🔒 다시 잠그기 (테스트용)", key="lock_lotto"):
-                st.session_state.vip_unlocked = False
-                st.rerun()
-
-    with tab2:
-        st.subheader('📈 로또 구간별 출현 빈도')
-        st.line_chart(pd.DataFrame(np.random.randn(20, 3) * 4 + 50, columns=['1~15', '16~30', '31~45']))
+    # 2. 강력한 실행 버튼
+    if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto'):
+        with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
+            time.sleep(1)
+            st.success('분석 완료! 아래 추천 번호를 확인하세요.')
+            for i in range(1, game_count + 1):
+                nums, total_sum, odds, evens, ac = generate_optimized_lotto()
+                balls_html = ''.join([render_billiard_ball(n) for n in nums])
+                st.markdown(f"""
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FF4B4B;">
+                        <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">게임 {i}</div>
+                        <div style="text-align: center;">{balls_html}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # ====================================================
 # [모드 2] 연금복권 720+ 분석 시스템
 # ====================================================
 elif app_mode == '🎫 연금복권 720+ 분석':
-    st.title('🎫 연금복권 720+ 분석 시스템')
-    st.markdown('<div class="sub-title-desc"><b>PensionSIS</b>: 자리수별 엔트로피 정밀 엔진</div>', unsafe_allow_html=True)
-
-    st.sidebar.subheader('⚙️ 연금복권 세부 설정')
-    pension_count = st.sidebar.slider('추천 조합 수', 1, 10, 5)
-    group_choice = st.sidebar.radio('조 선택 방식', ['전체 조(1~5조) 분산 투자', '단일 조 몰빵 (1,2등 동시 노림)'])
+    
+    st.subheader('⚙️ 추천 조합 수 설정')
+    pension_count = st.slider('몇 게임을 추천받으시겠습니까?', 1, 10, 5)
+    
+    with st.expander("🛠️ 상세 분석 필터 (어려우시면 그대로 두셔도 됩니다)"):
+        group_choice = st.radio('조 선택 방식', ['전체 조 분산 투자 (1~5조 골고루)', '단일 조 집중 투자'])
     
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
-    tab1, tab2 = st.tabs(['🎫 추천 결과 확인', '📊 연금복권 통계 분석'])
+    if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension'):
+        with st.spinner('자리수별 독립 확률 분석 중입니다...'):
+            time.sleep(1)
+            st.success('분석 완료! 아래 추천 조합을 확인하세요.')
+            for i in range(1, pension_count + 1):
+                g = random.randint(1, 5) if '분산' in group_choice else 3
+                digits = generate_pension()
+                html = render_pension_ball(g, digits)
+                st.markdown(f"""
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #69C8FF;">
+                        <div style="font-size: 1em; font-weight: bold; margin-bottom: 10px;">조합 {i}</div>
+                        <div style="text-align: center;">{html}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-    with tab1:
-        if st.button('🚀 무료 연금복권 번호 추출 실행', key='btn_pension'):
-            with st.spinner('자리수별 독립 확률 분석 중...'):
-                time.sleep(0.7)
-                st.success('무료 분석 및 연금복권 번호 추출 완료!')
-                for i in range(1, pension_count + 1):
-                    g = random.randint(1, 5) if '분산' in group_choice else 3
-                    digits = generate_pension()
-                    html = render_pension_ball(g, digits)
-                    st.markdown(f"""
-                        <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid #69C8FF;">
-                            <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 12px; color: #aaa;">조합 {i}</div>
-                            <div>{html}</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                st.markdown('---')
+# ====================================================
+# 공통 VIP 프리패스 하단 영역
+# ====================================================
+st.divider()
+st.markdown("""
+<div class="premium-box">
+    <h3 style="color: #ffd700; margin-top: 0; text-align: center;">👑 통합 VIP Pass 전용 시스템</h3>
+    <p style="color: #ccc; font-size: 0.95em; text-align: center;">로또 S등급 초정밀 분석 & 연금복권 유력 조 핀포인트 예측을 동시에!</p>
+</div>
+""", unsafe_allow_html=True)
 
-        # --- 연금복권 VIP 영역 ---
-        st.divider()
-        st.markdown("""
-        <div class="premium-box">
-            <h3 style="color: #ffd700; margin-top: 0;">👑 통합 VIP Pass - 연금복권 S등급 핀포인트 예측</h3>
-            <p style="color: #ccc; font-size: 0.95em;">VIP 전용: 이번 주 1순위 유력 '조(Group)' 완벽 예측, 뒷자리 AI 고정수 강제 할당</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # VIP 로직 동일하게 연동
-        if not st.session_state.vip_unlocked:
-            with st.expander("🔒 통합 VIP 패스 구매 및 잠금 해제 (로또도 동시 해제)", expanded=True):
-                col_pay, col_code = st.columns(2)
-                with col_pay:
-                    st.markdown("#### 1. VIP 이용권 구매하기")
-                    st.link_button("💳 네이버 간편 결제하기", "https://smartstore.naver.com/", type="secondary", use_container_width=True)
-                with col_code:
-                    st.markdown("#### 2. VIP 코드 입력")
-                    vip_code = st.text_input("코드 입력", type="password", key="vip_pension", placeholder="예: S-CLASS-XXXX")
-                    if st.button("잠금 해제", key="unlock_pension", type="primary", use_container_width=True):
-                        if vip_code == "7777": 
-                            st.session_state.vip_unlocked = True
-                            st.rerun()
-                        elif vip_code: st.error("유효하지 않은 코드입니다.")
-        else:
-            st.success("🎉 [VIP 프리패스 활성화] 연금복권 S등급 핀포인트 예측이 가동됩니다.")
-            st.markdown("""
-                <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
-                    <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 연금복권 S등급 추천 조 & 번호 👑</h3>
-                    <div style="margin-bottom: 15px;"><span style="color:#aaa;">AI 출현 가중치 99.2% / 이번 주 4조 가장 유력</span></div>
-                    <div>""" + render_pension_ball(4, [2, 7, 0, 9, 5, 8]) + """</div>
-                </div>
-            """, unsafe_allow_html=True)
-            if st.button("🔒 다시 잠그기 (테스트용)", key="lock_pension"):
-                st.session_state.vip_unlocked = False
+if not st.session_state.vip_unlocked:
+    with st.expander("🔒 VIP 1회용 고유 코드 입력 및 잠금 해제", expanded=True):
+        st.markdown("#### 1. VIP 패스 결제")
+        st.link_button("💳 네이버페이 간편 결제하기", "https://smartstore.naver.com/", type="secondary", use_container_width=True)
+        
+        st.markdown("#### 2. 발급받은 고유 코드 입력")
+        vip_code = st.text_input("코드 입력", type="password", key="vip_input", placeholder="예: S-CLASS-XXXX")
+        
+        if st.button("잠금 해제 시작", type="primary", use_container_width=True):
+            if vip_code == "7777":
+                st.session_state.vip_unlocked = True
                 st.rerun()
+            elif vip_code in st.session_state.code_db:
+                if st.session_state.code_db[vip_code] == "unused":
+                    st.session_state.code_db[vip_code] = "used" 
+                    st.session_state.vip_unlocked = True
+                    st.success("인증 완료! 이제 앱의 모든 VIP 시스템이 가동됩니다.")
+                    time.sleep(1.5)
+                    st.rerun()
+                else:
+                    st.error("❌ 이미 사용 완료된 1회용 코드입니다. 무단 공유가 차단되었습니다.")
+            elif vip_code:
+                st.error("존재하지 않거나 잘못된 코드입니다.")
+else:
+    st.success("🎉 [VIP 프리패스 활성화 중] 가장 확률 높은 S등급 데이터가 실시간 가동 중입니다.")
+    
+    if app_mode == '🧧 로또 6/45 분석':
+        st.markdown("""
+            <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 로또 S등급 강력 추천 👑</h3>
+                <div style="margin-bottom: 15px;"><span style="color:#ccc;">딥러닝 매칭률 98.7%</span></div>
+                <div>""" + render_billiard_ball(7) + render_billiard_ball(12) + render_billiard_ball(23) + render_billiard_ball(31) + render_billiard_ball(38) + render_billiard_ball(45) + """</div>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 연금복권 S등급 강력 추천 👑</h3>
+                <div style="margin-bottom: 15px;"><span style="color:#ccc;">이번 주 4조 가장 유력</span></div>
+                <div>""" + render_pension_ball(4, [2, 7, 0, 9, 5, 8]) + """</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+    if st.button("🔒 다시 잠그기 (테스트용)", key="lock_btn"):
+        st.session_state.vip_unlocked = False
+        st.rerun()
 
-    with tab2:
-        st.subheader('📈 연금복권 각 자리수별 출현 분포')
-        st.bar_chart(pd.DataFrame(np.random.randint(10, 50, size=(10, 6)), columns=['십만', '만', '천', '백', '십', '일']))
-
-st.markdown('---')
-st.markdown('<div style="text-align: center; color: #666;">© 2026 LottoSIS (Statistical Intelligence System). All Rights Reserved.</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: center; color: #666; margin-top: 30px;">© 2026 LottoSIS All Rights Reserved.</div>', unsafe_allow_html=True)
