@@ -21,21 +21,47 @@ if 'code_db' not in st.session_state:
     st.session_state.code_db = {
         "S-CLASS-1234": "unused",
         "S-CLASS-5678": "unused",
-        "7777": "master" # 대표님 전용 마스터 키 (무한 사용)
+        "7777": "master"
     }
 
-# 다크 테마 및 고품격 UI 스타일링
+# ----------------------------------------------------
+# 🎨 다크 테마 및 고품격/대형 UI 스타일링 (CSS)
+# ----------------------------------------------------
 st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
+    
+    /* 🚀 하단 번호 추출 버튼 스타일 (더 크고, 더 입체적으로!) */
     .stButton>button {
         background: linear-gradient(45deg, #FF4B4B, #FF8E53);
-        color: white; font-weight: bold; border-radius: 12px;
+        color: white; font-weight: 900; border-radius: 12px;
         padding: 0.8em 1.8em; border: none;
-        box-shadow: 0 4px 12px rgba(255, 75, 75, 0.4); font-size: 18px;
-        width: 100%; margin-top: 10px; margin-bottom: 20px;
+        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.5); font-size: 20px;
+        width: 100%; margin-top: 15px; margin-bottom: 25px;
     }
-    .stButton>button:hover { background: linear-gradient(45deg, #FF6B6B, #FFAE73); transform: scale(1.02); transition: 0.2s;}
+    .stButton>button:hover { 
+        background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
+        transform: scale(1.02); transition: 0.2s;
+    }
+    
+    /* 🎯 [핵심] 종류 선택 라디오 버튼 영역을 화려한 네온 녹색 패널로 개조 */
+    div.row-widget.stRadio > div[role="radiogroup"] { 
+        background-color: #11141c; 
+        padding: 15px 5px; 
+        border-radius: 15px; 
+        justify-content: space-around;
+        border: 2px solid #00FF88;
+        box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25);
+    }
+    /* 라디오 버튼의 글자 크기와 색상 (눈에 띄는 연두/녹색) */
+    div.row-widget.stRadio > div[role="radiogroup"] label p {
+        font-size: 22px !important; 
+        color: #00FF88 !important; 
+        font-weight: 900 !important;
+        letter-spacing: 0.5px;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+    }
+    
     .premium-box {
         background: linear-gradient(145deg, #1a1c29, #0f1016);
         border: 1px solid #ffd700; border-radius: 12px;
@@ -49,11 +75,9 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .menu-title {
-        font-size: 22px; font-weight: bold; color: #FFD700; 
+        font-size: 22px; font-weight: 900; color: #FFD700; 
         text-align: center; margin-bottom: 15px;
     }
-    /* st.radio 라디오 버튼을 큼직하게 스타일링 */
-    div.row-widget.stRadio > div { flex-direction: row; justify-content: center; background-color: #1a1c24; padding: 10px; border-radius: 12px;}
     </style>
 """, unsafe_allow_html=True)
 
@@ -99,7 +123,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 중앙 통합 메뉴 선택 (사이드바 대체)
+# 🟢 눈에 띄는 중앙 통합 메뉴 선택 (네온 녹색 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 app_mode = st.radio(
@@ -115,11 +139,9 @@ st.divider()
 # ====================================================
 if app_mode == '🧧 로또 6/45 분석':
     
-    # 1. 큼직한 설정 영역 (어르신 맞춤형 기본 옵션 노출)
     st.subheader('⚙️ 추천 게임 수 설정')
     game_count = st.slider('몇 게임을 추천받으시겠습니까?', 1, 10, 5)
     
-    # 복잡한 설정은 아코디언(expander)으로 숨김 처리하여 깔끔하게 유지
     with st.expander("🛠️ 상세 분석 필터 (어려우시면 그대로 두셔도 됩니다)"):
         sum_min, sum_max = st.slider('번호 총합 범위 설정', 50, 250, (120, 160))
         odd_even_choice = st.selectbox('홀짝 비율 선호도', ['균등 (3:3 또는 4:2)', '모든 경우의 수 허용', '홀수 우세 (4:2 또는 5:1)'])
@@ -138,7 +160,7 @@ if app_mode == '🧧 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    # 2. 강력한 실행 버튼
+    # 🚀 커진 버튼
     if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto'):
         with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
             time.sleep(1)
@@ -167,6 +189,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
+    # 🚀 커진 버튼
     if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension'):
         with st.spinner('자리수별 독립 확률 분석 중입니다...'):
             time.sleep(1)
