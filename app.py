@@ -48,23 +48,24 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (금빛 테두리 및 네온 광채 효과) */
+    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (주황색 그라데이션 효과) */
     div.row-widget.stHorizontal > div:nth-child(1) button,
     div.row-widget.stHorizontal > div:nth-child(2) button {
-        background: linear-gradient(135deg, #3a2c00, #1a1500) !important;
-        border: 2px solid #FFD700 !important;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3) !important;
+        background: linear-gradient(45deg, #FF4B4B, #FF8E53) !important;
+        border: none !important;
+        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.4) !important;
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
         border-radius: 12px !important;
+        padding: 0.8em 1.8em !important;
     }
     
     div.row-widget.stHorizontal > div:nth-child(1) button:hover,
     div.row-widget.stHorizontal > div:nth-child(2) button:hover {
-        background: linear-gradient(135deg, #4d3a00, #261f00) !important;
-        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.5) !important;
+        background: linear-gradient(45deg, #FF6B6B, #FFAE73) !important;
+        box-shadow: 0 8px 20px rgba(255, 75, 75, 0.6) !important;
         transform: scale(1.02);
     }
     
@@ -220,7 +221,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (금빛 네온 스타일 적용)
+# 🟢 상단 선택 버튼 영역 (주황색 그라데이션 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
