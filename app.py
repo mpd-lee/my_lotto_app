@@ -35,20 +35,9 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* 🚀 하단 번호 추출 버튼 스타일 */
-    .stButton>button {
-        background: linear-gradient(45deg, #FF4B4B, #FF8E53);
-        color: white; font-weight: 900; border-radius: 12px;
-        padding: 0.8em 1.8em; border: none;
-        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.5); font-size: 20px;
-        width: 100%; margin-top: 15px; margin-bottom: 25px;
-    }
-    .stButton>button:hover { 
-        background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
-        transform: scale(1.02); transition: 0.2s;
-    }
+    /* 🚀 하단 번호 추출 버튼 공통 스타일 (제거 후 개별 지정) */
     
-    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (선택 버튼 전용) */
+    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (상단 선택 버튼 전용) */
     @keyframes luxury-gold-glow {
         0% { 
             box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
@@ -68,7 +57,8 @@ st.markdown("""
     }
     
     /* 🎯 상단 복권 선택 버튼 2개에만 럭셔리 골드 광채 및 반짝임 부여 */
-    div.stButton > button {
+    div[data-testid="column"]:nth-of-type(1) div.stButton > button,
+    div[data-testid="column"]:nth-of-type(2) div.stButton > button {
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
@@ -79,12 +69,84 @@ st.markdown("""
         animation: luxury-gold-glow 1.6s infinite ease-in-out !important;
     }
     
-    div.stButton > button p, div.stButton > button span {
+    div[data-testid="column"]:nth-of-type(1) div.stButton > button p, 
+    div[data-testid="column"]:nth-of-type(2) div.stButton > button p,
+    div[data-testid="column"]:nth-of-type(1) div.stButton > button span, 
+    div[data-testid="column"]:nth-of-type(2) div.stButton > button span {
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
     }
+
+    /* ----------------------------------------------------
+       ✨ 요청하신 버튼별 특수 번쩍이는 애니메이션 스타일 정의
+    ---------------------------------------------------- */
     
+    /* 1. 로또 당첨 번호 무료 추출하기 -> 번쩍이는 파랑색 */
+    @keyframes blue-glow {
+        0% { box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); border-color: #007bff; transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(0, 198, 255, 0.95), 0 0 40px rgba(0, 123, 255, 0.7); border-color: #80d0ff; transform: scale(1.02); }
+        100% { box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); border-color: #007bff; transform: scale(1); }
+    }
+    button[kind="secondary"] {
+        /* 일반적인 추출 버튼 타겟팅용 기본 보정 */
+    }
+    /* 특정 텍스트나 키를 가진 버튼 정밀 타겟팅은 어려우므로 별도 클래스나 하단 추출버튼에 적용 */
+    
+    /* 2. 연금복권 720+ 분석 버튼 -> 번쩍이는 은색 */
+    @keyframes silver-glow {
+        0% { box-shadow: 0 0 8px rgba(192, 192, 192, 0.4); border-color: #a0a0a0; transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.95), 0 0 40px rgba(192, 192, 192, 0.7); border-color: #ffffff; transform: scale(1.02); }
+        100% { box-shadow: 0 0 8px rgba(192, 192, 192, 0.4); border-color: #a0a0a0; transform: scale(1); }
+    }
+
+    /* 3. 잠금 해제 시작 버튼 -> 번쩍이는 빨강색 */
+    @keyframes red-glow {
+        0% { box-shadow: 0 0 8px rgba(255, 75, 75, 0.4); border-color: #ff4b4b; transform: scale(1); }
+        50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.95), 0 0 50px rgba(255, 75, 75, 0.7); border-color: #ff8e8e; transform: scale(1.02); }
+        100% { box-shadow: 0 0 8px rgba(255, 75, 75, 0.4); border-color: #ff4b4b; transform: scale(1); }
+    }
+
+    /* Streamlit 내부 버튼 매칭 스타일 */
+    /* 로또 추출 버튼 (파란색) */
+    div.stButton > button[data-baseweb="button"]:has(p:contains("로또 당첨 번호 무료 추출하기")),
+    button:has(div:contains("로또 당첨 번호 무료 추출하기")) {
+        background: linear-gradient(45deg, #005c8a, #0082c8) !important;
+        border: 2px solid #00c6ff !important;
+        animation: blue-glow 1.5s infinite ease-in-out !important;
+        color: white !important;
+        font-weight: 900 !important;
+        border-radius: 12px;
+        font-size: 20px;
+        width: 100%;
+        margin-top: 15px;
+        margin-bottom: 25px;
+    }
+
+    /* 연금복권 추출 버튼 (은색) */
+    div.stButton > button:has(p:contains("연금복권 당첨 번호 무료 추출하기")) {
+        background: linear-gradient(45deg, #434343, #787878) !important;
+        border: 2px solid #dcdcdc !important;
+        animation: silver-glow 1.5s infinite ease-in-out !important;
+        color: white !important;
+        font-weight: 900 !important;
+        border-radius: 12px;
+        font-size: 20px;
+        width: 100%;
+        margin-top: 15px;
+        margin-bottom: 25px;
+    }
+
+    /* 잠금 해제 시작 버튼 (빨간색 primary 버튼) */
+    button[kind="primary"] {
+        background: linear-gradient(45deg, #b30000, #ff1a1a) !important;
+        border: 2px solid #ff4d4d !important;
+        animation: red-glow 1.5s infinite ease-in-out !important;
+        color: white !important;
+        font-weight: 900 !important;
+        border-radius: 12px;
+    }
+
     /* ⚙️ 진한 은빛 톱니바퀴 회전 애니메이션 */
     @keyframes spin-gear {
         0% { transform: rotate(0deg); }
@@ -208,7 +270,7 @@ with col_sel2:
         st.rerun()
 
 # ----------------------------------------------------
-# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바 (유지)
+# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
 # ----------------------------------------------------
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
