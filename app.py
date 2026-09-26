@@ -48,6 +48,13 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
+    /* 🎯 상단 복권 선택 버튼(Streamlit 기본 버튼) 글씨를 아주 굵고 진하고 크게 강제 지정 */
+    div.stButton > button {
+        font-size: 23px !important;
+        font-weight: 900 !important;
+        -webkit-text-stroke: 0.4px white;
+    }
+    
     .premium-box {
         background: linear-gradient(145deg, #1a1c29, #0f1016);
         border: 1px solid #ffd700; border-radius: 12px;
@@ -115,7 +122,6 @@ st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요
 
 col_sel1, col_sel2 = st.columns(2)
 
-# Streamlit 기본 버튼을 활용하되 눈에 잘 띄는 초록빛 계열 감성을 주기 위한 커스텀 배치
 with col_sel1:
     if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
@@ -126,7 +132,6 @@ with col_sel2:
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
-# 요청하신 순서와 크기로 변경 ("🧧 로또 6/45 분석: 현재 선택됨" 형태, 글자 크기 아주 조금만 축소)
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
     <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
