@@ -48,56 +48,59 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (주황색 그라데이션 효과) */
+    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (금빛 네온 효과) */
     div.row-widget.stHorizontal > div:nth-child(1) button,
     div.row-widget.stHorizontal > div:nth-child(2) button {
-        background: linear-gradient(45deg, #FF4B4B, #FF8E53) !important;
-        border: none !important;
-        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.4) !important;
+        background: linear-gradient(135deg, #2a2512, #1a170a) !important;
+        border: 2px solid #FFD700 !important;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2) !important;
         font-size: 20px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+        color: #FFD700 !important;
+        text-shadow: 0px 0px 8px rgba(255, 215, 0, 0.6);
         border-radius: 12px !important;
         padding: 0.8em 1.8em !important;
     }
     
     div.row-widget.stHorizontal > div:nth-child(1) button:hover,
     div.row-widget.stHorizontal > div:nth-child(2) button:hover {
-        background: linear-gradient(45deg, #FF6B6B, #FFAE73) !important;
-        box-shadow: 0 8px 20px rgba(255, 75, 75, 0.6) !important;
+        background: linear-gradient(135deg, #3d351a, #2a2512) !important;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8), inset 0 0 15px rgba(255, 215, 0, 0.4) !important;
+        border-color: #FFEE88 !important;
+        color: #FFEE88 !important;
         transform: scale(1.02);
     }
     
     div.stButton > button p, div.stButton > button span {
         font-size: 20px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
     }
     
-    /* ⚡ 맨위 100% 무료 분석 빨간색 번쩍임 애니메이션 */
+    /* ⚡ 맨위 100% 무료 분석 빨간색 번쩍임 애니메이션 (크기 대폭 확대) */
     @keyframes red-blink-glow {
         0% { 
             color: #FF4B4B;
-            text-shadow: 0 0 5px rgba(255, 75, 75, 0.5), 0 0 10px rgba(255, 75, 75, 0.3);
+            text-shadow: 0 0 8px rgba(255, 75, 75, 0.6), 0 0 15px rgba(255, 75, 75, 0.4);
             transform: scale(1);
         }
         50% { 
             color: #FF6B6B;
-            text-shadow: 0 0 15px rgba(255, 75, 75, 1), 0 0 25px rgba(255, 0, 0, 0.8), 0 0 35px rgba(255, 100, 100, 0.6);
-            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(255, 75, 75, 1), 0 0 35px rgba(255, 0, 0, 0.9), 0 0 50px rgba(255, 100, 100, 0.8);
+            transform: scale(1.08);
         }
         100% { 
             color: #FF4B4B;
-            text-shadow: 0 0 5px rgba(255, 75, 75, 0.5), 0 0 10px rgba(255, 75, 75, 0.3);
+            text-shadow: 0 0 8px rgba(255, 75, 75, 0.6), 0 0 15px rgba(255, 75, 75, 0.4);
             transform: scale(1);
         }
     }
 
     .blinking-red-text {
         display: inline-block;
+        font-size: 1.35em; /* 기존보다 훨씬 크게 강조 */
         font-weight: 900;
         animation: red-blink-glow 1.2s infinite ease-in-out;
+        letter-spacing: 0.5px;
     }
     
     /* 🔥 하단 '잠금 해제 시작' 버튼 전용 빨강 번쩍임 광채 효과 */
@@ -168,7 +171,7 @@ st.markdown("""
     }
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 20px 15px; border-radius: 15px; text-align: center;
+        padding: 22px 15px; border-radius: 15px; text-align: center;
         margin-bottom: 25px; border: 1px solid #69C8FF;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
@@ -180,14 +183,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 최상단 통합 홍보 배너
+# 최상단 통합 홍보 배너 ('100% 무료 분석' 문구 크기 강조)
 # ----------------------------------------------------
 st.markdown("""
 <div class="promo-banner">
     <h2 style="color: #FFF; margin-top: 0; font-size: 24px;">
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
-    <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
+    <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0; line-height: 1.6;">
         지금 접속하신 분들께 <span class="blinking-red-text">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
@@ -221,7 +224,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (주황색 그라데이션 스타일 적용)
+# 🟢 상단 선택 버튼 영역 (금빛 네온 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
