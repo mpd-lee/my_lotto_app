@@ -35,134 +35,56 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* ----------------------------------------------------
-       1. 🧧 상단 첫 번째 버튼: 로또 6/45 선택 (번쩍이는 금빛 네온)
-       ---------------------------------------------------- */
-    @keyframes gold-neon-glow {
-        0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 8px rgba(255, 215, 0, 0.2); border-color: #FFD700; }
-        50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.6); border-color: #FFEE88; }
-        100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.4), inset 0 0 8px rgba(255, 215, 0, 0.2); border-color: #FFD700; }
+    /* 🚀 하단 번호 추출 버튼 스타일 */
+    .stButton>button {
+        background: linear-gradient(45deg, #FF4B4B, #FF8E53);
+        color: white; font-weight: 900; border-radius: 12px;
+        padding: 0.8em 1.8em; border: none;
+        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.5); font-size: 20px;
+        width: 100%; margin-top: 15px; margin-bottom: 25px;
     }
-
-    div[data-testid="column"]:nth-of-type(1) div.stButton > button {
-        background: linear-gradient(135deg, #3d3211, #1a1505) !important;
+    .stButton>button:hover { 
+        background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
+        transform: scale(1.02); transition: 0.2s;
+    }
+    
+    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (선택 버튼 전용) */
+    @keyframes luxury-gold-glow {
+        0% { 
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            border-color: #d4af37;
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.95), 0 0 50px rgba(255, 165, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.9); 
+            border-color: #fff68f;
+            transform: scale(1.03);
+        }
+        100% { 
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            border-color: #d4af37;
+            transform: scale(1);
+        }
+    }
+    
+    /* 🎯 상단 복권 선택 버튼 2개에만 럭셔리 골드 광채 및 반짝임 부여 */
+    div.stButton > button {
+        font-size: 20px !important;
+        font-weight: 900 !important;
+        color: #FFFFFF !important;
+        -webkit-text-stroke: 0.5px #000000;
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
         border: 2px solid #FFD700 !important;
-        animation: gold-neon-glow 2s infinite ease-in-out !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFD700 !important;
-        text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.8);
-        border-radius: 12px !important;
-        padding: 0.8em 1.8em !important;
-        width: 100% !important;
-    }
-    
-    div[data-testid="column"]:nth-of-type(1) div.stButton > button:hover {
-        background: linear-gradient(135deg, #57481a, #2b2308) !important;
-        box-shadow: 0 0 35px rgba(255, 215, 0, 1), inset 0 0 20px rgba(255, 215, 0, 0.8) !important;
-        border-color: #FFFFFF !important;
-        color: #FFF7CC !important;
-        transform: scale(1.02);
-    }
-
-    /* ----------------------------------------------------
-       2. 🎫 상단 두 번째 버튼: 연금복권 720+ 선택 (번쩍이는 와인색 네온)
-       ---------------------------------------------------- */
-    @keyframes wine-neon-glow {
-        0% { box-shadow: 0 0 10px rgba(128, 0, 32, 0.5), inset 0 0 8px rgba(128, 0, 32, 0.3); border-color: #C71585; }
-        50% { box-shadow: 0 0 25px rgba(255, 20, 147, 0.9), inset 0 0 15px rgba(199, 21, 133, 0.7); border-color: #FF69B4; }
-        100% { box-shadow: 0 0 10px rgba(128, 0, 32, 0.5), inset 0 0 8px rgba(128, 0, 32, 0.3); border-color: #C71585; }
-    }
-
-    div[data-testid="column"]:nth-of-type(2) div.stButton > button {
-        background: linear-gradient(135deg, #4a0e17, #26050b) !important;
-        border: 2px solid #C71585 !important;
-        animation: wine-neon-glow 2s infinite ease-in-out !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFB6C1 !important;
-        text-shadow: 0px 0px 10px rgba(255, 105, 180, 0.8);
-        border-radius: 12px !important;
-        padding: 0.8em 1.8em !important;
-        width: 100% !important;
-    }
-    
-    div[data-testid="column"]:nth-of-type(2) div.stButton > button:hover {
-        background: linear-gradient(135deg, #6e1523, #3b0811) !important;
-        box-shadow: 0 0 35px rgba(255, 20, 147, 1), inset 0 0 20px rgba(255, 105, 180, 0.8) !important;
-        border-color: #FFFFFF !important;
-        color: #FFFFFF !important;
-        transform: scale(1.02);
-    }
-
-    /* ----------------------------------------------------
-       3. 🚀 일반 번호 추출하기 버튼들 (번쩍이는 파란색 네온)
-       ---------------------------------------------------- */
-    @keyframes blue-neon-glow {
-        0% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5), inset 0 0 8px rgba(0, 123, 255, 0.3); border-color: #007BFF; }
-        50% { box-shadow: 0 0 30px rgba(0, 191, 255, 1), inset 0 0 15px rgba(0, 123, 255, 0.7); border-color: #00BFFF; }
-        100% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.5), inset 0 0 8px rgba(0, 123, 255, 0.3); border-color: #007BFF; }
-    }
-
-    /* 상단 선택 영역이 아닌 일반 추출 버튼들에만 파란색 적용 */
-    div.stButton > button:not(div[data-testid="column"] div.stButton > button) {
-        background: linear-gradient(135deg, #0f2537, #07131f) !important;
-        border: 2px solid #007BFF !important;
-        animation: blue-neon-glow 2s infinite ease-in-out !important;
-        color: #00BFFF !important; 
-        font-weight: 900 !important; 
-        border-radius: 12px !important;
-        padding: 0.8em 1.8em !important; 
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4) !important; 
-        font-size: 20px !important;
-        width: 100% !important; 
-        margin-top: 15px !important; 
-        margin-bottom: 25px !important;
-        text-shadow: 0px 0px 10px rgba(0, 191, 255, 0.8) !important;
-    }
-    
-    div.stButton > button:not(div[data-testid="column"] div.stButton > button):hover { 
-        background: linear-gradient(135deg, #163652, #0d2133) !important; 
-        border-color: #FFFFFF !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 0 35px rgba(0, 191, 255, 1), inset 0 0 20px rgba(0, 123, 255, 0.8) !important;
-        transform: scale(1.02); 
+        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
+        animation: luxury-gold-glow 1.6s infinite ease-in-out !important;
     }
     
     div.stButton > button p, div.stButton > button span {
         font-size: 20px !important;
         font-weight: 900 !important;
+        color: #FFFFFF !important;
     }
     
-    /* ⚡ 맨위 100% 무료 분석 빨간색 번쩍임 애니메이션 (크기 확대) */
-    @keyframes red-blink-glow {
-        0% { color: #FF4B4B; text-shadow: 0 0 8px rgba(255, 75, 75, 0.6); transform: scale(1); }
-        50% { color: #FF6B6B; text-shadow: 0 0 20px rgba(255, 75, 75, 1), 0 0 35px rgba(255, 0, 0, 0.9); transform: scale(1.08); }
-        100% { color: #FF4B4B; text-shadow: 0 0 8px rgba(255, 75, 75, 0.6); transform: scale(1); }
-    }
-
-    .blinking-red-text {
-        display: inline-block;
-        font-size: 1.4em;
-        font-weight: 900;
-        animation: red-blink-glow 1.2s infinite ease-in-out;
-    }
-    
-    /* 🔥 하단 '잠금 해제 시작' 버튼 전용 빨강 번쩍임 광채 효과 */
-    @keyframes red-btn-glow {
-        0% { box-shadow: 0 0 10px rgba(255, 75, 75, 0.5); border-color: #ff4b4b; transform: scale(1); }
-        50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.9), 0 0 50px rgba(255, 75, 75, 0.7); border-color: #ff9999; transform: scale(1.02); }
-        100% { box-shadow: 0 0 10px rgba(255, 75, 75, 0.5); border-color: #ff4b4b; transform: scale(1); }
-    }
-
-    div.stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #8B0000, #FF4B4B) !important;
-        border: 2px solid #FF4B4B !important;
-        animation: red-btn-glow 1.5s infinite ease-in-out !important;
-        color: white !important;
-        text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8);
-    }
-
     /* ⚙️ 진한 은빛 톱니바퀴 회전 애니메이션 */
     @keyframes spin-gear {
         0% { transform: rotate(0deg); }
@@ -206,7 +128,7 @@ st.markdown("""
     }
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        padding: 22px 15px; border-radius: 15px; text-align: center;
+        padding: 20px 15px; border-radius: 15px; text-align: center;
         margin-bottom: 25px; border: 1px solid #69C8FF;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
@@ -225,8 +147,8 @@ st.markdown("""
     <h2 style="color: #FFF; margin-top: 0; font-size: 24px;">
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
-    <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0; line-height: 1.8;">
-        지금 접속하신 분들께 <span class="blinking-red-text">100% 무료 분석</span> 제공!<br>
+    <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
+        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
@@ -244,12 +166,22 @@ def calculate_ac(numbers):
 
 def render_billiard_ball(num):
     num_int = int(num)
-    if 1 <= num_int <= 10: bg, fg = '#FBC400', '#000000'
-    elif 11 <= num_int <= 20: bg, fg = '#69C8FF', '#000000'
-    elif 21 <= num_int <= 30: bg, fg = '#FF7272', '#FFFFFF'
-    elif 31 <= num_int <= 40: bg, fg = '#AAAAAA', '#FFFFFF'
-    else: bg, fg = '#B0D840', '#000000'
-    return f"""<span style="display: inline-block; width: 42px; height: 42px; line-height: 42px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 17px; margin: 0 3px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
+    if 1 <= num_int <= 10: 
+        bg = 'radial-gradient(circle at 30% 30%, #FFEE55, #FFC107)'
+        fg = '#000000'
+    elif 11 <= num_int <= 20: 
+        bg = 'radial-gradient(circle at 30% 30%, #4EA8DE, #023E8A)'
+        fg = '#FFFFFF'
+    elif 21 <= num_int <= 30: 
+        bg = 'radial-gradient(circle at 30% 30%, #FF6B6B, #D90429)'
+        fg = '#FFFFFF'
+    elif 31 <= num_int <= 40: 
+        bg = 'radial-gradient(circle at 30% 30%, #ADB5BD, #495057)'
+        fg = '#FFFFFF'
+    else: 
+        bg = 'radial-gradient(circle at 30% 30%, #90BE6D, #38B000)'
+        fg = '#FFFFFF'
+    return f"""<span style="display: inline-block; width: 44px; height: 44px; line-height: 44px; border-radius: 50%; background: {bg}; color: {fg}; text-align: center; font-weight: 900; font-size: 17px; margin: 0 4px; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4); border: 1.5px solid rgba(255,255,255,0.6);">{num_int:02d}</span>"""
 
 def render_pension_ball(group, digits):
     colors = ['#5A5A5A', '#FF4B4B', '#FFAE00', '#FBC400', '#69C8FF', '#B0D840', '#AAAAAA']
@@ -259,7 +191,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (1번: 금빛 네온 / 2번: 와인색 네온)
+# 🟢 럭셔리 골드로 번쩍이는 상단 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -276,7 +208,7 @@ with col_sel2:
         st.rerun()
 
 # ----------------------------------------------------
-# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
+# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바 (유지)
 # ----------------------------------------------------
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
@@ -318,7 +250,7 @@ if app_mode == '🧧 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    if st.button('🚀 로또 당첨번호 무료 추출하기', key='btn_lotto'):
+    if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto'):
         with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
             time.sleep(1)
             st.success('분석 완료! 아래 추천 번호를 확인하세요.')
@@ -326,7 +258,7 @@ if app_mode == '🧧 로또 6/45 분석':
                 nums, total_sum, odds, evens, ac = generate_optimized_lotto()
                 balls_html = ''.join([render_billiard_ball(n) for n in nums])
                 st.markdown(f"""
-                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #007BFF;">
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FF4B4B;">
                         <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">게임 {i}</div>
                         <div style="text-align: center;">{balls_html}</div>
                     </div>
@@ -346,7 +278,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
-    if st.button('🚀 연금복권 당첨번호 무료 추출하기', key='btn_pension'):
+    if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension'):
         with st.spinner('자리수별 독립 확률 분석 중입니다...'):
             time.sleep(1)
             st.success('분석 완료! 아래 추천 조합을 확인하세요.')
@@ -355,7 +287,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 digits = generate_pension()
                 html = render_pension_ball(g, digits)
                 st.markdown(f"""
-                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #007BFF;">
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #69C8FF;">
                         <div style="font-size: 1em; font-weight: bold; margin-bottom: 10px;">조합 {i}</div>
                         <div style="text-align: center;">{html}</div>
                     </div>
