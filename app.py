@@ -64,6 +64,13 @@ st.markdown("""
         font-size: 24px; font-weight: 900; color: #FFD700; 
         text-align: center; margin-bottom: 15px;
     }
+    
+    /* 🧧 상단 선택 버튼 내부 텍스트를 '100% 무료 분석'처럼 굵고 크고 꽉 차게 강조 */
+    div.stButton > button[kind="secondary"] {
+        font-size: 22px !important;
+        font-weight: 900 !important;
+        padding: 12px 20px !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -109,13 +116,12 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 눈에 잘 띄는 연두색 선택 버튼 및 상태 표시 영역
+# 🟢 100% 무료 분석처럼 굵고 선명하게 강조된 복권 선택 버튼 및 상태 표시 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
 
-# Streamlit 기본 버튼을 활용하되 눈에 잘 띄는 초록빛 계열 감성을 주기 위한 커스텀 배치
 with col_sel1:
     if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
@@ -126,12 +132,14 @@ with col_sel2:
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
-# 요청하신 순서와 크기로 변경 ("🧧 로또 6/45 분석: 현재 선택됨" 형태, 글자 크기 아주 조금만 축소)
+# '100% 무료 분석' 태그처럼 바탕색이 꽉 차고 진하게 강조된 현재 선택 상태 표시
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
-        <span style="font-size: 22px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
-        <span style="font-size: 18px; color: #00FF88; font-weight: 700; margin-left: 12px;">: 현재 선택됨</span>
+    <div style="background-color: #1e2230; padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #FF4B4B; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255,75,75,0.25);">
+        <span style="background-color: #FF4B4B; color: #FFFFFF; padding: 6px 14px; border-radius: 6px; font-size: 20px; font-weight: 900; margin-right: 10px;">
+            {current_label}
+        </span>
+        <span style="font-size: 20px; color: #FFD700; font-weight: 900;">: 현재 선택됨</span>
     </div>
 """, unsafe_allow_html=True)
 
