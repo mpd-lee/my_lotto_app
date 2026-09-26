@@ -24,6 +24,10 @@ if 'code_db' not in st.session_state:
         "7777": "master"
     }
 
+# 세션에 복권 선택 상태 저장용 변수 초기화
+if 'selected_lottery' not in st.session_state:
+    st.session_state.selected_lottery = 'lotto'
+
 # ----------------------------------------------------
 # 🎨 다크 테마 및 고품격/대형 UI 스타일링 (CSS)
 # ----------------------------------------------------
@@ -31,7 +35,7 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* 🚀 하단 번호 추출 버튼 스타일 (더 크고, 더 입체적으로!) */
+    /* 🚀 하단 번호 추출 버튼 스타일 */
     .stButton>button {
         background: linear-gradient(45deg, #FF4B4B, #FF8E53);
         color: white; font-weight: 900; border-radius: 12px;
@@ -42,24 +46,6 @@ st.markdown("""
     .stButton>button:hover { 
         background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
         transform: scale(1.02); transition: 0.2s;
-    }
-    
-    /* 🎯 [핵심] 종류 선택 라디오 버튼 영역을 화려한 네온 녹색 패널로 개조 */
-    div.row-widget.stRadio > div[role="radiogroup"] { 
-        background-color: #11141c; 
-        padding: 15px 5px; 
-        border-radius: 15px; 
-        justify-content: space-around;
-        border: 2px solid #00FF88;
-        box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25);
-    }
-    /* 라디오 버튼의 글자 크기와 색상 (눈에 띄는 연두/녹색) */
-    div.row-widget.stRadio > div[role="radiogroup"] label p {
-        font-size: 22px !important; 
-        color: #00FF88 !important; 
-        font-weight: 900 !important;
-        letter-spacing: 0.5px;
-        text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
     }
     
     .premium-box {
@@ -123,21 +109,36 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 눈에 띄는 중앙 통합 메뉴 선택 (네온 녹색 스타일 적용)
+# 🟢 [완전 개선] 큼직하고 눈에 확 띄는 네온 연두색 선택 버튼 UI
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
-app_mode = st.radio(
-    '복권 종류 선택', 
-    ['🧧 로또 6/45 분석', '🎫 연금복권 720+ 분석'], 
-    horizontal=True, 
-    label_visibility="collapsed"
-)
+
+col_sel1, col_sel2 = st.columns(2)
+
+with col_sel1:
+    if st.session_state.selected_lottery == 'lotto':
+        if st.button("🧧 로또 6/45 분석중", key="sel_lotto_active", type="primary", use_container_width=True):
+            pass
+    else:
+        if st.button("🧧 로또 6/45 선택하기", key="sel_lotto_inactive", type="secondary", use_container_width=True):
+            st.session_state.selected_lottery = 'lotto'
+            st.rerun()
+
+with col_sel2:
+    if st.session_state.selected_lottery == 'pension':
+        if st.button("🎫 연금복권 분석중", key="sel_pension_active", type="primary", use_container_width=True):
+            pass
+    else:
+        if st.button("🎫 연금복권 선택하기", key="sel_pension_inactive", type="secondary", use_container_width=True):
+            st.session_state.selected_lottery = 'pension'
+            st.rerun()
+
 st.divider()
 
 # ====================================================
 # [모드 1] 로또시스 (LottoSIS) 6/45 분석 시스템
 # ====================================================
-if app_mode == '🧧 로또 6/45 분석':
+if st.session_state.selected_lottery == 'lotto':
     
     st.subheader('⚙️ 추천 게임 수 설정')
     game_count = st.slider('몇 게임을 추천받으시겠습니까?', 1, 10, 5)
@@ -160,7 +161,6 @@ if app_mode == '🧧 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    # 🚀 커진 버튼
     if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto'):
         with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
             time.sleep(1)
@@ -178,7 +178,7 @@ if app_mode == '🧧 로또 6/45 분석':
 # ====================================================
 # [모드 2] 연금복권 720+ 분석 시스템
 # ====================================================
-elif app_mode == '🎫 연금복권 720+ 분석':
+else:
     
     st.subheader('⚙️ 추천 조합 수 설정')
     pension_count = st.slider('몇 게임을 추천받으시겠습니까?', 1, 10, 5)
@@ -189,7 +189,6 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
-    # 🚀 커진 버튼
     if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension'):
         with st.spinner('자리수별 독립 확률 분석 중입니다...'):
             time.sleep(1)
@@ -242,7 +241,7 @@ if not st.session_state.vip_unlocked:
 else:
     st.success("🎉 [VIP 프리패스 활성화 중] 가장 확률 높은 S등급 데이터가 실시간 가동 중입니다.")
     
-    if app_mode == '🧧 로또 6/45 분석':
+    if st.session_state.selected_lottery == 'lotto':
         st.markdown("""
             <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
                 <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 로또 S등급 강력 추천 👑</h3>
