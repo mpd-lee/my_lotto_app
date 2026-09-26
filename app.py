@@ -48,11 +48,12 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼(Streamlit 기본 버튼) 글씨를 아주 굵고 진하고 크게 강제 지정 */
+    /* 🎯 상단 복권 선택 버튼(Streamlit 기본 버튼) 글씨를 훨씬 진하고 아주 굵게 강제 지정 */
     div.stButton > button {
-        font-size: 23px !important;
+        font-size: 24px !important;
         font-weight: 900 !important;
-        -webkit-text-stroke: 0.4px white;
+        -webkit-text-stroke: 0.6px white;
+        text-shadow: 0 0 2px rgba(255, 255, 255, 0.6);
     }
     
     .premium-box {
