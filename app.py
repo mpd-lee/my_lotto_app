@@ -109,12 +109,13 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 "100% 무료 분석" 스타일을 적용한 크고 진한 선택 버튼 및 상태 표시
+# 🟢 눈에 잘 띄는 연두색 선택 버튼 및 상태 표시 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
 
+# Streamlit 기본 버튼을 활용하되 눈에 잘 띄는 초록빛 계열 감성을 주기 위한 커스텀 배치
 with col_sel1:
     if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
@@ -125,13 +126,12 @@ with col_sel2:
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
-# '100% 무료 분석'처럼 배경이 꽉 찬 강렬한 스타일 + 요청하신 순서 및 크기 적용
+# 요청하신 순서와 크기로 변경 ("🧧 로또 6/45 분석: 현재 선택됨" 형태, 글자 크기 아주 조금만 축소)
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
-    <div style="text-align: center; margin-top: 10px; margin-bottom: 20px;">
-        <span style="background-color: #FF4B4B; color: #FFFFFF; padding: 10px 20px; border-radius: 8px; font-size: 21px; font-weight: 900; box-shadow: 0 4px 12px rgba(255,75,75,0.4);">
-            {current_label} : 현재 선택됨
-        </span>
+    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
+        <span style="font-size: 22px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
+        <span style="font-size: 18px; color: #00FF88; font-weight: 700; margin-left: 12px;">: 현재 선택됨</span>
     </div>
 """, unsafe_allow_html=True)
 
