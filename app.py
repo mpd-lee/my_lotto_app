@@ -24,8 +24,12 @@ if 'code_db' not in st.session_state:
         "7777": "master"
     }
 
+# 현재 선택된 복권 상태 관리 (기본값: 로또 6/45)
+if 'selected_lotto_type' not in st.session_state:
+    st.session_state.selected_lotto_type = 'lotto'
+
 # ----------------------------------------------------
-# 🎨 다크 테마 및 글자 크기/색상 맞춤 스타일링 (CSS)
+# 🎨 다크 테마 및 커스텀 스타일링 (CSS)
 # ----------------------------------------------------
 st.markdown("""
     <style>
@@ -44,22 +48,6 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 복권 선택 라디오 버튼 영역: 배경 붉은색 없이 깔끔하게, 글씨는 크고 선명한 연두/초록색 */
-    div.row-widget.stRadio > div[role="radiogroup"] { 
-        background-color: #161b22; 
-        padding: 15px 10px; 
-        border-radius: 12px; 
-        justify-content: space-around;
-        border: 1px solid #30363d;
-    }
-    /* 라디오 버튼 글자 크기를 더 크게(26px), 색상은 눈에 잘 띄는 연두색(#00FF88)으로 설정 */
-    div.row-widget.stRadio > div[role="radiogroup"] label p {
-        font-size: 26px !important; 
-        color: #00FF88 !important; 
-        font-weight: 900 !important;
-        letter-spacing: 0.5px;
-    }
-    
     .premium-box {
         background: linear-gradient(145deg, #1a1c29, #0f1016);
         border: 1px solid #ffd700; border-radius: 12px;
@@ -73,7 +61,7 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .menu-title {
-        font-size: 22px; font-weight: 900; color: #FFD700; 
+        font-size: 24px; font-weight: 900; color: #FFD700; 
         text-align: center; margin-bottom: 15px;
     }
     </style>
@@ -121,16 +109,40 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 연두색 왕 폰트 메뉴 선택 영역
+# 🟢 크고 선명한 연두색 커스텀 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
-app_mode = st.radio(
-    '복권 종류 선택', 
-    ['🧧 로또 6/45 분석', '🎫 연금복권 720+ 분석'], 
-    horizontal=True, 
-    label_visibility="collapsed"
-)
+
+col_sel1, col_sel2 = st.columns(2)
+with col_sel1:
+    is_lotto_active = st.session_state.selected_lotto_type == 'lotto'
+    lotto_bg = "#1f3a29" if is_lotto_active else "#161b22"
+    lotto_border = "2px solid #00FF88" if is_lotto_active else "1px solid #30363d"
+    
+    if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
+        st.session_state.selected_lotto_type = 'lotto'
+        st.rerun()
+
+with col_sel2:
+    is_pension_active = st.session_state.selected_lotto_type == 'pension'
+    pension_bg = "#1f3a29" if is_pension_active else "#161b22"
+    pension_border = "2px solid #00FF88" if is_pension_active else "1px solid #30363d"
+    
+    if st.button("🎫 연금복권 720+ 분석", use_container_width=True, key="sel_pension_btn"):
+        st.session_state.selected_lotto_type = 'pension'
+        st.rerun()
+
+# 시각적으로 거대하고 선명한 연두색 글씨로 현재 선택 상태 표시
+current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
+st.markdown(f"""
+    <div style="background-color: #161b22; padding: 16px; border-radius: 12px; text-align: center; border: 1px solid #30363d; margin-top: 10px; margin-bottom: 20px;">
+        <span style="font-size: 28px; color: #00FF88; font-weight: 900; letter-spacing: 1px;">현재 선택됨: {current_label}</span>
+    </div>
+""", unsafe_allow_html=True)
+
 st.divider()
+
+app_mode = '🧧 로또 6/45 분석' if st.session_state.selected_lotto_type == 'lotto' else '🎫 연금복권 720+ 분석'
 
 # ====================================================
 # [모드 1] 로또시스 (LottoSIS) 6/45 분석 시스템
