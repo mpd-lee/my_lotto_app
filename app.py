@@ -48,20 +48,37 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼(Streamlit 기본 버튼) 글씨 크기를 딱 알맞은 중간 사이즈(23px)로 지정 */
+    /* 🎯 상단 복권 선택 버튼 글씨 크기 (20px 적당한 중간 사이즈) */
     div.stButton > button {
-        font-size: 23px !important;
+        font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        -webkit-text-stroke: 0.5px #000000;
-        text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.8);
+        -webkit-text-stroke: 0.4px #000000;
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
     }
     
-    /* 버튼 내부의 p, span 태그 글씨 크기 일치화 */
     div.stButton > button p, div.stButton > button span {
-        font-size: 23px !important;
+        font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
+    }
+    
+    /* ⚡ 실시간 데이터 작동 애니메이션 효과 (펄스 점멸) */
+    @keyframes pulse-glow {
+        0% { transform: scale(0.95); opacity: 0.6; }
+        50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px #00FF88); }
+        100% { transform: scale(0.95); opacity: 0.6; }
+    }
+    
+    .live-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background-color: #00FF88;
+        border-radius: 50%;
+        margin-left: 8px;
+        margin-right: 4px;
+        animation: pulse-glow 1.5s infinite ease-in-out;
     }
     
     .premium-box {
@@ -125,27 +142,28 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 눈에 잘 띄는 연두색 선택 버튼 및 상태 표시 영역
+# 🟢 AI 작동 인디케이터가 포함된 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
 
 with col_sel1:
-    if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
+    if st.button("🧧 로또 6/45 분석 ⚙️", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
         st.rerun()
 
 with col_sel2:
-    if st.button("🎫 연금복권 720+ 분석", use_container_width=True, key="sel_pension_btn"):
+    if st.button("🎫 연금복권 720+ 분석 ⚙️", use_container_width=True, key="sel_pension_btn"):
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
-        <span style="font-size: 22px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
-        <span style="font-size: 18px; color: #00FF88; font-weight: 700; margin-left: 12px;">: 현재 선택됨</span>
+    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2); display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 20px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
+        <span class="live-indicator"></span>
+        <span style="font-size: 16px; color: #00FF88; font-weight: 700; margin-left: 6px;">AI 실시간 분석 엔진 가동 중</span>
     </div>
 """, unsafe_allow_html=True)
 
