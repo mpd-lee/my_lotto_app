@@ -52,11 +52,13 @@ st.markdown("""
         box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     .sub-title-desc {
-        color: #8b949e;
+        color: #00FF88;
         font-size: 0.95em;
+        font-weight: 600;
         margin-top: -10px;
         margin-bottom: 20px;
         letter-spacing: 0.5px;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -145,11 +147,11 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
 
         st.divider()
 
-        # 하단 VIP 결제 유도 구역 (대표님 최종 수정 문구 반영)
+        # 하단 VIP 결제 유도 구역 ("첨단 데이터 과학과" 적용 완료)
         st.markdown("""
         <div class="premium-box">
             <h3 style="color: #ffd700; margin-top: 0;">👑 로또시스 VIP - S등급 정밀 분석 시스템</h3>
-            <p style="color: #ccc; font-size: 0.95em; line-height: 1.5;">이제 운에만 의존하지 마세요!<br>첨단 데이터 과학, AI 통계로 운과 함께 1등 확률을 극대화합니다.</p>
+            <p style="color: #ccc; font-size: 0.95em; line-height: 1.5;">이제 운에만 의존하지 마세요!<br>첨단 데이터 과학과 AI 통계로 운과 함께 1등 확률을 극대화합니다.</p>
             <div class="locked-text" style="margin-top: 15px;">🔒 <b>역대 1등 당첨 패턴 딥러닝 매칭률 (%)</b> 분석 잠금됨</div>
             <div class="locked-text">🔒 <b>AI 초정밀 제외수 (이번 주 미출현 확률 99%)</b> 10개 필터링 잠금됨</div>
             <div class="locked-text">🔒 <b>S등급 고정수 2개 강제 배정 시스템</b> 잠금됨</div>
