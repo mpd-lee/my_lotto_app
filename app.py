@@ -29,7 +29,7 @@ if 'selected_lotto_type' not in st.session_state:
     st.session_state.selected_lotto_type = 'lotto'
 
 # ----------------------------------------------------
-# 🎨 스타일 정의 (원래 색상 복원 및 빨간색 반짝이는 잠금해제 버튼)
+# 🎨 스타일 정의 (진짜 14K 금 & 다이아몬드 메탈릭 번쩍임 적용)
 # ----------------------------------------------------
 st.markdown("""
     <style>
@@ -73,51 +73,69 @@ st.markdown("""
     }
 
     /* =========================================
-       ✨ 2. 밝은 금색 버튼 (로또 6/45 분석)
+       ✨ 2. 진짜 14K 골드 메탈 & 보석 번쩍임 (로또 6/45 선택 버튼)
        ========================================= */
-    @keyframes goldGlowStrict {
-        0% { box-shadow: 0 0 15px #FFD700, inset 0 0 12px #FFFFFF !important; }
-        100% { box-shadow: 0 0 40px #FFFF00, 0 0 70px #FFD700, inset 0 0 25px #FFFFFF !important; }
+    @keyframes realGoldShine {
+        0% { 
+            background: linear-gradient(135deg, #B8860B 0%, #FFD700 25%, #DAA520 50%, #FFF8DC 75%, #B8860B 100%) !important;
+            box-shadow: 0 0 25px #FFD700, inset 0 0 15px #FFFFFF !important;
+        }
+        50% { 
+            background: linear-gradient(135deg, #FFD700 0%, #FFF8DC 25%, #FF8C00 50%, #FFD700 75%, #DAA520 100%) !important;
+            box-shadow: 0 0 50px #FFA500, 0 0 90px #FFD700, inset 0 0 30px #FFFFFF !important;
+            transform: scale(1.02);
+        }
+        100% { 
+            background: linear-gradient(135deg, #B8860B 0%, #FFD700 25%, #DAA520 50%, #FFF8DC 75%, #B8860B 100%) !important;
+            box-shadow: 0 0 25px #FFD700, inset 0 0 15px #FFFFFF !important;
+        }
     }
     div[data-testid="stColumn"]:nth-of-type(1) button {
-        background: #FFE042 !important;
-        background-color: #FFE042 !important;
-        background-image: linear-gradient(90deg, #FFE042 0%, #FFF5A0 50%, #FFE042 100%) !important;
-        border: 3px solid #FFFFFF !important;
-        border-radius: 12px !important;
-        animation: goldGlowStrict 0.8s infinite alternate ease-in-out !important;
+        border: 3px solid #FFF8DC !important;
+        border-radius: 14px !important;
+        animation: realGoldShine 1.0s infinite alternate ease-in-out !important;
         width: 100% !important;
     }
     div[data-testid="stColumn"]:nth-of-type(1) button p {
-        color: #000000 !important;
+        color: #1A0F00 !important;
         font-weight: 900 !important;
         font-size: 21px !important;
+        text-shadow: 0 1px 3px rgba(255,255,255,0.9);
     }
 
     /* =========================================
-       🥈 3. 밝은 은색 버튼 (연금복권 720+ 분석)
+       💎 3. 진짜 다이아몬드 & 백금 크리스탈 광채 (연금복권 720+ 선택 버튼)
        ========================================= */
-    @keyframes silverGlowStrict {
-        0% { box-shadow: 0 0 15px #E0E0E0, inset 0 0 12px #FFFFFF !important; }
-        100% { box-shadow: 0 0 40px #FFFFFF, 0 0 70px #E0E0E0, inset 0 0 25px #FFFFFF !important; }
+    @keyframes realDiamondShine {
+        0% { 
+            background: linear-gradient(135deg, #78909C 0%, #CFD8DC 25%, #FFFFFF 50%, #B0BEC5 75%, #ECEFF1 100%) !important;
+            box-shadow: 0 0 25px #FFFFFF, inset 0 0 15px #FFFFFF !important;
+        }
+        50% { 
+            background: linear-gradient(135deg, #FFFFFF 0%, #E0F7FA 25%, #80DEEA 50%, #FFFFFF 75%, #B2EBF2 100%) !important;
+            box-shadow: 0 0 55px #00E5FF, 0 0 100px #FFFFFF, inset 0 0 35px #FFFFFF !important;
+            transform: scale(1.02);
+        }
+        100% { 
+            background: linear-gradient(135deg, #78909C 0%, #CFD8DC 25%, #FFFFFF 50%, #B0BEC5 75%, #ECEFF1 100%) !important;
+            box-shadow: 0 0 25px #FFFFFF, inset 0 0 15px #FFFFFF !important;
+        }
     }
     div[data-testid="stColumn"]:nth-of-type(2) button {
-        background: #E0E0E0 !important;
-        background-color: #E0E0E0 !important;
-        background-image: linear-gradient(90deg, #E0E0E0 0%, #FFFFFF 50%, #E0E0E0 100%) !important;
-        border: 3px solid #FFFFFF !important;
-        border-radius: 12px !important;
-        animation: silverGlowStrict 0.8s infinite alternate ease-in-out !important;
+        border: 3px solid #E0F7FA !important;
+        border-radius: 14px !important;
+        animation: realDiamondShine 1.0s infinite alternate ease-in-out !important;
         width: 100% !important;
     }
     div[data-testid="stColumn"]:nth-of-type(2) button p {
-        color: #000000 !important;
+        color: #002B36 !important;
         font-weight: 900 !important;
         font-size: 21px !important;
+        text-shadow: 0 1px 3px rgba(255,255,255,0.9);
     }
 
     /* =========================================
-       👑 4. 통합 VIP Pass 전용 시스템 (원래 색상으로 복원)
+       👑 4. 통합 VIP Pass 전용 시스템 (원래 색상)
        ========================================= */
     .vip-original-card {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
@@ -181,7 +199,6 @@ st.markdown("""
         50% { box-shadow: 0 0 25px rgba(0, 136, 255, 0.9), 0 0 40px rgba(0, 200, 255, 0.6); border-color: #33aaff; transform: scale(1.03); }
         100% { box-shadow: 0 0 8px rgba(0, 136, 255, 0.4); border-color: #0077cc; transform: scale(1); }
     }
-    /* 본문 추출 버튼들 */
     div.stButton > button[kind="primary"]:not(div[data-testid="stExpander"] button[kind="primary"]) {
         background: linear-gradient(45deg, #0055ff, #00aaff) !important;
         border: 2px solid #0088FF !important;
@@ -263,7 +280,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 럭셔리 상단 선택 버튼 영역
+# 🟢 럭셔리 상단 선택 버튼 영역 (14K 골드 & 다이아몬드 광채)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -368,7 +385,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 """, unsafe_allow_html=True)
 
 # ====================================================
-# 👑 하단 공통 VIP 프리패스 영역 (원래 다크 블루 컬러 복원)
+# 👑 하단 공통 VIP 프리패스 영역
 # ====================================================
 st.divider()
 
@@ -387,7 +404,6 @@ if not st.session_state.vip_unlocked:
         st.markdown("#### 2. 발급받은 고유 코드 입력")
         vip_code = st.text_input("코드 입력", type="password", key="vip_input", placeholder="예: S-CLASS-XXXX")
         
-        # 🔴 빨간색 네온 반짝이는 잠금 해제 버튼
         if st.button("잠금 해제 시작", type="primary", use_container_width=True):
             if vip_code == "7777":
                 st.session_state.vip_unlocked = True
