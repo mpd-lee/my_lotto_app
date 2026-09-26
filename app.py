@@ -35,7 +35,7 @@ st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* 🚀 하단 번호 추출 버튼 및 상단 선택 버튼 스타일 (기본 주황톤) */
+    /* 🚀 하단 번호 추출 버튼 기본 스타일 */
     .stButton>button {
         background: linear-gradient(45deg, #FF4B4B, #FF8E53);
         color: white; font-weight: 900; border-radius: 12px;
@@ -48,21 +48,23 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (원래 예쁜 주황 그라데이션 복구) */
+    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (이미지 기반 금빛 테두리 및 네온 광채 효과) */
     div.row-widget.stHorizontal > div:nth-child(1) button,
     div.row-widget.stHorizontal > div:nth-child(2) button {
-        background: linear-gradient(135deg, #FF7E5F, #FEB47B) !important;
-        border: 2px solid rgba(255, 255, 255, 0.4) !important;
-        box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4) !important;
+        background: linear-gradient(135deg, #3a2c00, #1a1500) !important;
+        border: 2px solid #FFD700 !important;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3) !important;
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+        border-radius: 12px !important;
     }
     
     div.row-widget.stHorizontal > div:nth-child(1) button:hover,
     div.row-widget.stHorizontal > div:nth-child(2) button:hover {
-        background: linear-gradient(135deg, #FF6A48, #FF9B51) !important;
+        background: linear-gradient(135deg, #4d3a00, #261f00) !important;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.5) !important;
         transform: scale(1.02);
     }
     
@@ -116,7 +118,6 @@ st.markdown("""
         }
     }
 
-    /* st.button type="primary" (잠금 해제 시작 버튼)에만 적용 */
     div.stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #8B0000, #FF4B4B) !important;
         border: 2px solid #FF4B4B !important;
@@ -178,7 +179,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 최상단 통합 홍보 배너 (100% 무료 분석 빨간색 번쩍임 적용)
+# 최상단 통합 홍보 배너
 # ----------------------------------------------------
 st.markdown("""
 <div class="promo-banner">
@@ -219,7 +220,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (원래 주황 버튼 복구)
+# 🟢 상단 선택 버튼 영역 (이미지 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -340,7 +341,6 @@ if not st.session_state.vip_unlocked:
         st.markdown("#### 2. 발급받은 고유 코드 입력")
         vip_code = st.text_input("코드 입력", type="password", key="vip_input", placeholder="예: S-CLASS-XXXX")
         
-        # 🔥 이 버튼에 빨간색 번쩍임 광채 효과가 적용됩니다!
         if st.button("잠금 해제 시작", type="primary", use_container_width=True):
             if vip_code == "7777":
                 st.session_state.vip_unlocked = True
