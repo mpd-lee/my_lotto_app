@@ -63,6 +63,20 @@ st.markdown("""
         color: #FFFFFF !important;
     }
     
+    /* ⚙️ 진한 은빛 톱니바퀴 회전 애니메이션 */
+    @keyframes spin-gear {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .silver-gear {
+        display: inline-block;
+        font-size: 20px;
+        margin-left: 6px;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)) brightness(0.9);
+        animation: spin-gear 4s linear infinite;
+    }
+    
     /* ⚡ 실시간 데이터 작동 애니메이션 효과 (펄스 점멸) */
     @keyframes pulse-glow {
         0% { transform: scale(0.95); opacity: 0.6; }
@@ -142,19 +156,19 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 AI 작동 인디케이터가 포함된 선택 버튼 영역
+# 🟢 회전하는 진한 은빛 톱니바퀴가 포함된 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
 
 with col_sel1:
-    if st.button("🧧 로또 6/45 분석 ⚙️", use_container_width=True, key="sel_lotto_btn"):
+    if st.button("🧧 로또 6/45 분석 <span class='silver-gear'>⚙️</span>", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
         st.rerun()
 
 with col_sel2:
-    if st.button("🎫 연금복권 720+ 분석 ⚙️", use_container_width=True, key="sel_pension_btn"):
+    if st.button("🎫 연금복권 720+ 분석 <span class='silver-gear'>⚙️</span>", use_container_width=True, key="sel_pension_btn"):
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
@@ -162,6 +176,7 @@ current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_typ
 st.markdown(f"""
     <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2); display: flex; align-items: center; justify-content: center;">
         <span style="font-size: 20px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
+        <span class="silver-gear" style="margin-left: 8px;">⚙️</span>
         <span class="live-indicator"></span>
         <span style="font-size: 16px; color: #00FF88; font-weight: 700; margin-left: 6px;">AI 실시간 분석 엔진 가동 중</span>
     </div>
