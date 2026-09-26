@@ -48,41 +48,41 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (상단 복권 선택 버튼 전용) */
+    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 */
     @keyframes luxury-gold-glow {
         0% { 
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), inset 0 0 6px rgba(255, 255, 255, 0.3); 
             border-color: #d4af37;
             transform: scale(1);
         }
         50% { 
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.95), 0 0 50px rgba(255, 165, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.9); 
+            box-shadow: 0 0 35px rgba(255, 215, 0, 1), 0 0 55px rgba(255, 165, 0, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.9); 
             border-color: #fff68f;
             transform: scale(1.03);
         }
         100% { 
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), inset 0 0 6px rgba(255, 255, 255, 0.3); 
             border-color: #d4af37;
             transform: scale(1);
         }
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개에만 럭셔리 골드 광채 및 반짝임 부여 */
-    div[data-testid="column"] div.stButton > button {
+    /* 🎯 상단 골드 버튼 전용 스타일 (Streamlit 기본 주황색 스타일을 확실하게 무력화) */
+    button[kind="secondary"][data-testid="baseButton-secondary"] {
+        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
+        border: 2px solid #FFD700 !important;
+        color: #FFFFFF !important;
         font-size: 20px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
-        -webkit-text-stroke: 0.5px #000000;
         text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-        border: 2px solid #FFD700 !important;
-        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
+        border-radius: 12px !important;
         animation: luxury-gold-glow 1.6s infinite ease-in-out !important;
     }
     
-    div[data-testid="column"] div.stButton > button p, div[data-testid="column"] div.stButton > button span {
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
+    button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
+        background: linear-gradient(135deg, #3d341e, #d4af37) !important;
+        border-color: #ffffff !important;
+        transform: scale(1.03);
     }
     
     /* 🔥 '잠금 해제 시작' 버튼 전용 강렬한 빨간색 번쩍임 광채 효과 (primary 버튼) */
@@ -104,7 +104,7 @@ st.markdown("""
         }
     }
 
-    div.stButton > button[kind="primary"] {
+    button[kind="primary"][data-testid="baseButton-primary"] {
         background: linear-gradient(135deg, #8B0000, #FF4B4B) !important;
         border: 2px solid #FF4B4B !important;
         animation: red-neon-glow 1.4s infinite ease-in-out !important;
@@ -116,7 +116,7 @@ st.markdown("""
         width: 100% !important;
     }
     
-    div.stButton > button[kind="primary"]:hover {
+    button[kind="primary"][data-testid="baseButton-primary"]:hover {
         background: linear-gradient(135deg, #a80000, #ff6b6b) !important;
         transform: scale(1.04);
     }
@@ -244,7 +244,7 @@ with col_sel2:
         st.rerun()
 
 # ----------------------------------------------------
-# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바 (유지)
+# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
 # ----------------------------------------------------
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
