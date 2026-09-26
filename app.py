@@ -6,12 +6,12 @@ import time
 
 # 페이지 기본 설정
 st.set_page_config(
-    page_title='AI 고성능 복권 분석 시스템 (로또/연금 통합)',
-    page_icon='🎱',
+    page_title='로또시스 (LottoSIS) - AI 고성능 복권 분석 시스템',
+    page_icon='🧧',
     layout='wide',
 )
 
-# 다크 테마 및 고품격 UI 스타일링
+# 다크 테마 및 고품격 UI 스타일링 (블랙 & 골드 럭셔리 테마)
 st.markdown("""
     <style>
     .main {
@@ -30,6 +30,19 @@ st.markdown("""
     }
     .stButton>button:hover {
         background: linear-gradient(45deg, #FF6B6B, #FFAE73);
+    }
+    .premium-box {
+        background: linear-gradient(145deg, #1a1c29, #0f1016);
+        border: 1px solid #ffd700;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
+    }
+    .locked-text {
+        color: #888;
+        font-style: italic;
+        margin-bottom: 10px;
     }
     .metric-card {
         background-color: #1a1c24;
@@ -71,14 +84,14 @@ def render_pension_ball(group, digits):
 # 2. 사이드바 - 메인 메뉴 (종류 선택)
 # ----------------------------------------------------
 st.sidebar.header('🎯 분석 시스템 선택')
-app_mode = st.sidebar.radio('원하시는 복권 종류를 선택하세요', ['🎱 로또 6/45 분석', '🎫 연금복권 720+ 분석'])
+app_mode = st.sidebar.radio('원하시는 복권 종류를 선택하세요', ['🧧 로또시스 (LottoSIS) 6/45', '🎫 연금복권 720+ 분석'])
 st.sidebar.markdown('---')
 
 # ====================================================
-# [모드 1] 로또 6/45 분석 시스템
+# [모드 1] 로또시스 (LottoSIS) 6/45 분석 시스템
 # ====================================================
-if app_mode == '🎱 로또 6/45 분석':
-    st.title('🎱 AI 고성능 로또 당첨 번호 추천 시스템')
+if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
+    st.title('🧧 로또시스 (LottoSIS) - AI 딥러닝 통계 분석기')
     st.markdown('통계적 확률 모델, 복잡도(AC값) 필터링 및 딥러닝 가중치 기반 최상위 엔진입니다.')
 
     st.sidebar.subheader('⚙️ 로또 세부 설정')
@@ -100,11 +113,11 @@ if app_mode == '🎱 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    tab1, tab2 = st.tabs(['🎱 추천 결과 확인', '📊 통계 분석 데이터'])
+    tab1, tab2 = st.tabs(['✨ AI 정밀 번호 추출', '📊 구간별 출현 빈도 및 예측 모델'])
 
     with tab1:
-        if st.button('🚀 로또 6/45 번호 추출 실행'):
-            with st.spinner('다중 통계 연산을 수행 중입니다...'):
+        if st.button('🚀 로또시스 6/45 번호 추출 실행'):
+            with st.spinner('다중 통계 연산 및 딥러닝 패턴 분석 중입니다...'):
                 time.sleep(0.7)
                 st.success('정밀 분석 및 번호 추출이 완료되었습니다!')
                 for i in range(1, game_count + 1):
@@ -118,8 +131,25 @@ if app_mode == '🎱 로또 6/45 분석':
                             <div>{balls_html}</div>
                         </div>
                     """, unsafe_allow_html=True)
+                
                 st.markdown('---')
-                st.link_button('🔗 추출된 번호로 동행복권 로또 바로 구매하기', 'https://m.dhlottery.co.kr/', use_container_width=True)
+                st.link_button('🔗 추출된 번호로 동행복권 로또 바로 구매하기', 'https://m.dhlottery.co.kr/')
+
+        st.divider()
+
+        # 하단 VIP 결제 유도 구역 (유료 전환 설계)
+        st.markdown("""
+        <div class="premium-box">
+            <h3 style="color: #ffd700; margin-top: 0;">👑 로또시스 VIP - S등급 정밀 분석 시스템</h3>
+            <p style="color: #ccc; font-size: 0.9em;">운에 의존하지 마세요. 차가운 데이터 과학으로 1등 확률을 극대화합니다.</p>
+            <div class="locked-text">🔒 <b>역대 1등 당첨 패턴 딥러닝 매칭률 (%)</b> 분석 잠금됨</div>
+            <div class="locked-text">🔒 <b>AI 초정밀 제외수 (이번 주 미출현 확률 99%)</b> 10개 필터링 잠금됨</div>
+            <div class="locked-text">🔒 <b>S등급 고정수 2개 강제 배정 시스템</b> 잠금됨</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.write("")
+        st.button("👑 VIP S급 딥러닝 고정수 조합 받기 (잠금 해제)", type="primary", use_container_width=True)
 
     with tab2:
         st.subheader('📈 로또 구간별 출현 빈도 및 예측 모델')
@@ -177,11 +207,8 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 time.sleep(0.7)
                 st.success('정밀 필터링을 거친 연금복권 최적화 조합이 완료되었습니다!')
                 
-                # 📌 '전체 조' 선택 시 1~5조 순위 배정 및 정렬 로직 추가
                 if '전체 조' in group_choice:
                     digits, total_sum, odds, evens, highs, lows, ac = generate_optimized_pension()
-                    
-                    # 1~5조에 대해 랜덤 가중치 부여 후 점수순(내림차순) 정렬
                     group_scores = random.sample(range(78, 99), 5)
                     group_scores.sort(reverse=True)
                     groups = random.sample(range(1, 6), 5)
@@ -220,23 +247,23 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                         """, unsafe_allow_html=True)
 
                 st.markdown('---')
-                st.link_button('🔗 추출된 번호로 동행복권 연금복권 바로 구매하기', 'https://dhlottery.co.kr/gameResult.do?method=win720')
+                st.link_button('🔗 추출된 번호로 동행복권 연금복권 바로 구매하기', 'https://m.dhlottery.co.kr/')
 
     with tab2:
-        st.subheader('📈 연금복권 각 자리수별(십만~일) 패턴 분석')
+        st.subheader('📈 연금복권 각 자리수별 패턴 분석')
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
                 <div class="metric-card">
                     <h4 style="color: #69C8FF;">⚖️ 고저(High & Low) 밸런스</h4>
-                    <p>연금복권 당첨번호는 0~4(Low)와 5~9(High)가 고르게 섞이는 패턴이 다수입니다.<br>왼쪽 사이드바의 <b>필터 옵션을 켜두시면</b> 한쪽으로 치우친(예: 8,7,9,6,9,8) 극단적 배열을 <b>원천 차단</b>할 수 있습니다.</p>
+                    <p>연금복권 당첨번호는 0~4(Low)와 5~9(High)가 고르게 섞이는 패턴이 다수입니다.<br>왼쪽 사이드바의 <b>필터 옵션을 켜두시면</b> 한쪽으로 치우친 극단적 배열을 <b>원천 차단</b>할 수 있습니다.</p>
                 </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
                 <div class="metric-card">
                     <h4 style="color: #FF7272;">🚫 연속 중복수 제한 (AC 필터)</h4>
-                    <p>로또와 달리 중복이 허용되지만, 당첨 통계상 특정 숫자(예: 333xxx)가 연속 출현할 확률은 극히 희박합니다.<br>이 기능 역시 <b>필터 옵션</b>을 통해 간편하게 제어할 수 있습니다.</p>
+                    <p>로또와 달리 중복이 허용되지만, 당첨 통계상 특정 숫자가 연속 출현할 확률은 극히 희박합니다.<br>이 기능 역시 <b>필터 옵션</b>을 통해 간편하게 제어할 수 있습니다.</p>
                 </div>
             """, unsafe_allow_html=True)
         
@@ -246,4 +273,4 @@ elif app_mode == '🎫 연금복권 720+ 분석':
         st.bar_chart(p_chart)
 
 st.markdown('---')
-st.markdown('<div style="text-align: center; color: #666;">© 2026 AI Advanced Lottery Intelligence System. All Rights Reserved.</div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align: center; color: #666;">© 2026 LottoSIS (Statistical Intelligence System). All Rights Reserved.</div>', unsafe_allow_html=True)
