@@ -48,7 +48,7 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (이미지 기반 금빛 테두리 및 네온 광채 효과) */
+    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (금빛 테두리 및 네온 광채 효과) */
     div.row-widget.stHorizontal > div:nth-child(1) button,
     div.row-widget.stHorizontal > div:nth-child(2) button {
         background: linear-gradient(135deg, #3a2c00, #1a1500) !important;
@@ -220,7 +220,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (이미지 스타일 적용)
+# 🟢 상단 선택 버튼 영역 (금빛 네온 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
