@@ -24,27 +24,26 @@ if 'code_db' not in st.session_state:
         "7777": "master"
     }
 
-# 세션에 복권 선택 상태 저장용 변수 초기화
 if 'selected_lottery' not in st.session_state:
     st.session_state.selected_lottery = 'lotto'
 
 # ----------------------------------------------------
-# 🎨 다크 테마 및 고품격/대형 UI 스타일링 (CSS)
+# 🎨 깔끔한 다크 테마 & 초록/연두 포인트 UI 스타일링 (CSS)
 # ----------------------------------------------------
 st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
     
-    /* 🚀 하단 번호 추출 버튼 스타일 */
+    /* 🚀 하단 번호 추출 버튼 - 누르기 좋고 세련된 초록빛 그라데이션 */
     .stButton>button {
-        background: linear-gradient(45deg, #FF4B4B, #FF8E53);
-        color: white; font-weight: 900; border-radius: 12px;
+        background: linear-gradient(45deg, #00B074, #00FF88);
+        color: #000000; font-weight: 900; border-radius: 12px;
         padding: 0.8em 1.8em; border: none;
-        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.5); font-size: 20px;
+        box-shadow: 0 6px 15px rgba(0, 255, 136, 0.3); font-size: 20px;
         width: 100%; margin-top: 15px; margin-bottom: 25px;
     }
     .stButton>button:hover { 
-        background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
+        background: linear-gradient(45deg, #00C882, #1AFF9C); 
         transform: scale(1.02); transition: 0.2s;
     }
     
@@ -61,8 +60,8 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .menu-title {
-        font-size: 22px; font-weight: 900; color: #FFD700; 
-        text-align: center; margin-bottom: 15px;
+        font-size: 24px; font-weight: 900; color: #00FF88; 
+        text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,255,136,0.3);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -76,7 +75,7 @@ st.markdown("""
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
     <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
-        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
+        지금 접속하신 분들께 <span style="background-color: #00FF88; color: #000; padding: 3px 8px; border-radius: 6px; font-weight: 900;">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
@@ -109,27 +108,29 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 [완전 개선] 큼직하고 눈에 확 띄는 네온 연두색 선택 버튼 UI
+# 🟢 [개선] 붉은 배경 제거 및 큼직한 초록/연두색 복권 선택 메뉴
 # ----------------------------------------------------
-st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
+st.markdown('<div class="menu-title">🎯 분석할 복권을 선택해 주세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
 
 with col_sel1:
     if st.session_state.selected_lottery == 'lotto':
-        if st.button("🧧 로또 6/45 분석중", key="sel_lotto_active", type="primary", use_container_width=True):
+        # 선택된 상태: 선명한 형광 연두빛 테두리와 배경으로 강조
+        if st.button("✅ [ 로또 6/45 선택됨 ]", key="sel_lotto_active", use_container_width=True):
             pass
     else:
-        if st.button("🧧 로또 6/45 선택하기", key="sel_lotto_inactive", type="secondary", use_container_width=True):
+        # 선택 안 된 상태: 어두운 배경에 깔끔한 초록 글씨
+        if st.button("🧧 로또 6/45 분석하기", key="sel_lotto_inactive", use_container_width=True):
             st.session_state.selected_lottery = 'lotto'
             st.rerun()
 
 with col_sel2:
     if st.session_state.selected_lottery == 'pension':
-        if st.button("🎫 연금복권 분석중", key="sel_pension_active", type="primary", use_container_width=True):
+        if st.button("✅ [ 연금복권 선택됨 ]", key="sel_pension_active", use_container_width=True):
             pass
     else:
-        if st.button("🎫 연금복권 선택하기", key="sel_pension_inactive", type="secondary", use_container_width=True):
+        if st.button("🎫 연금복권 분석하기", key="sel_pension_inactive", use_container_width=True):
             st.session_state.selected_lottery = 'pension'
             st.rerun()
 
@@ -169,8 +170,8 @@ if st.session_state.selected_lottery == 'lotto':
                 nums, total_sum, odds, evens, ac = generate_optimized_lotto()
                 balls_html = ''.join([render_billiard_ball(n) for n in nums])
                 st.markdown(f"""
-                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #FF4B4B;">
-                        <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px;">게임 {i}</div>
+                    <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #00FF88;">
+                        <div style="font-size: 1.1em; font-weight: bold; margin-bottom: 10px; color: #00FF88;">게임 {i}</div>
                         <div style="text-align: center;">{balls_html}</div>
                     </div>
                 """, unsafe_allow_html=True)
@@ -199,7 +200,7 @@ else:
                 html = render_pension_ball(g, digits)
                 st.markdown(f"""
                     <div style="background-color: #1a1c24; padding: 15px; border-radius: 14px; margin-bottom: 12px; border-left: 5px solid #69C8FF;">
-                        <div style="font-size: 1em; font-weight: bold; margin-bottom: 10px;">조합 {i}</div>
+                        <div style="font-size: 1em; font-weight: bold; margin-bottom: 10px; color: #69C8FF;">조합 {i}</div>
                         <div style="text-align: center;">{html}</div>
                     </div>
                 """, unsafe_allow_html=True)
