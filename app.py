@@ -48,13 +48,35 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 글씨 크기 (20px 적당한 중간 사이즈) */
+    /* ✨ 럭셔리 샴페인 골드 번쩍번쩍 광채 애니메이션 (선택 버튼 전용) */
+    @keyframes luxury-gold-glow {
+        0% { 
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            border-color: #d4af37;
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.95), 0 0 50px rgba(255, 165, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.9); 
+            border-color: #fff68f;
+            transform: scale(1.03);
+        }
+        100% { 
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.3); 
+            border-color: #d4af37;
+            transform: scale(1);
+        }
+    }
+    
+    /* 🎯 상단 복권 선택 버튼 2개에만 럭셔리 골드 광채 및 반짝임 부여 */
     div.stButton > button {
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
-        -webkit-text-stroke: 0.4px #000000;
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
+        -webkit-text-stroke: 0.5px #000000;
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+        border: 2px solid #FFD700 !important;
+        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
+        animation: luxury-gold-glow 1.6s infinite ease-in-out !important;
     }
     
     div.stButton > button p, div.stButton > button span {
@@ -144,12 +166,22 @@ def calculate_ac(numbers):
 
 def render_billiard_ball(num):
     num_int = int(num)
-    if 1 <= num_int <= 10: bg, fg = '#FBC400', '#000000'
-    elif 11 <= num_int <= 20: bg, fg = '#69C8FF', '#000000'
-    elif 21 <= num_int <= 30: bg, fg = '#FF7272', '#FFFFFF'
-    elif 31 <= num_int <= 40: bg, fg = '#AAAAAA', '#FFFFFF'
-    else: bg, fg = '#B0D840', '#000000'
-    return f"""<span style="display: inline-block; width: 42px; height: 42px; line-height: 42px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 17px; margin: 0 3px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
+    if 1 <= num_int <= 10: 
+        bg = 'radial-gradient(circle at 30% 30%, #FFEE55, #FFC107)'
+        fg = '#000000'
+    elif 11 <= num_int <= 20: 
+        bg = 'radial-gradient(circle at 30% 30%, #4EA8DE, #023E8A)'
+        fg = '#FFFFFF'
+    elif 21 <= num_int <= 30: 
+        bg = 'radial-gradient(circle at 30% 30%, #FF6B6B, #D90429)'
+        fg = '#FFFFFF'
+    elif 31 <= num_int <= 40: 
+        bg = 'radial-gradient(circle at 30% 30%, #ADB5BD, #495057)'
+        fg = '#FFFFFF'
+    else: 
+        bg = 'radial-gradient(circle at 30% 30%, #90BE6D, #38B000)'
+        fg = '#FFFFFF'
+    return f"""<span style="display: inline-block; width: 44px; height: 44px; line-height: 44px; border-radius: 50%; background: {bg}; color: {fg}; text-align: center; font-weight: 900; font-size: 17px; margin: 0 4px; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4); border: 1.5px solid rgba(255,255,255,0.6);">{num_int:02d}</span>"""
 
 def render_pension_ball(group, digits):
     colors = ['#5A5A5A', '#FF4B4B', '#FFAE00', '#FBC400', '#69C8FF', '#B0D840', '#AAAAAA']
@@ -159,7 +191,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 깔끔한 상단 선택 버튼 영역
+# 🟢 럭셔리 골드로 번쩍이는 상단 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -176,7 +208,7 @@ with col_sel2:
         st.rerun()
 
 # ----------------------------------------------------
-# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
+# ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바 (유지)
 # ----------------------------------------------------
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
