@@ -48,13 +48,35 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 글씨 크기 (20px 적당한 중간 사이즈) */
+    /* ✨ 진한 은빛 & 골드 번쩍번쩍 광채 애니메이션 (눌러! 눌러! 느낌) */
+    @keyframes flash-glow {
+        0% { 
+            box-shadow: 0 0 5px rgba(192, 192, 192, 0.4), inset 0 0 5px rgba(255, 255, 255, 0.2); 
+            border-color: #8a9ba8;
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 25px rgba(220, 224, 230, 0.9), 0 0 40px rgba(255, 215, 0, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.8); 
+            border-color: #ffffff;
+            transform: scale(1.02);
+        }
+        100% { 
+            box-shadow: 0 0 5px rgba(192, 192, 192, 0.4), inset 0 0 5px rgba(255, 255, 255, 0.2); 
+            border-color: #8a9ba8;
+            transform: scale(1);
+        }
+    }
+    
+    /* 🎯 상단 복권 선택 버튼에 번쩍이는 은빛 광채 효과 부여 */
     div.stButton > button {
         font-size: 20px !important;
         font-weight: 900 !important;
         color: #FFFFFF !important;
         -webkit-text-stroke: 0.4px #000000;
         text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
+        border: 2px solid #C0C0C0 !important;
+        background: linear-gradient(135deg, #2c3e50, #bdc3c7) !important;
+        animation: flash-glow 1.8s infinite ease-in-out !important;
     }
     
     div.stButton > button p, div.stButton > button span {
@@ -159,7 +181,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 깔끔한 상단 선택 버튼 영역
+# 🟢 번쩍번쩍 빛나는 선택 버튼 영역 ("눌러! 눌러!" 느낌)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
