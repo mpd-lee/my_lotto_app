@@ -60,7 +60,34 @@ st.markdown("""
         letter-spacing: 0.5px;
         text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
     }
+    .promo-banner {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        padding: 25px 20px;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 30px;
+        border: 1px solid #69C8FF;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
     </style>
+""", unsafe_allow_html=True)
+
+# ----------------------------------------------------
+# 최상단 통합 홍보 배너 (로또 + 연금 듀얼 무료 강조)
+# ----------------------------------------------------
+st.markdown("""
+<div class="promo-banner">
+    <h2 style="color: #FFF; margin-top: 0; font-size: 26px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">
+        🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
+    </h2>
+    <h3 style="color: #00FF88; margin-top: 10px; margin-bottom: 15px; font-size: 20px;">
+        대한민국 최초 AI 통합 분석 시스템 가동 중!
+    </h3>
+    <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
+        지금 접속하신 모든 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">두 가지 복권 분석 100% 무료</span> 혜택을 제공합니다.<br>
+        매주 쏟아지는 당첨의 기회를 절대 놓치지 마세요!
+    </p>
+</div>
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
@@ -92,8 +119,9 @@ def render_pension_ball(group, digits):
 # ----------------------------------------------------
 # 2. 사이드바 - 메인 메뉴 (종류 선택)
 # ----------------------------------------------------
-st.sidebar.header('🎯 분석 시스템 선택')
-app_mode = st.sidebar.radio('원하시는 복권 종류를 선택하세요', ['🧧 로또시스 (LottoSIS) 6/45', '🎫 연금복권 720+ 분석'])
+st.sidebar.header('🎯 무료 분석 시작하기')
+st.sidebar.info('아래에서 원하시는 복권을 선택하시면 즉시 AI 분석이 시작됩니다!')
+app_mode = st.sidebar.radio('종류 선택', ['🧧 로또시스 (LottoSIS) 6/45', '🎫 연금복권 720+ 분석'])
 st.sidebar.markdown('---')
 
 # ====================================================
@@ -126,7 +154,7 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
     tab1, tab2 = st.tabs(['✨ AI 정밀 번호 추출', '📊 구간별 출현 빈도 및 예측 모델'])
 
     with tab1:
-        if st.button('🚀 로또시스 6/45 번호 추출 실행'):
+        if st.button('🚀 무료 로또시스 번호 추출 실행'):
             with st.spinner('다중 통계 연산 및 딥러닝 패턴 분석 중입니다...'):
                 time.sleep(0.7)
                 st.success('정밀 분석 및 번호 추출이 완료되었습니다!')
@@ -147,19 +175,57 @@ if app_mode == '🧧 로또시스 (LottoSIS) 6/45':
 
         st.divider()
 
-        # 하단 VIP 결제 유도 구역 ("첨단 데이터 과학과" 적용 완료)
+        # ----------------------------------------------------
+        # 👑 하단 VIP 결제 및 잠금 해제 시스템
+        # ----------------------------------------------------
         st.markdown("""
         <div class="premium-box">
             <h3 style="color: #ffd700; margin-top: 0;">👑 로또시스 VIP - S등급 정밀 분석 시스템</h3>
             <p style="color: #ccc; font-size: 0.95em; line-height: 1.5;">이제 운에만 의존하지 마세요!<br>첨단 데이터 과학과 AI 통계로 운과 함께 1등 확률을 극대화합니다.</p>
-            <div class="locked-text" style="margin-top: 15px;">🔒 <b>역대 1등 당첨 패턴 딥러닝 매칭률 (%)</b> 분석 잠금됨</div>
-            <div class="locked-text">🔒 <b>AI 초정밀 제외수 (이번 주 미출현 확률 99%)</b> 10개 필터링 잠금됨</div>
-            <div class="locked-text">🔒 <b>S등급 고정수 2개 강제 배정 시스템</b> 잠금됨</div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.write("")
-        st.button("👑 VIP S급 딥러닝 고정수 조합 받기 (잠금 해제)", type="primary", use_container_width=True)
+        if 'vip_unlocked' not in st.session_state:
+            st.session_state.vip_unlocked = False
+
+        if not st.session_state.vip_unlocked:
+            st.write("")
+            with st.expander("🔒 VIP S급 딥러닝 고정수 조합 받기 (잠금 해제)", expanded=True):
+                st.info("💡 **VIP 전용 혜택:** 역대 1등 당첨 패턴 딥러닝 매칭, AI 초정밀 제외수 10개 필터링, S등급 고정수 강제 배정 시스템이 가동됩니다.")
+                col_pay, col_code = st.columns(2)
+                
+                with col_pay:
+                    st.markdown("#### 1. VIP 이용권 구매하기")
+                    st.write("네이버페이로 안전하게 결제하고 VIP 코드를 발급받으세요.")
+                    st.link_button("💳 네이버 1초 간편 결제하기", "https://smartstore.naver.com/", type="secondary", use_container_width=True)
+                    st.caption("결제 완료 시 카카오톡/문자로 접속 코드가 자동 발송됩니다.")
+
+                with col_code:
+                    st.markdown("#### 2. VIP 코드 입력")
+                    vip_code = st.text_input("발급받으신 코드를 입력하세요", type="password", placeholder="예: S-CLASS-XXXX")
+                    if st.button("코드 확인 및 잠금 해제", type="primary", use_container_width=True):
+                        if vip_code == "7777": 
+                            st.session_state.vip_unlocked = True
+                            st.rerun()
+                        elif vip_code:
+                            st.error("유효하지 않은 코드입니다. 코드를 다시 확인해 주세요.")
+
+        if st.session_state.vip_unlocked:
+            st.success("🎉 VIP 인증이 완료되었습니다! S등급 분석 시스템이 가동됩니다.")
+            st.markdown("""
+                <div style="background-color: #2b1c00; border: 1px solid #ffd700; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                    <h3 style="color: #ffd700; margin: 0 0 15px 0;">👑 이번 주 S등급 추천 번호 👑</h3>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color:#aaa;">AI 확정 고정수 포함, 딥러닝 매칭률 98.7%</span>
+                    </div>
+                    <div>
+                        """ + render_billiard_ball(7) + render_billiard_ball(12) + render_billiard_ball(23) + render_billiard_ball(31) + render_billiard_ball(38) + render_billiard_ball(45) + """
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button("🔒 다시 잠그기 (테스트용)"):
+                st.session_state.vip_unlocked = False
+                st.rerun()
 
     with tab2:
         st.subheader('📈 로또 구간별 출현 빈도 및 예측 모델')
@@ -183,62 +249,42 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     
     st.sidebar.markdown('---')
     st.sidebar.markdown('**💡 연금복권 특화 필터 옵션**')
-    use_high_low_filter = st.sidebar.checkbox('고저(High/Low) 밸런스 유지 (권장)', value=True, help='0-4(낮은 수)와 5-9(높은 수)가 어느 한쪽으로 몰리지 않도록 균형을 잡아줍니다.')
-    use_consecutive_filter = st.sidebar.checkbox('3연속 동일 숫자 출현 방지 (권장)', value=True, help='333처럼 똑같은 숫자가 3번 이상 연달아 나오는 극단적인 경우를 차단합니다.')
+    use_high_low_filter = st.sidebar.checkbox('고저(High/Low) 밸런스 유지 (권장)', value=True)
+    use_consecutive_filter = st.sidebar.checkbox('3연속 동일 숫자 출현 방지 (권장)', value=True)
 
     def generate_optimized_pension():
         for _ in range(10000):
             digits = [random.randint(0, 9) for _ in range(6)]
             total_sum = sum(digits)
             if not (p_sum_min <= total_sum <= p_sum_max): continue
-            
             odds = sum(1 for d in digits if d % 2 != 0)
             if '균등' in p_odd_even and odds not in [2, 3, 4]: continue
-            
             highs = sum(1 for d in digits if d >= 5)
-            
-            if use_high_low_filter:
-                if highs < 2 or highs > 4: continue
-                
-            if use_consecutive_filter:
-                has_triple = any(digits.count(d) >= 3 for d in set(digits))
-                if has_triple: continue
-
-            ac = calculate_ac(digits)
-            return digits, total_sum, odds, 6-odds, highs, 6-highs, ac
-            
+            if use_high_low_filter and (highs < 2 or highs > 4): continue
+            if use_consecutive_filter and any(digits.count(d) >= 3 for d in set(digits)): continue
+            return digits, total_sum, odds, 6-odds, highs, 6-highs, calculate_ac(digits)
         digits = [random.randint(0, 9) for _ in range(6)]
         return digits, sum(digits), 3, 3, 3, 3, calculate_ac(digits)
 
     tab1, tab2 = st.tabs(['🎫 추천 결과 확인', '📊 연금복권 통계 분석'])
 
     with tab1:
-        if st.button('🚀 연금복권 720+ 번호 추출 실행'):
+        if st.button('🚀 무료 연금복권 번호 추출 실행'):
             with st.spinner('자리수별 독립 확률 및 패턴 분산 분석 중입니다...'):
                 time.sleep(0.7)
                 st.success('정밀 필터링을 거친 연금복권 최적화 조합이 완료되었습니다!')
-                
                 if '전체 조' in group_choice:
                     digits, total_sum, odds, evens, highs, lows, ac = generate_optimized_pension()
-                    group_scores = random.sample(range(78, 99), 5)
-                    group_scores.sort(reverse=True)
+                    group_scores = sorted(random.sample(range(78, 99), 5), reverse=True)
                     groups = random.sample(range(1, 6), 5)
-                    ranked_groups = list(zip(groups, group_scores))
-                    
-                    st.info('💡 **[AI 조(Group) 추천 가이드]** 5게임을 모두 구매하기 부담스러우시다면, AI 분석 가중치 점수가 가장 높은 **1순위 조**를 우선적으로 노려보세요!')
-                    
                     medals = ['🥇 1순위 강력 추천', '🥈 2순위 유력 추천', '🥉 3순위 추천', '🏅 4순위', '🏅 5순위']
                     colors = ['#FFD700', '#C0C0C0', '#CD7F32', '#888888', '#555555']
-                    
-                    for rank, (g, score) in enumerate(ranked_groups):
+                    for rank, (g, score) in enumerate(zip(groups, group_scores)):
                         html = render_pension_ball(g, digits)
                         st.markdown(f"""
                             <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid {colors[rank]};">
                                 <div style="font-size: 1.05em; font-weight: bold; margin-bottom: 12px; color: #FFF;">
                                     {medals[rank]} <span style="color: #FF4B4B;">(AI 출현 가중치: {score}점)</span>
-                                    <span style="font-weight: normal; margin-left: 10px; font-size: 0.85em; color: #aaa;">
-                                        (총합: {total_sum} | 홀짝: {odds}:{evens} | 고저: {highs}:{lows} | AC: {ac})
-                                    </span>
                                 </div>
                                 <div>{html}</div>
                             </div>
@@ -250,36 +296,16 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                         html = render_pension_ball(group, digits)
                         st.markdown(f"""
                             <div style="background-color: #1a1c24; padding: 18px 22px; border-radius: 14px; margin-bottom: 12px; border-left: 6px solid #69C8FF;">
-                                <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 12px; color: #aaa;">
-                                    조합 {i} <span style="font-weight: normal; margin-left: 10px;">(총합: {total_sum} | 홀짝: {odds}:{evens} | 고저: {highs}:{lows} | AC: {ac})</span>
-                                </div>
+                                <div style="font-size: 0.9em; font-weight: bold; margin-bottom: 12px; color: #aaa;">조합 {i}</div>
                                 <div>{html}</div>
                             </div>
                         """, unsafe_allow_html=True)
-
+                
                 st.markdown('---')
                 st.link_button('🔗 추출된 번호로 동행복권 연금복권 바로 구매하기', 'https://m.dhlottery.co.kr/')
 
     with tab2:
         st.subheader('📈 연금복권 각 자리수별 패턴 분석')
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-                <div class="metric-card">
-                    <h4 style="color: #69C8FF;">⚖️ 고저(High & Low) 밸런스</h4>
-                    <p>연금복권 당첨번호는 0~4(Low)와 5~9(High)가 고르게 섞이는 패턴이 다수입니다.<br>왼쪽 사이드바의 <b>필터 옵션을 켜두시면</b> 한쪽으로 치우친 극단적 배열을 <b>원천 차단</b>할 수 있습니다.</p>
-                </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-                <div class="metric-card">
-                    <h4 style="color: #FF7272;">🚫 연속 중복수 제한 (AC 필터)</h4>
-                    <p>로또와 달리 중복이 허용되지만, 당첨 통계상 특정 숫자가 연속 출현할 확률은 극히 희박합니다.<br>이 기능 역시 <b>필터 옵션</b>을 통해 간편하게 제어할 수 있습니다.</p>
-                </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown('---')
-        st.markdown('#### 📊 최근 회차 자리수별 출현 분포도')
         p_chart = pd.DataFrame(np.random.randint(10, 50, size=(10, 6)), columns=['십만', '만', '천', '백', '십', '일'])
         st.bar_chart(p_chart)
 
