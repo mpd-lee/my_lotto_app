@@ -29,7 +29,7 @@ if 'selected_lotto_type' not in st.session_state:
     st.session_state.selected_lotto_type = 'lotto'
 
 # ----------------------------------------------------
-# 🎨 다크 테마 및 커스텀 스타일링 (CSS)
+# 🎨 다크 테마 및 맞춤 스타일링 (CSS)
 # ----------------------------------------------------
 st.markdown("""
     <style>
@@ -109,34 +109,29 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 크고 선명한 연두색 커스텀 선택 버튼 영역
+# 🟢 눈에 잘 띄는 연두색 선택 버튼 및 상태 표시 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
 col_sel1, col_sel2 = st.columns(2)
+
+# Streamlit 기본 버튼을 활용하되 눈에 잘 띄는 초록빛 계열 감성을 주기 위한 커스텀 배치
 with col_sel1:
-    is_lotto_active = st.session_state.selected_lotto_type == 'lotto'
-    lotto_bg = "#1f3a29" if is_lotto_active else "#161b22"
-    lotto_border = "2px solid #00FF88" if is_lotto_active else "1px solid #30363d"
-    
     if st.button("🧧 로또 6/45 분석", use_container_width=True, key="sel_lotto_btn"):
         st.session_state.selected_lotto_type = 'lotto'
         st.rerun()
 
 with col_sel2:
-    is_pension_active = st.session_state.selected_lotto_type == 'pension'
-    pension_bg = "#1f3a29" if is_pension_active else "#161b22"
-    pension_border = "2px solid #00FF88" if is_pension_active else "1px solid #30363d"
-    
     if st.button("🎫 연금복권 720+ 분석", use_container_width=True, key="sel_pension_btn"):
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
 
-# 시각적으로 거대하고 선명한 연두색 글씨로 현재 선택 상태 표시
+# 요청하신 순서와 크기로 변경 ("🧧 로또 6/45 분석: 현재 선택됨" 형태, 글자 크기 아주 조금만 축소)
 current_label = "🧧 로또 6/45 분석" if st.session_state.selected_lotto_type == 'lotto' else "🎫 연금복권 720+ 분석"
 st.markdown(f"""
-    <div style="background-color: #161b22; padding: 16px; border-radius: 12px; text-align: center; border: 1px solid #30363d; margin-top: 10px; margin-bottom: 20px;">
-        <span style="font-size: 28px; color: #00FF88; font-weight: 900; letter-spacing: 1px;">현재 선택됨: {current_label}</span>
+    <div style="background: linear-gradient(135deg, #132e1b, #1b3d27); padding: 14px 20px; border-radius: 12px; text-align: center; border: 2px solid #00FF88; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,255,136,0.2);">
+        <span style="font-size: 22px; color: #FFFFFF; font-weight: 800;">{current_label}</span>
+        <span style="font-size: 18px; color: #00FF88; font-weight: 700; margin-left: 12px;">: 현재 선택됨</span>
     </div>
 """, unsafe_allow_html=True)
 
