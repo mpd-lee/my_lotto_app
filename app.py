@@ -29,91 +29,185 @@ if 'selected_lotto_type' not in st.session_state:
     st.session_state.selected_lotto_type = 'lotto'
 
 # ----------------------------------------------------
-# 🎨 다크 테마 및 맞춤 스타일링 (CSS)
+# 🎨 스타일 정의 (원래 색상 복원 및 빨간색 반짝이는 잠금해제 버튼)
 # ----------------------------------------------------
 st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
-    
-    /* 🚀 하단 번호 추출 버튼 스타일 */
-    .stButton>button {
-        background: linear-gradient(45deg, #FF4B4B, #FF8E53);
-        color: white; font-weight: 900; border-radius: 12px;
-        padding: 0.8em 1.8em; border: none;
-        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.5); font-size: 20px;
-        width: 100%; margin-top: 15px; margin-bottom: 25px;
+
+    /* =========================================
+       🚨 1. 상단 "100% 무료 분석" 번쩍이는 네온 레드 배지
+       ========================================= */
+    @keyframes neonRedPulse {
+        0% {
+            background-color: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+            color: #FFFFFF !important;
+        }
+        50% {
+            background-color: #FF2222 !important;
+            box-shadow: 0 0 25px #FF0000, 0 0 50px #FF0000, inset 0 0 8px #FFFFFF !important;
+            transform: scale(1.15);
+            color: #FFFF00 !important;
+        }
+        100% {
+            background-color: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+            color: #FFFFFF !important;
+        }
     }
-    .stButton>button:hover { 
-        background: linear-gradient(45deg, #FF6B6B, #FFAE73); 
-        transform: scale(1.02); transition: 0.2s;
+    .target-red-badge {
+        display: inline-block !important;
+        background-color: #FF0000 !important;
+        color: #FFFFFF !important;
+        padding: 4px 12px !important;
+        border-radius: 6px !important;
+        border: 2px solid #FFFFFF !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+        animation: neonRedPulse 0.4s infinite ease-in-out !important;
+        margin: 0 6px !important;
+        vertical-align: middle !important;
     }
-    
-    /* 🎯 상단 복권 선택 버튼 글씨 크기 (20px 적당한 중간 사이즈) */
-    div.stButton > button {
+
+    /* =========================================
+       ✨ 2. 밝은 금색 버튼 (로또 6/45 분석)
+       ========================================= */
+    @keyframes goldGlowStrict {
+        0% { box-shadow: 0 0 15px #FFD700, inset 0 0 12px #FFFFFF !important; }
+        100% { box-shadow: 0 0 40px #FFFF00, 0 0 70px #FFD700, inset 0 0 25px #FFFFFF !important; }
+    }
+    div[data-testid="stColumn"]:nth-of-type(1) button {
+        background: #FFE042 !important;
+        background-color: #FFE042 !important;
+        background-image: linear-gradient(90deg, #FFE042 0%, #FFF5A0 50%, #FFE042 100%) !important;
+        border: 3px solid #FFFFFF !important;
+        border-radius: 12px !important;
+        animation: goldGlowStrict 0.8s infinite alternate ease-in-out !important;
+        width: 100% !important;
+    }
+    div[data-testid="stColumn"]:nth-of-type(1) button p {
+        color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 21px !important;
+    }
+
+    /* =========================================
+       🥈 3. 밝은 은색 버튼 (연금복권 720+ 분석)
+       ========================================= */
+    @keyframes silverGlowStrict {
+        0% { box-shadow: 0 0 15px #E0E0E0, inset 0 0 12px #FFFFFF !important; }
+        100% { box-shadow: 0 0 40px #FFFFFF, 0 0 70px #E0E0E0, inset 0 0 25px #FFFFFF !important; }
+    }
+    div[data-testid="stColumn"]:nth-of-type(2) button {
+        background: #E0E0E0 !important;
+        background-color: #E0E0E0 !important;
+        background-image: linear-gradient(90deg, #E0E0E0 0%, #FFFFFF 50%, #E0E0E0 100%) !important;
+        border: 3px solid #FFFFFF !important;
+        border-radius: 12px !important;
+        animation: silverGlowStrict 0.8s infinite alternate ease-in-out !important;
+        width: 100% !important;
+    }
+    div[data-testid="stColumn"]:nth-of-type(2) button p {
+        color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 21px !important;
+    }
+
+    /* =========================================
+       👑 4. 통합 VIP Pass 전용 시스템 (원래 색상으로 복원)
+       ========================================= */
+    .vip-original-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+        border: 2px solid #FFD700 !important;
+        border-radius: 16px !important;
+        padding: 25px 15px !important;
+        margin: 20px 0 !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6) !important;
+        text-align: center !important;
+    }
+    .vip-original-title {
+        color: #FFD700 !important;
+        font-size: 26px !important;
+        font-weight: 900 !important;
+        margin: 0 0 6px 0 !important;
+    }
+    .vip-original-sub {
+        color: #E0E0E0 !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+    }
+
+    /* =========================================
+       🔴 5. "잠금 해제 시작" 버튼 전용 빨간색 반짝이는 애니메이션
+       ========================================= */
+    @keyframes redFlashBtn {
+        0% {
+            background: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+        }
+        50% {
+            background: #FF3333 !important;
+            box-shadow: 0 0 25px #FF0000, 0 0 50px #FF0000, inset 0 0 10px #FFFFFF !important;
+            transform: scale(1.03);
+        }
+        100% {
+            background: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+        }
+    }
+    div[data-testid="stExpander"] button[kind="primary"] {
+        background: linear-gradient(45deg, #FF0000, #FF4444) !important;
+        border: 2px solid #FFFFFF !important;
+        animation: redFlashBtn 0.8s infinite ease-in-out !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+    }
+    div[data-testid="stExpander"] button[kind="primary"] p {
+        color: #FFFFFF !important;
         font-size: 20px !important;
         font-weight: 900 !important;
-        color: #FFFFFF !important;
-        -webkit-text-stroke: 0.4px #000000;
-        text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.7);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
+
+    /* 🔵 일반 추출하기 버튼 (파란색 글로우) */
+    @keyframes glow-blue {
+        0% { box-shadow: 0 0 8px rgba(0, 136, 255, 0.4); border-color: #0077cc; transform: scale(1); }
+        50% { box-shadow: 0 0 25px rgba(0, 136, 255, 0.9), 0 0 40px rgba(0, 200, 255, 0.6); border-color: #33aaff; transform: scale(1.03); }
+        100% { box-shadow: 0 0 8px rgba(0, 136, 255, 0.4); border-color: #0077cc; transform: scale(1); }
+    }
+    /* 본문 추출 버튼들 */
+    div.stButton > button[kind="primary"]:not(div[data-testid="stExpander"] button[kind="primary"]) {
+        background: linear-gradient(45deg, #0055ff, #00aaff) !important;
+        border: 2px solid #0088FF !important;
+        animation: glow-blue 1.5s infinite ease-in-out !important;
+        border-radius: 12px !important;
+        padding: 0.8em 1.8em !important;
+        width: 100% !important;
+        margin-top: 15px !important;
+        margin-bottom: 25px !important;
+    }
+    div.stButton > button[kind="primary"]:not(div[data-testid="stExpander"] button[kind="primary"]) p {
+        font-size: 20px !important; font-weight: 900 !important; color: #FFFFFF !important; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ⚙️ 톱니바퀴 및 펄스 */
+    @keyframes spin-gear { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .silver-gear { display: inline-block; font-size: 22px; margin-left: 8px; margin-right: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(0.85); animation: spin-gear 4s linear infinite; vertical-align: middle; }
+    @keyframes pulse-glow { 0% { transform: scale(0.95); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px #00FF88); } 100% { transform: scale(0.95); opacity: 0.6; } }
+    .live-indicator { display: inline-block; width: 10px; height: 10px; background-color: #00FF88; border-radius: 50%; margin-left: 10px; margin-right: 6px; animation: pulse-glow 1.5s infinite ease-in-out; vertical-align: middle; }
     
-    div.stButton > button p, div.stButton > button span {
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
-    }
-    
-    /* ⚙️ 진한 은빛 톱니바퀴 회전 애니메이션 */
-    @keyframes spin-gear {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    .silver-gear {
-        display: inline-block;
-        font-size: 22px;
-        margin-left: 8px;
-        margin-right: 4px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(0.85);
-        animation: spin-gear 4s linear infinite;
-        vertical-align: middle;
-    }
-    
-    /* ⚡ 실시간 데이터 작동 애니메이션 효과 (펄스 점멸) */
-    @keyframes pulse-glow {
-        0% { transform: scale(0.95); opacity: 0.6; }
-        50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px #00FF88); }
-        100% { transform: scale(0.95); opacity: 0.6; }
-    }
-    
-    .live-indicator {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        background-color: #00FF88;
-        border-radius: 50%;
-        margin-left: 10px;
-        margin-right: 6px;
-        animation: pulse-glow 1.5s infinite ease-in-out;
-        vertical-align: middle;
-    }
-    
-    .premium-box {
-        background: linear-gradient(145deg, #1a1c29, #0f1016);
-        border: 1px solid #ffd700; border-radius: 12px;
-        padding: 20px; margin-top: 20px;
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
-    }
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         padding: 20px 15px; border-radius: 15px; text-align: center;
-        margin-bottom: 25px; border: 1px solid #69C8FF;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 25px; border: 1px solid #69C8FF; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
-    .menu-title {
-        font-size: 24px; font-weight: 900; color: #FFD700; 
-        text-align: center; margin-bottom: 15px;
-    }
+    .menu-title { font-size: 24px; font-weight: 900; color: #FFD700; text-align: center; margin-bottom: 15px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -126,7 +220,7 @@ st.markdown("""
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
     <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
-        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
+        지금 접속하신 분들께 <span class="target-red-badge">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
@@ -144,12 +238,22 @@ def calculate_ac(numbers):
 
 def render_billiard_ball(num):
     num_int = int(num)
-    if 1 <= num_int <= 10: bg, fg = '#FBC400', '#000000'
-    elif 11 <= num_int <= 20: bg, fg = '#69C8FF', '#000000'
-    elif 21 <= num_int <= 30: bg, fg = '#FF7272', '#FFFFFF'
-    elif 31 <= num_int <= 40: bg, fg = '#AAAAAA', '#FFFFFF'
-    else: bg, fg = '#B0D840', '#000000'
-    return f"""<span style="display: inline-block; width: 42px; height: 42px; line-height: 42px; border-radius: 50%; background-color: {bg}; color: {fg}; text-align: center; font-weight: bold; font-size: 17px; margin: 0 3px; box-shadow: 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.4);">{num_int:02d}</span>"""
+    if 1 <= num_int <= 10: 
+        bg = 'radial-gradient(circle at 30% 30%, #FFEE55, #FFC107)'
+        fg = '#000000'
+    elif 11 <= num_int <= 20: 
+        bg = 'radial-gradient(circle at 30% 30%, #4EA8DE, #023E8A)'
+        fg = '#FFFFFF'
+    elif 21 <= num_int <= 30: 
+        bg = 'radial-gradient(circle at 30% 30%, #FF6B6B, #D90429)'
+        fg = '#FFFFFF'
+    elif 31 <= num_int <= 40: 
+        bg = 'radial-gradient(circle at 30% 30%, #ADB5BD, #495057)'
+        fg = '#FFFFFF'
+    else: 
+        bg = 'radial-gradient(circle at 30% 30%, #90BE6D, #38B000)'
+        fg = '#FFFFFF'
+    return f"""<span style="display: inline-block; width: 44px; height: 44px; line-height: 44px; border-radius: 50%; background: {bg}; color: {fg}; text-align: center; font-weight: 900; font-size: 17px; margin: 0 4px; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.4); border: 1.5px solid rgba(255,255,255,0.6);">{num_int:02d}</span>"""
 
 def render_pension_ball(group, digits):
     colors = ['#5A5A5A', '#FF4B4B', '#FFAE00', '#FBC400', '#69C8FF', '#B0D840', '#AAAAAA']
@@ -159,7 +263,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 깔끔한 상단 선택 버튼 영역
+# 🟢 럭셔리 상단 선택 버튼 영역
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -218,7 +322,8 @@ if app_mode == '🧧 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto'):
+    # 🔵 로또 당첨 번호 무료 추출하기
+    if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto', type='primary'):
         with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
             time.sleep(1)
             st.success('분석 완료! 아래 추천 번호를 확인하세요.')
@@ -246,7 +351,8 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
-    if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension'):
+    # 🔵 연금복권 당첨 번호 무료 추출하기
+    if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension', type='primary'):
         with st.spinner('자리수별 독립 확률 분석 중입니다...'):
             time.sleep(1)
             st.success('분석 완료! 아래 추천 조합을 확인하세요.')
@@ -262,13 +368,14 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 """, unsafe_allow_html=True)
 
 # ====================================================
-# 공통 VIP 프리패스 하단 영역
+# 👑 하단 공통 VIP 프리패스 영역 (원래 다크 블루 컬러 복원)
 # ====================================================
 st.divider()
+
 st.markdown("""
-<div class="premium-box">
-    <h3 style="color: #ffd700; margin-top: 0; text-align: center;">👑 통합 VIP Pass 전용 시스템</h3>
-    <p style="color: #ccc; font-size: 0.95em; text-align: center;">로또 S등급 초정밀 분석 & 연금복권 유력 조 핀포인트 예측을 동시에!</p>
+<div class="vip-original-card">
+    <div class="vip-original-title">👑 통합 VIP Pass 전용 시스템</div>
+    <div class="vip-original-sub">로또 S등급 초정밀 분석 & 연금복권 유력 조 핀포인트 예측을 동시에!</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -280,6 +387,7 @@ if not st.session_state.vip_unlocked:
         st.markdown("#### 2. 발급받은 고유 코드 입력")
         vip_code = st.text_input("코드 입력", type="password", key="vip_input", placeholder="예: S-CLASS-XXXX")
         
+        # 🔴 빨간색 네온 반짝이는 잠금 해제 버튼
         if st.button("잠금 해제 시작", type="primary", use_container_width=True):
             if vip_code == "7777":
                 st.session_state.vip_unlocked = True
