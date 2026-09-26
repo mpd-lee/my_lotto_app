@@ -48,31 +48,30 @@ st.markdown("""
         transform: scale(1.02); transition: 0.2s;
     }
     
-    /* 🎯 상단 복권 선택 버튼 2개 전용 스타일 (주황색 그라데이션 효과) */
-    div.row-widget.stHorizontal > div:nth-child(1) button,
-    div.row-widget.stHorizontal > div:nth-child(2) button {
-        background: linear-gradient(45deg, #FF4B4B, #FF8E53) !important;
-        border: none !important;
-        box-shadow: 0 6px 15px rgba(255, 75, 75, 0.4) !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
-        border-radius: 12px !important;
-        padding: 0.8em 1.8em !important;
+    /* 🎯 상단 복권 선택 버튼 영역 커스텀 클래스 (금빛 네온 광채 스타일) */
+    .gold-select-btn {
+        display: block;
+        width: 100%;
+        background: linear-gradient(135deg, #3a2c00, #1a1500);
+        border: 2px solid #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3);
+        font-size: 20px;
+        font-weight: 900;
+        color: #FFFFFF;
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6);
+        border-radius: 12px;
+        padding: 0.75em 1em;
+        text-align: center;
+        text-decoration: none;
+        transition: 0.2s;
+        cursor: pointer;
+        margin-bottom: 10px;
     }
-    
-    div.row-widget.stHorizontal > div:nth-child(1) button:hover,
-    div.row-widget.stHorizontal > div:nth-child(2) button:hover {
-        background: linear-gradient(45deg, #FF6B6B, #FFAE73) !important;
-        box-shadow: 0 8px 20px rgba(255, 75, 75, 0.6) !important;
+    .gold-select-btn:hover {
+        background: linear-gradient(135deg, #4d3a00, #261f00);
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), inset 0 0 15px rgba(255, 215, 0, 0.5);
         transform: scale(1.02);
-    }
-    
-    div.stButton > button p, div.stButton > button span {
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
+        color: #FFFFFF;
     }
     
     /* ⚡ 맨위 100% 무료 분석 빨간색 번쩍임 애니메이션 */
@@ -221,7 +220,7 @@ def render_pension_ball(group, digits):
     return html
 
 # ----------------------------------------------------
-# 🟢 상단 선택 버튼 영역 (주황색 그라데이션 스타일 적용)
+# 🟢 상단 선택 버튼 영역 (금빛 네온 광채 스타일 적용)
 # ----------------------------------------------------
 st.markdown('<div class="menu-title">🎯 원하시는 복권을 선택하세요</div>', unsafe_allow_html=True)
 
@@ -236,6 +235,19 @@ with col_sel2:
     if st.button("🎫 연금복권 720+ 분석", use_container_width=True, key="sel_pension_btn"):
         st.session_state.selected_lotto_type = 'pension'
         st.rerun()
+
+# 실제 버튼을 금빛 네온 디자인으로 감싸기 위한 스타일 오버라이드 삽입
+st.markdown("""
+<script>
+    const buttons = document.querySelectorAll('div.row-widget.stHorizontal button');
+    buttons.forEach(btn => {
+        btn.style.background = 'linear-gradient(135deg, #3a2c00, #1a1500)';
+        btn.style.border = '2px solid #FFD700';
+        btn.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.3)';
+        btn.style.borderRadius = '12px';
+    });
+</script>
+""", unsafe_allow_html=True)
 
 # ----------------------------------------------------
 # ⚙️ 회전하는 진한 은빛 톱니바퀴와 실시간 엔진 가동 상태 바
