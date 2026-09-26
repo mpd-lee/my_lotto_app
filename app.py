@@ -29,53 +29,112 @@ if 'selected_lotto_type' not in st.session_state:
     st.session_state.selected_lotto_type = 'lotto'
 
 # ----------------------------------------------------
-# 🎨 다크 테마 및 맞춤 스타일링 (CSS)
+# 🎨 초강력 CSS (충돌 제로 & 색상 완벽 강제 고정)
 # ----------------------------------------------------
 st.markdown("""
     <style>
     .main { background-color: #0e1117; color: #ffffff; }
-    
-    /* =========================================
-       ✨ 1. 로또 6/45 분석 버튼 (Gold)
-       ========================================= */
-    @keyframes glow-gold {
-        0% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); border-color: #d4af37; transform: scale(1); }
-        50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 40px rgba(255, 165, 0, 0.6); border-color: #fff68f; transform: scale(1.03); }
-        100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.4); border-color: #d4af37; transform: scale(1); }
-    }
-    div[data-testid="stColumn"]:nth-of-type(1) button {
-        background: linear-gradient(135deg, #2a2415, #b8860b) !important;
-        border: 2px solid #FFD700 !important;
-        animation: glow-gold 1.5s infinite ease-in-out !important;
-        width: 100% !important;
-    }
-    
-    /* =========================================
-       🥈 2. 연금복권 720+ 분석 버튼 (Silver)
-       ========================================= */
-    @keyframes glow-silver {
-        0% { box-shadow: 0 0 8px rgba(192, 192, 192, 0.4); border-color: #a9a9a9; transform: scale(1); }
-        50% { box-shadow: 0 0 25px rgba(220, 220, 220, 0.9), 0 0 40px rgba(255, 255, 255, 0.6); border-color: #ffffff; transform: scale(1.03); }
-        100% { box-shadow: 0 0 8px rgba(192, 192, 192, 0.4); border-color: #a9a9a9; transform: scale(1); }
-    }
-    div[data-testid="stColumn"]:nth-of-type(2) button {
-        background: linear-gradient(135deg, #1e1e24, #696973) !important;
-        border: 2px solid #C0C0C0 !important;
-        animation: glow-silver 1.5s infinite ease-in-out !important;
-        width: 100% !important;
-    }
 
-    /* 상단 금색/은색 버튼 텍스트 공통 디자인 */
-    div[data-testid="stColumn"] button p {
-        font-size: 20px !important;
-        font-weight: 900 !important;
+    /* =========================================
+       🚨 1. 상단 "100% 무료 분석" 초강력 번쩍이는 네온 레드 배지
+       ========================================= */
+    @keyframes neonRedPulse {
+        0% {
+            background-color: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+            color: #FFFFFF !important;
+        }
+        50% {
+            background-color: #FF2222 !important;
+            box-shadow: 0 0 25px #FF0000, 0 0 50px #FF0000, inset 0 0 8px #FFFFFF !important;
+            transform: scale(1.15);
+            color: #FFFF00 !important;
+        }
+        100% {
+            background-color: #FF0000 !important;
+            box-shadow: 0 0 10px #FF0000, 0 0 20px #FF0000 !important;
+            transform: scale(1);
+            color: #FFFFFF !important;
+        }
+    }
+    
+    .target-red-badge {
+        display: inline-block !important;
+        background-color: #FF0000 !important;
         color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+        padding: 4px 12px !important;
+        border-radius: 6px !important;
+        border: 2px solid #FFFFFF !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+        animation: neonRedPulse 0.4s infinite ease-in-out !important;
+        margin: 0 6px !important;
+        vertical-align: middle !important;
     }
 
     /* =========================================
-       🔵 3. 추출하기 버튼 공통 (Blue) 
+       ✨ 2. 금색 버튼 (로또 6/45 분석) - 왼쪽 어두운 부분 100% 제거
        ========================================= */
+    @keyframes goldGlowStrict {
+        0% { box-shadow: 0 0 12px #FFD700, inset 0 0 10px #FFFFFF !important; }
+        100% { box-shadow: 0 0 35px #FFFF00, 0 0 60px #FFD700, inset 0 0 20px #FFFFFF !important; }
+    }
+    
+    div[data-testid="stColumn"]:nth-of-type(1) button {
+        background: #FFE042 !important;
+        background-color: #FFE042 !important;
+        background-image: linear-gradient(90deg, #FFE042 0%, #FFF5A0 50%, #FFE042 100%) !important;
+        border: 3px solid #FFFFFF !important;
+        border-radius: 12px !important;
+        animation: goldGlowStrict 0.8s infinite alternate ease-in-out !important;
+        width: 100% !important;
+    }
+    
+    div[data-testid="stColumn"]:nth-of-type(1) button p {
+        color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 21px !important;
+    }
+
+    /* =========================================
+       🥈 3. 은색 버튼 (연금복권 720+ 분석) - 왼쪽 어두운 부분 100% 제거
+       ========================================= */
+    @keyframes silverGlowStrict {
+        0% { box-shadow: 0 0 12px #E0E0E0, inset 0 0 10px #FFFFFF !important; }
+        100% { box-shadow: 0 0 35px #FFFFFF, 0 0 60px #E0E0E0, inset 0 0 20px #FFFFFF !important; }
+    }
+    
+    div[data-testid="stColumn"]:nth-of-type(2) button {
+        background: #E0E0E0 !important;
+        background-color: #E0E0E0 !important;
+        background-image: linear-gradient(90deg, #E0E0E0 0%, #FFFFFF 50%, #E0E0E0 100%) !important;
+        border: 3px solid #FFFFFF !important;
+        border-radius: 12px !important;
+        animation: silverGlowStrict 0.8s infinite alternate ease-in-out !important;
+        width: 100% !important;
+    }
+    
+    div[data-testid="stColumn"]:nth-of-type(2) button p {
+        color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 21px !important;
+    }
+
+    /* =========================================
+       👑 4. 하단 VIP Pass 영역 (화사하고 밝은 럭셔리 크림-골드 배경)
+       ========================================= */
+    .vip-bright-card {
+        background: linear-gradient(135deg, #FFFDE7 0%, #FFF59D 50%, #FFE082 100%) !important;
+        border: 4px solid #FFD700 !important;
+        border-radius: 16px !important;
+        padding: 25px 15px !important;
+        margin: 20px 0 !important;
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), inset 0 0 15px #FFFFFF !important;
+        text-align: center !important;
+    }
+
+    /* 🔵 하단 추출 버튼 애니메이션 */
     @keyframes glow-blue {
         0% { box-shadow: 0 0 8px rgba(0, 136, 255, 0.4); border-color: #0077cc; transform: scale(1); }
         50% { box-shadow: 0 0 25px rgba(0, 136, 255, 0.9), 0 0 40px rgba(0, 200, 255, 0.6); border-color: #33aaff; transform: scale(1.03); }
@@ -91,58 +150,18 @@ st.markdown("""
         margin-top: 15px !important;
         margin-bottom: 25px !important;
     }
-    button[kind="primary"] p {
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: #FFFFFF !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
-    }
+    button[kind="primary"] p { font-size: 20px !important; font-weight: 900 !important; color: #FFFFFF !important; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5); }
 
-    /* =========================================
-       🔴 4. 잠금 해제 시작 버튼 (Red) - Expander 내부 
-       ========================================= */
-    @keyframes glow-red {
-        0% { box-shadow: 0 0 8px rgba(255, 51, 51, 0.4); border-color: #cc0000; transform: scale(1); }
-        50% { box-shadow: 0 0 25px rgba(255, 51, 51, 0.9), 0 0 40px rgba(255, 102, 102, 0.6); border-color: #ff6666; transform: scale(1.03); }
-        100% { box-shadow: 0 0 8px rgba(255, 51, 51, 0.4); border-color: #cc0000; transform: scale(1); }
-    }
-    div[data-testid="stExpander"] button[kind="primary"] {
-        background: linear-gradient(45deg, #cc0000, #ff4444) !important;
-        border: 2px solid #FF3333 !important;
-        animation: glow-red 1.5s infinite ease-in-out !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
-        padding: 0.5em 1em !important;
-    }
-    div[data-testid="stExpander"] button[kind="primary"] p {
-        font-size: 16px !important;
-    }
-
-    /* ⚙️ 진한 은빛 톱니바퀴 및 펄스 효과 유지 */
+    /* ⚙️ 톱니바퀴 및 펄스 */
     @keyframes spin-gear { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .silver-gear {
-        display: inline-block; font-size: 22px; margin-left: 8px; margin-right: 4px;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(0.85);
-        animation: spin-gear 4s linear infinite; vertical-align: middle;
-    }
+    .silver-gear { display: inline-block; font-size: 22px; margin-left: 8px; margin-right: 4px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)) brightness(0.85); animation: spin-gear 4s linear infinite; vertical-align: middle; }
     @keyframes pulse-glow { 0% { transform: scale(0.95); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 6px #00FF88); } 100% { transform: scale(0.95); opacity: 0.6; } }
-    .live-indicator {
-        display: inline-block; width: 10px; height: 10px; background-color: #00FF88;
-        border-radius: 50%; margin-left: 10px; margin-right: 6px;
-        animation: pulse-glow 1.5s infinite ease-in-out; vertical-align: middle;
-    }
+    .live-indicator { display: inline-block; width: 10px; height: 10px; background-color: #00FF88; border-radius: 50%; margin-left: 10px; margin-right: 6px; animation: pulse-glow 1.5s infinite ease-in-out; vertical-align: middle; }
     
-    .premium-box {
-        background: linear-gradient(145deg, #1a1c29, #0f1016);
-        border: 1px solid #ffd700; border-radius: 12px;
-        padding: 20px; margin-top: 20px;
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);
-    }
     .promo-banner {
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         padding: 20px 15px; border-radius: 15px; text-align: center;
-        margin-bottom: 25px; border: 1px solid #69C8FF;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 25px; border: 1px solid #69C8FF; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
     }
     .menu-title { font-size: 24px; font-weight: 900; color: #FFD700; text-align: center; margin-bottom: 15px; }
     </style>
@@ -157,7 +176,7 @@ st.markdown("""
         🔥 로또 6/45 <span style="color: #FFD700;">✖</span> 연금복권 720+
     </h2>
     <p style="color: #E0E0E0; font-size: 16px; margin-bottom: 0;">
-        지금 접속하신 분들께 <span style="background-color: #FF4B4B; color: #FFF; padding: 3px 8px; border-radius: 6px; font-weight: bold;">100% 무료 분석</span> 제공!<br>
+        지금 접속하신 분들께 <span class="target-red-badge">100% 무료 분석</span> 제공!<br>
         👑 VIP 혜택: 단 한 번의 결제로 두 가지 복권 S등급 동시 오픈!
     </p>
 </div>
@@ -259,7 +278,7 @@ if app_mode == '🧧 로또 6/45 분석':
             return nums, total_sum, odds, 6-odds, ac
         return sorted(random.sample(range(1, 46), 6)), sum(nums), 3, 3, 7
 
-    # 🔵 로또 당첨 번호 무료 추출하기 (파란색 효과를 위해 type='primary' 추가)
+    # 🔵 로또 당첨 번호 무료 추출하기
     if st.button('🚀 로또 당첨 번호 무료 추출하기', key='btn_lotto', type='primary'):
         with st.spinner('AI가 역대 패턴을 분석하여 최적의 번호를 찾고 있습니다...'):
             time.sleep(1)
@@ -288,7 +307,7 @@ elif app_mode == '🎫 연금복권 720+ 분석':
     def generate_pension():
         return [random.randint(0, 9) for _ in range(6)]
 
-    # 🔵 연금복권 당첨 번호 무료 추출하기 (파란색 효과를 위해 type='primary' 추가)
+    # 🔵 연금복권 당첨 번호 무료 추출하기
     if st.button('🚀 연금복권 당첨 번호 무료 추출하기', key='btn_pension', type='primary'):
         with st.spinner('자리수별 독립 확률 분석 중입니다...'):
             time.sleep(1)
@@ -305,13 +324,14 @@ elif app_mode == '🎫 연금복권 720+ 분석':
                 """, unsafe_allow_html=True)
 
 # ====================================================
-# 공통 VIP 프리패스 하단 영역
+# 👑 하단 공통 VIP 프리패스 영역 (눈부시게 밝은 럭셔리 크림-골드 배경)
 # ====================================================
 st.divider()
+
 st.markdown("""
-<div class="premium-box">
-    <h3 style="color: #ffd700; margin-top: 0; text-align: center;">👑 통합 VIP Pass 전용 시스템</h3>
-    <p style="color: #ccc; font-size: 0.95em; text-align: center;">로또 S등급 초정밀 분석 & 연금복권 유력 조 핀포인트 예측을 동시에!</p>
+<div class="vip-bright-card">
+    <h3 style="color: #8D6E00 !important; font-size: 26px !important; font-weight: 900 !important; margin: 0 0 6px 0 !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">👑 통합 VIP Pass 전용 시스템</h3>
+    <p style="color: #222222 !important; font-size: 16px !important; font-weight: 800 !important; margin: 0 !important;">로또 S등급 초정밀 분석 & 연금복권 유력 조 핀포인트 예측을 동시에!</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -323,7 +343,6 @@ if not st.session_state.vip_unlocked:
         st.markdown("#### 2. 발급받은 고유 코드 입력")
         vip_code = st.text_input("코드 입력", type="password", key="vip_input", placeholder="예: S-CLASS-XXXX")
         
-        # 🔴 잠금 해제 시작 버튼 (위쪽 CSS에서 Expander 내부에 있는 primary 버튼을 붉은색으로 지정했습니다.)
         if st.button("잠금 해제 시작", type="primary", use_container_width=True):
             if vip_code == "7777":
                 st.session_state.vip_unlocked = True
