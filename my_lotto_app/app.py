@@ -42,7 +42,33 @@ st.markdown(
     header {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* ---------------- 애니메이션 및 스타일 ---------------- */
+    /* ---------------- 과학적/사이버네틱 타이틀 텍스트 디자인 ---------------- */
+    .cyber-title {
+        text-align: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 900;
+        font-size: 26px;
+        letter-spacing: -0.5px;
+        margin-bottom: 20px;
+        line-height: 1.4;
+    }
+    
+    /* 골든픽 강조 (고급스러운 황금빛 메탈릭) */
+    .cyber-title .golden-text {
+        background: linear-gradient(to right, #fef08a, #f59e0b, #fef08a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+    }
+    
+    /* 로또·연금복권 AI 분석기 (과학적 푸른 네온 글로우) */
+    .cyber-title .tech-text {
+        color: #f8fafc;
+        text-shadow: 
+            0 0 6px rgba(56, 189, 248, 0.6), 
+            0 0 18px rgba(14, 165, 233, 0.4);
+    }
+
     /* 🍀 네잎클로버 번쩍번쩍 회전/확장 광채 효과 */
     @keyframes clover-sparkle {
         0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); }
@@ -241,11 +267,12 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 상단 타이틀 및 번쩍이는 🍀 네잎클로버 메인 배너 =================
+# ================= 1. 과학적/세련된 사이버네틱 타이틀 배너 =================
 st.markdown("""
-    <h3 style='text-align: center; color: white; font-weight: 900; letter-spacing: -0.5px;'>
-        ✨ 골든픽(Golden Pick) <span class="sparkle-clover">🍀</span> 로또·연금복권 분석기
-    </h3>
+    <div class="cyber-title">
+        ✨ <span class="golden-text">골든픽(Golden Pick)</span> <span class="sparkle-clover">🍀</span><br>
+        <span class="tech-text">로또·연금복권 AI 분석기</span>
+    </div>
 """, unsafe_allow_html=True)
 
 st.markdown(
