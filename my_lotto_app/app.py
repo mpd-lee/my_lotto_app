@@ -4,23 +4,27 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# ================= 0. 페이지 기본 설정 (모바일 최적화를 위해 centered로 변경) =================
+# ================= 0. 페이지 기본 설정 =================
+# 모바일 최적화를 위해 layout="centered"로 설정하고 아이콘과 제목을 지정합니다.
 st.set_page_config(
-    page_title="초고성능 AI 로또·연금복권 통합 분석 시스템", page_icon="🎱", layout="centered"
+    page_title="초고성능 AI 로또·연금복권 통합 분석 시스템", 
+    page_icon="🎱", 
+    layout="centered"
 )
 
-# ================= 커스텀 CSS 스타일 (모바일 최적화 + 보안 + 기존 애니메이션 통합) =================
+# ================= 커스텀 CSS 스타일 =================
+# 모바일 화면 비율 조정, 보안을 위한 메뉴 숨김, 각종 애니메이션을 통합합니다.
 st.markdown(
     """
     <style>
-    /* [추가됨] 스마트폰 화면 비율처럼 좁고 길게 중앙 정렬 (가로 최대 500px) */
+    /* [모바일 최적화] 스마트폰 화면 비율처럼 좁고 길게 중앙 정렬 (가로 최대 500px) */
     .block-container {
         max-width: 500px;
         padding-top: 1.5rem;
         padding-bottom: 2rem;
     }
     
-    /* [추가됨] Streamlit 기본 헤더, 푸터, 햄버거 메뉴 숨기기 (보안 및 소스 노출 차단) */
+    /* [보안 설정] Streamlit 기본 헤더, 푸터, 햄버거 메뉴 숨기기 */
     #MainMenu {visibility: hidden;}
     header {visibility: hidden;}
     footer {visibility: hidden;}
@@ -70,7 +74,7 @@ st.markdown(
         100% { filter: drop-shadow(0 0 2px #ca8a04); transform: scale(1); }
     }
     .golden-title-badge {
-        font-size: 30px; /* 모바일에 맞게 폰트 약간 조정 */
+        font-size: 30px; 
         font-weight: 900;
         background: linear-gradient(to right, #fef08a, #facc15, #eab308, #fef08a);
         -webkit-background-clip: text;
@@ -135,6 +139,7 @@ st.markdown(
         box-shadow: 0 0 25px #03C75A;
     }
 
+    /* 스트림릿 컨테이너 핵(Hack)을 이용한 특정 버튼 스타일링 */
     div.element-container:has(#vip-btn-target) + div.element-container button {
         background-color: #FF0000 !important;
         border: 2px solid #CC0000 !important;
@@ -197,7 +202,7 @@ st.markdown(
         text-align: left;
     }
     </style>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
@@ -225,10 +230,11 @@ st.markdown(
         </p>
         <p style="margin: 0; font-size: 13px; color: #fef08a; font-weight: bold; letter-spacing: 0.5px;">👑 VIP 혜택: 한 번의 결제로 두 가지 복권 S등급 동시 오픈!</p>
     </div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
+# 선택된 게임에 따라 버튼 애니메이션 활성화
 if st.session_state.selected_game == "lotto":
     st.markdown('<style>div[data-testid="column"]:nth-of-type(1) .stButton>button { animation: silver-match-glow 2s infinite !important; }</style>', unsafe_allow_html=True)
 else:
@@ -253,7 +259,7 @@ st.markdown(
     <div style="background-color: #0f172a; border: 2px solid #22c55e; padding: 15px; border-radius: 12px; text-align: center; color: #4ade80; font-weight: bold; font-size: 16px; animation: glow-green 2s infinite; margin-bottom: 20px;">
         <span>{"🔴" if st.session_state.selected_game=="lotto" else "🔵"} {game_name_str} 분석 ⚙️ ● AI 실시간 엔진 가동 중</span>
     </div>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
@@ -278,24 +284,24 @@ with st.expander("⚡ 데이터베이스 및 필터 동기화 로그 보기", ex
     </div>
     """, unsafe_allow_html=True)
 
-with st.expander("⚙️️ 엔진 상세 설정 (게임 수 및 통계 필터 조정)", expanded=False):
+with st.expander("⚙ 엔진 상세 설정 (게임 수 및 통계 필터 조정)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
     total_range = st.slider("번호 총합 범위 설정", 100, 200, (115, 175))
     odd_even = st.selectbox("홀짝 비율 선호도", ["균등 (3:3 또는 4:2)", "홀수 우세", "짝수 우세"])
     ac_value_target = st.slider("AC값 (복잡도 지수) 목표값", 5, 10, 8)
 
-# ================= 5. 금빛 VIP =================
+# ================= 5. 금빛 VIP 시스템 =================
 st.markdown("""
     <div style="background-color: #1e1b18; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
         <h4 style="margin-top: 0; font-size: 17px;">🔒 VIP 고유 코드 입력 및 잠금 해제</h4>
     </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 st.markdown("""
     <a href="https://order.pay.naver.com" target="_blank" class="naver-pay-btn">
         🟢 네이버페이 간편 결제 (VIP 이용권 구매)
     </a>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 vip_input = st.text_input("VIP 코드를 입력하세요 (예: VIP2026)", type="password", key="vip_code_input")
 
@@ -342,6 +348,7 @@ if st.button("🚀 무료 고성능 번호 추출 실행", use_container_width=T
 
 st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
 
+# 로또 번호에 따른 공 색상 지정 함수
 def get_ball_color(num):
     if num <= 10: return "#facc15"
     elif num <= 20: return "#3b82f6"
@@ -414,7 +421,6 @@ with tab3:
 # ================= 8. 하단 홈페이지, 고객센터 버튼 및 고지 사항 =================
 st.markdown("---")
 
-# [추가됨] 안전한 고객 문의 창구 (구글 폼 연동)
 st.markdown("##### 📞 고객 센터")
 st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
 google_form_url = "https://forms.google.com/" 
@@ -433,7 +439,7 @@ st.markdown("""
     <a href="https://www.dhlottery.co.kr" target="_blank" class="custom-green-btn">
         🛒 동행복권 공식 홈페이지 바로 가기
     </a>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 st.markdown("<p style='text-align: center; color: #888; font-size: 12px; margin-top: 30px;'>© 2026 초고성능 AI 로또·연금복권 분석. All Rights Reserved.</p>", unsafe_allow_html=True)
 
@@ -444,4 +450,4 @@ st.markdown("""
         2. <strong>[면책 조항]</strong> 본 시스템의 추천 번호는 확률 통계 알고리즘이며 실제 당첨을 보장하지 않습니다. 복권 구매에 따른 모든 결과의 책임은 구매자 본인에게 있습니다.<br>
         3. <strong>[독립적 서비스]</strong> 본 서비스는 (주)동행복권과 무관한 독립적 분석 프로그램입니다.
     </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
