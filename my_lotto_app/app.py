@@ -5,7 +5,6 @@ import pandas as pd
 import streamlit as st
 
 # ================= 0. 페이지 기본 설정 =================
-# 모바일 최적화를 위해 layout="centered"로 설정하고 아이콘과 제목을 지정합니다.
 st.set_page_config(
     page_title="초고성능 AI 로또·연금복권 통합 분석 시스템", 
     page_icon="🎱", 
@@ -13,7 +12,6 @@ st.set_page_config(
 )
 
 # ================= 커스텀 CSS 스타일 =================
-# 모바일 화면 비율 조정, 보안을 위한 메뉴 숨김, 각종 애니메이션을 통합합니다.
 st.markdown(
     """
     <style>
@@ -61,11 +59,10 @@ st.markdown(
     }
     .glowing-free-tag {
         display: inline-block;
-        font-size: 28px;
+        font-size: 22px;
         font-weight: 900;
         animation: glow-red-text 0.8s infinite ease-in-out;
         line-height: 1.8;
-        padding-right: 15px;
     }
 
     @keyframes gold-shine {
@@ -139,7 +136,6 @@ st.markdown(
         box-shadow: 0 0 25px #03C75A;
     }
 
-    /* 스트림릿 컨테이너 핵(Hack)을 이용한 특정 버튼 스타일링 */
     div.element-container:has(#vip-btn-target) + div.element-container button {
         background-color: #FF0000 !important;
         border: 2px solid #CC0000 !important;
@@ -234,7 +230,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 선택된 게임에 따라 버튼 애니메이션 활성화
 if st.session_state.selected_game == "lotto":
     st.markdown('<style>div[data-testid="column"]:nth-of-type(1) .stButton>button { animation: silver-match-glow 2s infinite !important; }</style>', unsafe_allow_html=True)
 else:
@@ -318,10 +313,11 @@ if st.session_state.vip_unlocked:
 
 st.markdown("---")
 
-# ================= 6. 고성능 번호 추출 실행 버튼 영역 =================
+# ================= 6. 고성능 번호 추출 실행 버튼 영역 (좌우 대칭 무료 태그 적용) =================
 st.markdown("""
-<div style="text-align: right; margin-bottom: -15px;">
-    <span class="glowing-free-tag" style="font-size: 22px;">무료!!!</span>
+<div style="display: flex; justify-content: space-between; padding: 0 15px; margin-bottom: -10px;">
+    <span class="glowing-free-tag">무료!!!</span>
+    <span class="glowing-free-tag">무료!!!</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -348,7 +344,6 @@ if st.button("🚀 무료 고성능 번호 추출 실행", use_container_width=T
 
 st.markdown("<div style='margin-bottom: 25px;'></div>", unsafe_allow_html=True)
 
-# 로또 번호에 따른 공 색상 지정 함수
 def get_ball_color(num):
     if num <= 10: return "#facc15"
     elif num <= 20: return "#3b82f6"
