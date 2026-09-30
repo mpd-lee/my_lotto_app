@@ -12,13 +12,18 @@ st.set_page_config(
     layout="centered"
 )
 
-# ================= 0.1 구글 애드센스 승인용 코드 삽입 =================
-# 구글 애드센스 소유권 확인을 위한 스크립트입니다.
+# ================= 구글 애드센스 소유권 확인 메타태그 강제 주입 =================
 components.html(
     """
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2324282297166072" crossorigin="anonymous"></script>
+    <script>
+        // Streamlit 캡슐을 뚫고 최상단 <head>에 구글 메타태그를 강제로 심는 코드
+        var meta = window.parent.document.createElement('meta');
+        meta.name = "google-adsense-account";
+        meta.content = "ca-pub-2324282297166072";
+        window.parent.document.getElementsByTagName('head')[0].appendChild(meta);
+    </script>
     """,
-    height=0,
+    height=0, width=0
 )
 
 # ================= 커스텀 CSS 스타일 =================
