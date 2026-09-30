@@ -3,27 +3,12 @@ import time
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
     page_title="초고성능 AI 로또·연금복권 통합 분석 시스템", 
-    page_icon="🍀", 
+    page_icon="🎱", 
     layout="centered"
-)
-
-# ================= 구글 애드센스 소유권 확인 메타태그 강제 주입 =================
-components.html(
-    """
-    <script>
-        // Streamlit 캡슐을 뚫고 최상단 <head>에 구글 메타태그를 강제로 심는 코드
-        var meta = window.parent.document.createElement('meta');
-        meta.name = "google-adsense-account";
-        meta.content = "ca-pub-2324282297166072";
-        window.parent.document.getElementsByTagName('head')[0].appendChild(meta);
-    </script>
-    """,
-    height=0, width=0
 )
 
 # ================= 커스텀 CSS 스타일 =================
