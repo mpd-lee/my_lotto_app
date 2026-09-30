@@ -7,7 +7,7 @@ import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
-    page_title="초고성능 AI 로또·연금복권 통합 분석 시스템", 
+    page_title="골든픽(Golden Pick) - 로또🍀연금복권 분석기", 
     page_icon="🍀", 
     layout="centered"
 )
@@ -42,7 +42,21 @@ st.markdown(
     header {visibility: hidden;}
     footer {visibility: hidden;}
     
-    /* ---------------- 기존 애니메이션 및 스타일 ---------------- */
+    /* ---------------- 애니메이션 및 스타일 ---------------- */
+    /* 🍀 네잎클로버 번쩍번쩍 회전/확장 광채 효과 */
+    @keyframes clover-sparkle {
+        0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); }
+        50% { transform: scale(1.35) rotate(12deg); filter: drop-shadow(0 0 18px #4ade80) drop-shadow(0 0 30px #facc15); }
+        100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); }
+    }
+    .sparkle-clover {
+        display: inline-block;
+        animation: clover-sparkle 1.4s infinite ease-in-out;
+        margin: 0 6px;
+        font-size: 28px;
+        vertical-align: middle;
+    }
+
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -86,7 +100,7 @@ st.markdown(
         100% { filter: drop-shadow(0 0 2px #ca8a04); transform: scale(1); }
     }
     .golden-title-badge {
-        font-size: 30px; 
+        font-size: 28px; 
         font-weight: 900;
         background: linear-gradient(to right, #fef08a, #facc15, #eab308, #fef08a);
         -webkit-background-clip: text;
@@ -227,19 +241,23 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 상단 타이틀 및 눈에 확 띄는 골드 배너 =================
-st.markdown("<h3 style='text-align: center; color: white;'>✨ 초고성능 AI 로또·연금복권 통합 분석 시스템</h3>", unsafe_allow_html=True)
+# ================= 1. 상단 타이틀 및 번쩍이는 🍀 네잎클로버 메인 배너 =================
+st.markdown("""
+    <h3 style='text-align: center; color: white; font-weight: 900; letter-spacing: -0.5px;'>
+        ✨ 골든픽(Golden Pick) <span class="sparkle-clover">🍀</span> 로또·연금복권 분석기
+    </h3>
+""", unsafe_allow_html=True)
 
 st.markdown(
     """
     <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); padding: 25px 15px; border-radius: 16px; text-align: center; color: white; margin-bottom: 25px; border: 2px solid #eab308; box-shadow: 0 0 25px rgba(234, 179, 8, 0.25);">
         <div style="margin-bottom: 12px;">
-            <span class="golden-title-badge">🏆 로또 6/45 & 연금복권 720+ 🏆</span>
+            <span class="golden-title-badge">🏆 1등 당첨 저격 S등급 AI 필터 🏆</span>
         </div>
         <p style="margin: 12px 0 10px 0; font-size: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
             지금 접속하신 분께 <span class="free-badge">100% 무료 분석</span> 제공!
         </p>
-        <p style="margin: 0; font-size: 13px; color: #fef08a; font-weight: bold; letter-spacing: 0.5px;">👑 VIP 혜택: 한 번의 결제로 두 가지 복권 S등급 동시 오픈!</p>
+        <p style="margin: 0; font-size: 13px; color: #fef08a; font-weight: bold; letter-spacing: 0.5px;">👑 VIP 프리패스: 한 번의 승인으로 로또 & 연금복권 동시 오픈!</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -251,7 +269,7 @@ else:
     st.markdown('<style>div[data-testid="column"]:nth-of-type(2) .stButton>button { animation: silver-match-glow 2s infinite !important; }</style>', unsafe_allow_html=True)
 
 # ================= 2. 중앙 복권 선택 버튼 =================
-st.markdown("<h4 style='text-align: center; color: #fff; margin-bottom: 15px;'>🎯 원하시는 복권을 선택하세요</h4>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #fff; margin-bottom: 15px;'>🎯 분석할 복권을 선택하세요</h4>", unsafe_allow_html=True)
 col_b1, col_b2 = st.columns(2)
 with col_b1:
     if st.button("🔴 로또 6/45 분석", use_container_width=True):
@@ -267,14 +285,14 @@ game_name_str = "로또 6/45" if st.session_state.selected_game == "lotto" else 
 st.markdown(
     f"""
     <div style="background-color: #0f172a; border: 2px solid #22c55e; padding: 15px; border-radius: 12px; text-align: center; color: #4ade80; font-weight: bold; font-size: 16px; animation: glow-green 2s infinite; margin-bottom: 20px;">
-        <span>{"🔴" if st.session_state.selected_game=="lotto" else "🔵"} {game_name_str} 분석 ⚙️ ● AI 실시간 엔진 가동 중</span>
+        <span>{"🔴" if st.session_state.selected_game=="lotto" else "🔵"} {game_name_str} 분석 ⚙️ ● 딥러닝 실시간 엔진 가동 중</span>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 # ================= 4. 로그 영역 및 설정 =================
-with st.expander("📊 실시간 AI 확률 모델 상세 로그 보기", expanded=False):
+with st.expander("📊 실시간 분석 확률 모델 상세 로그", expanded=False):
     st.markdown("""
     <div style="font-size: 14px; color: #cbd5e1; line-height: 1.6;">
     <strong style="color: #f8fafc;">[엔진 가동 세부 정보]</strong><br>
@@ -284,7 +302,7 @@ with st.expander("📊 실시간 AI 확률 모델 상세 로그 보기", expande
     </div>
     """, unsafe_allow_html=True)
 
-with st.expander("⚡ 데이터베이스 및 필터 동기화 로그 보기", expanded=False):
+with st.expander("⚡ 데이터베이스 및 필터 동기화 로그", expanded=False):
     st.markdown("""
     <div style="font-size: 14px; color: #cbd5e1; line-height: 1.6;">
     <strong style="color: #f8fafc;">[DB 동기화 세부 정보]</strong><br>
@@ -294,7 +312,7 @@ with st.expander("⚡ 데이터베이스 및 필터 동기화 로그 보기", ex
     </div>
     """, unsafe_allow_html=True)
 
-with st.expander("⚙ 엔진 상세 설정 (게임 수 및 통계 필터 조정)", expanded=False):
+with st.expander("⚙ 맞춤형 엔진 상세 설정", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
     total_range = st.slider("번호 총합 범위 설정", 100, 200, (115, 175))
     odd_even = st.selectbox("홀짝 비율 선호도", ["균등 (3:3 또는 4:2)", "홀수 우세", "짝수 우세"])
@@ -320,15 +338,16 @@ if st.button("잠금 해제 시작", use_container_width=True, key="vip_unlock_b
     if vip_input == "VIP2026":
         st.session_state.vip_unlocked = True
         st.success("✨ VIP 프리패스 활성화 완료!")
+        st.snow()
     else:
         st.error("잘못된 코드입니다.")
 
 if st.session_state.vip_unlocked:
-    st.success("🚀 [VIP 프리패스 가동 중] S등급 데이터 실시간 적용")
+    st.success("🚀 [VIP 프리패스 가동 중] S등급 최고급 데이터 실시간 적용")
 
 st.markdown("---")
 
-# ================= 6. 고성능 번호 추출 실행 버튼 영역 (좌우 대칭 무료 태그 적용) =================
+# ================= 6. 고성능 번호 추출 실행 버튼 (풍선 애니메이션 추가) =================
 st.markdown("""
 <div style="display: flex; justify-content: space-between; padding: 0 15px; margin-bottom: -10px;">
     <span class="glowing-free-tag">무료!!!</span>
@@ -337,7 +356,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<span id="extract-btn-target" style="display:none;"></span>', unsafe_allow_html=True)
+
 if st.button("🚀 무료 고성능 번호 추출 실행", use_container_width=True, key="extract_run_btn"):
+    st.balloons()
+    
     with st.spinner("AI 엔진 가동 중... 최적의 통계 모델과 가중치를 계산하고 있습니다."):
         time.sleep(1.5)
     
@@ -367,7 +389,7 @@ def get_ball_color(num):
     else: return "#22c55e"
 
 # ================= 7. 핵심 탭 메뉴 =================
-tab1, tab2, tab3 = st.tabs(["🎱 AI 추천", "📊 심층 분석", "📑 연구 모델"])
+tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "📑 연구 모델"])
 
 with tab1:
     st.markdown("#### 🎯 하이브리드 번호 추출 결과")
@@ -375,7 +397,7 @@ with tab1:
     if not st.session_state.extract_results:
         st.info("👆 상단의 **[🚀 무료 고성능 번호 추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
     else:
-        st.success("✅ 통계 필터와 AI 확률 엔진을 거쳐 엄선된 최적의 조합입니다.")
+        st.success("✅ 통계 필터와 딥러닝 확률 엔진을 거쳐 엄선된 최적의 조합입니다.")
         st.markdown("<br>", unsafe_allow_html=True)
         
         for i, result in enumerate(st.session_state.extract_results):
@@ -419,7 +441,7 @@ with tab2:
     st.info("최신 회차 DB 실시간 연동 완료")
 
 with tab3:
-    st.markdown("#### 📑 연구 모델")
+    st.markdown("#### 📑 분석 연구 모델")
     st.markdown("""
     <div style="font-size: 13px; color: #cbd5e1;">
     - Markov Chain Monte Carlo (MCMC) 모델<br>
@@ -451,7 +473,7 @@ st.markdown("""
     </a>
     """, unsafe_allow_html=True)
 
-st.markdown("<p style='text-align: center; color: #888; font-size: 12px; margin-top: 30px;'>© 2026 초고성능 AI 로또·연금복권 분석. All Rights Reserved.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #888; font-size: 12px; margin-top: 30px;'>© 2026 골든픽(Golden Pick) 분석 시스템. All Rights Reserved.</p>", unsafe_allow_html=True)
 
 st.markdown("""
     <div class="legal-disclaimer-box">
