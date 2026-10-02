@@ -46,9 +46,6 @@ st.markdown(
 /* 애니메이션 모음 */
 @keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.35) rotate(12deg); filter: drop-shadow(0 0 18px #4ade80) drop-shadow(0 0 30px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
 .sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(24px, 6vw, 30px); vertical-align: middle; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.spinning-gear { display: inline-block; animation: spin 3s linear infinite; }
-@keyframes pulse-red { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } 50% { transform: scale(1.15); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } }
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
@@ -63,34 +60,44 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* [수정됨] 잠금해제 버튼 타겟팅 (사파이어 블루톤으로 변경하여 초록색과 차별화) */
-div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { 
+/* 잠금해제 버튼 커스텀 (사파이어 블루) */
+div.st-key-unlock_btn button { 
     background: linear-gradient(135deg, #1e3a8a, #172554) !important; 
     border: 2px solid #60a5fa !important; 
-    color: white !important; 
     box-shadow: 0 0 15px rgba(96, 165, 250, 0.4) !important;
 }
-div.element-container:has(#vip-btn-target) + div.element-container button:hover, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button:hover { 
-    box-shadow: 0 0 25px rgba(96, 165, 250, 0.8) !important; 
-    transform: scale(1.02); 
+
+/* 일반 추출 버튼 커스텀 (역동적 블루) */
+div.st-key-free_extract_btn button {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    border: 2px solid #60a5fa !important;
+    font-size: 18px !important;
+    padding: 18px !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important;
 }
-div.element-container:has(#vip-btn-target) + div.element-container button p, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button p { font-weight: 900 !important; font-size: 18px !important; }
 
-/* 추출 버튼 컨테이너 및 뱃지 */
-.extract-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 25px; position: relative; }
-.free-badge-top { background-color: #ff3b30; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -15px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); white-space: nowrap; }
+/* [추가] VIP 프리미엄 추출 버튼 커스텀 (화려한 골드 광채) */
+div.st-key-vip_extract_btn button {
+    background: linear-gradient(135deg, #ca8a04, #eab308) !important;
+    border: 2px solid #fef08a !important;
+    color: #451a03 !important;
+    font-size: 19px !important;
+    font-weight: 900 !important;
+    padding: 20px !important;
+    box-shadow: 0 0 30px rgba(250, 204, 21, 0.8) !important;
+    animation: gold-glow 1.8s infinite ease-in-out;
+}
+div.st-key-vip_extract_btn button p {
+    color: #451a03 !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+}
 
-/* 추출 버튼 광채 애니메이션 */
-@keyframes free-pulse-glow { 0% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 28px rgba(96, 165, 250, 0.9), 0 0 10px rgba(255, 255, 255, 0.4); transform: scale(1.02); } 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } }
-.extract-box-btn { display: flex; justify-content: center; align-items: center; width: 100%; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: 2px solid #60a5fa; color: white !important; padding: 22px 10px 18px 10px; border-radius: 12px; text-decoration: none !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s ease-in-out; animation: free-pulse-glow 1.8s infinite ease-in-out; }
-.extract-box-btn span { font-size: clamp(17px, 5vw, 21px); font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
-
-.extract-vip-btn { background: linear-gradient(135deg, #ca8a04, #facc15); border: 2px solid #fde047; box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); animation: gold-glow 1.8s infinite ease-in-out; }
-.extract-vip-btn span { color: #451a03 !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
+/* 배지 디자인 */
+.free-badge-top { background-color: #ff3b30; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; }
+.vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
 
 /* 게임 박스 디자인 (VIP vs 일반) */
 .game-box-free { background-color: #111827; border: 1px solid #374151; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
-
 .game-box-vip { background: linear-gradient(145deg, #1f1b13, #2d2618); border: 1px solid #facc15; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15); position: relative; overflow: hidden; }
 .s-class-badge { position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 11px; font-weight: 900; padding: 4px 15px; border-bottom-left-radius: 12px; box-shadow: -2px 2px 5px rgba(0,0,0,0.3); }
 .score-bar-bg { width: 100%; background-color: #3f3f46; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
@@ -102,7 +109,7 @@ div.element-container:has(#vip-btn-target) + div.element-container button p, div
 .locked-feature-box { background-color: #1e293b; border: 1px dashed #475569; border-radius: 10px; padding: 15px; text-align: center; margin-top: 10px; color: #94a3b8; position: relative; overflow: hidden; }
 .locked-feature-box::after { content: "🔒 VIP 전용 분석"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #facc15; font-weight: 900; padding: 8px 15px; border-radius: 8px; font-size: 15px; border: 1px solid #facc15; }
 
-/* 🌟 하단 버튼 일직선 정렬을 위한 Flexbox 컨테이너 */
+/* 하단 버튼 일직선 정렬 컨테이너 */
 .footer-buttons-container { display: flex; gap: 15px; width: 100%; margin-bottom: 25px; align-items: center; justify-content: space-between; }
 .footer-btn { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none !important; color: white !important; font-weight: 900; font-size: 16px; padding: 15px 5px; border-radius: 12px; transition: all 0.2s ease-in-out; word-break: keep-all; text-align: center; }
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -174,10 +181,9 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# [수정됨] 근영님이 만들어두신 구글 폼 링크 연결
 GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1BxlvtKkWrwdl7VuG6PsjL6PvkAZ7NCrSmlQXIeY9L30/viewform"
 
-# ================= 4. 금빛 VIP 시스템 (결제 유도 - 부드러운 에메랄드 그린 톤 적용) =================
+# ================= 4. 금빛 VIP 시스템 (결제 유도) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -199,16 +205,14 @@ f"""
 
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
-    # 이 span 태그를 기준으로 CSS에서 바로 다음 버튼(잠금 해제 시작)의 색상을 사파이어 블루로 변경함
-    st.markdown('<span id="vip-btn-target" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("🔓 잠금 해제 시작", use_container_width=True, key="vip_unlock_btn"):
+    if st.button("🔓 잠금 해제 시작", use_container_width=True, key="unlock_btn"):
         if vip_input in ["MPD2026", "VIP2026"]:
             st.session_state.vip_unlocked = True
             st.success("✨ VIP 프리패스 활성화 완료!")
             time.sleep(0.5)
             st.rerun()
         else:
-            st.error("잘못된 코드입니다.")
+            st.error("❌ 올바르지 않은 코드입니다.")
 else:
     st.markdown(
 """
@@ -219,44 +223,21 @@ else:
 
 st.markdown("---")
 
-# ================= 5. 추출 버튼 =================
-query_params = st.query_params
-if "extract" in query_params and query_params["extract"] == "true":
-    st.session_state.triggered = True
-    st.query_params.clear()
-
+# ================= 5. 추출 버튼 (st.button으로 완벽 개선하여 VIP 풀림 현상 원천 차단) =================
 if st.session_state.vip_unlocked:
-    st.markdown(
-"""
-<div class="extract-container">
-<div class="free-badge-top" style="background-color: #ca8a04; animation: none; padding: 4px 15px; border: 1px solid #fef08a;">👑 프리미엄 S등급 적용됨</div>
-<a href="?extract=true" target="_self" class="extract-box-btn extract-vip-btn">
-<span>🚀 프리미엄 조합 추출 실행</span>
-</a>
-</div>
-""", unsafe_allow_html=True
-    )
+    st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
+    clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
 else:
-    st.markdown(
-"""
-<div class="extract-container">
-<div class="free-badge-top" style="animation: pulse-red 1.2s infinite ease-in-out;">🔥 100% 무료 일반 분석</div>
-<a href="?extract=true" target="_self" class="extract-box-btn">
-<span>🚀 일반 번호 조합 무료추출 실행</span>
-</a>
-</div>
-""", unsafe_allow_html=True
-    )
+    st.markdown('<div style="text-align:center;"><div class="free-badge-top">🔥 100% 무료 일반 분석</div></div>', unsafe_allow_html=True)
+    clicked = st.button("🚀 일반 번호 조합 무료추출 실행", use_container_width=True, key="free_extract_btn")
 
-if st.session_state.get("triggered", False):
-    st.session_state.triggered = False
-    
+if clicked:
     if not st.session_state.vip_unlocked:
         st.balloons()
     else:
         st.snow()
     
-    with st.spinner("분석 시스템 가동 중... 최적의 통계 모델과 가중치를 계산하고 있습니다."):
+    with st.spinner("최적의 통계 모델과 가중치를 계산하고 있습니다..."):
         time.sleep(1.0)
     
     st.session_state.extract_results = []
@@ -302,7 +283,7 @@ tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "
 
 with tab1:
     if not st.session_state.extract_results:
-        st.info("👆 상단의 화려한 **[추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
+        st.info("👆 상단의 **[추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
     else:
         is_vip = st.session_state.get("is_vip_result", False)
         
@@ -421,7 +402,6 @@ st.markdown("---")
 st.markdown("##### 📞 고객 센터")
 st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
 
-# [수정됨] 근영님이 만들어두신 구글 폼 링크를 문의하기 버튼에 연결
 st.markdown(
 f"""
 <div class="footer-buttons-container">
