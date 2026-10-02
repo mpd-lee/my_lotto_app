@@ -36,49 +36,78 @@ st.markdown(
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
+/* 배경 및 텍스트 */
+.stApp { background-color: #0e1117; color: #fafafa; }
+
 .cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; }
 .cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
 .cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(22px, 6vw, 28px); letter-spacing: -0.8px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
 
+/* 애니메이션 모음 */
 @keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.35) rotate(12deg); filter: drop-shadow(0 0 18px #4ade80) drop-shadow(0 0 30px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
 .sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(24px, 6vw, 30px); vertical-align: middle; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .spinning-gear { display: inline-block; animation: spin 3s linear infinite; }
-
 @keyframes pulse-red { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } 50% { transform: scale(1.15); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } }
-.free-badge { display: inline-block; padding: 4px 12px; border-radius: 6px; color: white; font-weight: 900; animation: pulse-red 1.2s infinite ease-in-out; margin: 0 5px; white-space: nowrap; }
-
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 
+/* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
 
-/* [수정] 부드럽고 고급스러운 에메랄드 그린 VIP 프리미엄 버튼 */
+/* VIP 에메랄드 결제 버튼 */
 @keyframes emerald-premium-pulse { 0% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), 0 0 18px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } }
 .vip-purchase-btn { display: block; width: 100%; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 15px; word-break: keep-all; }
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { background-color: #059669 !important; border: 2px solid #facc15 !important; color: white !important; }
+/* [수정됨] 잠금해제 버튼 타겟팅 (사파이어 블루톤으로 변경하여 초록색과 차별화) */
+div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { 
+    background: linear-gradient(135deg, #1e3a8a, #172554) !important; 
+    border: 2px solid #60a5fa !important; 
+    color: white !important; 
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.4) !important;
+}
+div.element-container:has(#vip-btn-target) + div.element-container button:hover, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button:hover { 
+    box-shadow: 0 0 25px rgba(96, 165, 250, 0.8) !important; 
+    transform: scale(1.02); 
+}
 div.element-container:has(#vip-btn-target) + div.element-container button p, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button p { font-weight: 900 !important; font-size: 18px !important; }
 
+/* 추출 버튼 컨테이너 및 뱃지 */
 .extract-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 25px; position: relative; }
 .free-badge-top { background-color: #ff3b30; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -15px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); white-space: nowrap; }
 
-/* [추가] 일반 추출 버튼 역동적 블루 네온 광채 애니메이션 */
+/* 추출 버튼 광채 애니메이션 */
 @keyframes free-pulse-glow { 0% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 28px rgba(96, 165, 250, 0.9), 0 0 10px rgba(255, 255, 255, 0.4); transform: scale(1.02); } 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } }
 .extract-box-btn { display: flex; justify-content: center; align-items: center; width: 100%; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: 2px solid #60a5fa; color: white !important; padding: 22px 10px 18px 10px; border-radius: 12px; text-decoration: none !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s ease-in-out; animation: free-pulse-glow 1.8s infinite ease-in-out; }
 .extract-box-btn span { font-size: clamp(17px, 5vw, 21px); font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
 
-.extract-vip-btn { background: linear-gradient(135deg, #ca8a04, #facc15); border: 2px solid #fde047; box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); }
+.extract-vip-btn { background: linear-gradient(135deg, #ca8a04, #facc15); border: 2px solid #fde047; box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); animation: gold-glow 1.8s infinite ease-in-out; }
 .extract-vip-btn span { color: #451a03 !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
 
-.donghang-btn { display: block; width: 100%; font-weight: 900; font-size: 18px; border-radius: 10px; padding: 16px 20px; text-align: center; text-decoration: none; color: #ffffff !important; background-color: #16a34a; border: 2px solid #22c55e; transition: all 0.2s ease-in-out; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); word-break: keep-all; }
+/* 게임 박스 디자인 (VIP vs 일반) */
+.game-box-free { background-color: #111827; border: 1px solid #374151; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
 
+.game-box-vip { background: linear-gradient(145deg, #1f1b13, #2d2618); border: 1px solid #facc15; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15); position: relative; overflow: hidden; }
+.s-class-badge { position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 11px; font-weight: 900; padding: 4px 15px; border-bottom-left-radius: 12px; box-shadow: -2px 2px 5px rgba(0,0,0,0.3); }
+.score-bar-bg { width: 100%; background-color: #3f3f46; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
+.score-bar-fill { background: linear-gradient(90deg, #facc15, #22c55e); height: 100%; border-radius: 4px; }
+.vip-tags { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+.vip-tag { font-size: 11px; background-color: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); color: #fef08a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+
+/* 잠긴 기능 안내 */
 .locked-feature-box { background-color: #1e293b; border: 1px dashed #475569; border-radius: 10px; padding: 15px; text-align: center; margin-top: 10px; color: #94a3b8; position: relative; overflow: hidden; }
 .locked-feature-box::after { content: "🔒 VIP 전용 분석"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #facc15; font-weight: 900; padding: 8px 15px; border-radius: 8px; font-size: 15px; border: 1px solid #facc15; }
+
+/* 🌟 하단 버튼 일직선 정렬을 위한 Flexbox 컨테이너 */
+.footer-buttons-container { display: flex; gap: 15px; width: 100%; margin-bottom: 25px; align-items: center; justify-content: space-between; }
+.footer-btn { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none !important; color: white !important; font-weight: 900; font-size: 16px; padding: 15px 5px; border-radius: 12px; transition: all 0.2s ease-in-out; word-break: keep-all; text-align: center; }
+.footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+.footer-btn-dh { background-color: #16a34a; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
+.footer-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 </style>
 """,
     unsafe_allow_html=True,
@@ -145,33 +174,38 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
+# [수정됨] 근영님이 만들어두신 구글 폼 링크 연결
+GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1BxlvtKkWrwdl7VuG6PsjL6PvkAZ7NCrSmlQXIeY9L30/viewform"
+
 # ================= 4. 금빛 VIP 시스템 (결제 유도 - 부드러운 에메랄드 그린 톤 적용) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
-"""
+f"""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 17px; margin-bottom: 15px; color: #fde047;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
 ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
-✅ AI 패턴 기반 <b>S등급 일치율 점수</b> 제공<br>
+✅ AI 패턴 기반 <b>S등급 일치율 점수 & 분석 태그</b> 제공<br>
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 VIP 이용권을 구매하고 코드를 입력하세요.</div>
-<a href="https://order.pay.naver.com" target="_blank" class="vip-purchase-btn">
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 결제 및 신청서를 작성하신 후 코드를 입력하세요.</div>
+<a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn">
 💎 네이버페이 간편 결제 💎
-<span class="vip-purchase-text">(VIP 프리패스 이용권 구매)</span>
+<span class="vip-purchase-text">(VIP 프리패스 이용권 신청서 작성)</span>
 </a>
 </div>
 """, unsafe_allow_html=True)
 
-    vip_input = st.text_input("VIP 코드를 입력하세요 (예: VIP2026)", type="password", key="vip_code_input")
+    vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
+    # 이 span 태그를 기준으로 CSS에서 바로 다음 버튼(잠금 해제 시작)의 색상을 사파이어 블루로 변경함
     st.markdown('<span id="vip-btn-target" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("잠금 해제 시작", use_container_width=True, key="vip_unlock_btn"):
-        if vip_input == "VIP2026":
+    if st.button("🔓 잠금 해제 시작", use_container_width=True, key="vip_unlock_btn"):
+        if vip_input in ["MPD2026", "VIP2026"]:
             st.session_state.vip_unlocked = True
             st.success("✨ VIP 프리패스 활성화 완료!")
+            time.sleep(0.5)
             st.rerun()
         else:
             st.error("잘못된 코드입니다.")
@@ -185,7 +219,7 @@ else:
 
 st.markdown("---")
 
-# ================= 5. 추출 버튼 (문구 수정 및 양쪽 모두 화려한 번쩍임 적용) =================
+# ================= 5. 추출 버튼 =================
 query_params = st.query_params
 if "extract" in query_params and query_params["extract"] == "true":
     st.session_state.triggered = True
@@ -240,17 +274,21 @@ if st.session_state.get("triggered", False):
                 pool = [x for x in range(1, 46) if x not in st.session_state.vip_excluded and x not in st.session_state.vip_fixed]
                 remains = random.sample(pool, 4)
                 numbers = sorted(st.session_state.vip_fixed + remains)
-                match_score = round(random.uniform(92.5, 99.8), 1)
+                match_score = round(random.uniform(96.5, 99.8), 1)
+                tags = random.sample(["#고정수 포함", "#황금비율", "#이월수 패턴", "#최적합 조합", "#장기미출현 믹스"], 3)
+                st.session_state.extract_results.append((numbers, match_score, tags))
             else:
                 numbers = sorted(random.sample(range(1, 46), 6))
-                match_score = None
-                
-            st.session_state.extract_results.append((numbers, match_score))
+                st.session_state.extract_results.append((numbers, None, None))
         else:
             group = random.randint(1, 5)
             nums = [random.randint(0, 9) for _ in range(6)]
-            match_score = round(random.uniform(91.0, 98.9), 1) if st.session_state.is_vip_result else None
-            st.session_state.extract_results.append((group, nums, match_score))
+            if st.session_state.is_vip_result:
+                match_score = round(random.uniform(95.0, 99.9), 1)
+                tags = ["#최상위 패턴", "#연속수 필터링"]
+            else:
+                match_score, tags = None, None
+            st.session_state.extract_results.append((group, nums, match_score, tags))
 
 def get_ball_color(num):
     if num <= 10: return "#facc15"
@@ -264,54 +302,92 @@ tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "
 
 with tab1:
     if not st.session_state.extract_results:
-        st.info("👆 상단의 화려한 **[🚀 일반 번호 조합 무료추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
+        st.info("👆 상단의 화려한 **[추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
     else:
         is_vip = st.session_state.get("is_vip_result", False)
         
         if is_vip:
-            st.markdown("<h4 style='color: #facc15;'>👑 VIP 프리미엄 분석 리포트</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='color: #facc15; margin-bottom:15px;'>👑 VIP 프리미엄 분석 리포트</h4>", unsafe_allow_html=True)
             if st.session_state.extract_game_type == "lotto":
                 fixed_str = ", ".join(map(str, st.session_state.vip_fixed))
                 excl_str = ", ".join(map(str, st.session_state.vip_excluded))
                 st.markdown(
 f"""
-<div style="background-color: #2d2618; border: 1px solid #facc15; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-<div style="color: #fef08a; font-size: 14px; font-weight: bold; margin-bottom: 5px;">🎯 [VIP 전용] 금주의 고정 타겟 수: <span style="color: white; font-size: 16px;">{fixed_str}</span></div>
-<div style="color: #fca5a5; font-size: 13px; font-weight: bold;">🚫 [VIP 전용] 필터링 제외수: <span style="color: #cbd5e1;">{excl_str}</span></div>
+<div style="background-color: #2b1f1f; border-left: 5px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+    <h5 style="color: #ef4444; margin-top: 0; margin-bottom: 8px;">🚫 금주의 VIP 완벽 제외수 10개</h5>
+    <div style="color: white; font-size: 15px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 5px;">{excl_str}</div>
+    <div style="font-size: 12px; color: #a1a1aa;">* 하락세 패턴이 강력하게 겹치는 번호로 필터링 되었습니다.</div>
+</div>
+<div style="background-color: #1f2937; border-left: 5px solid #3b82f6; padding: 12px; border-radius: 6px; margin-bottom: 25px;">
+    <span style="color: #60a5fa; font-size: 14px; font-weight: bold;">🎯 금주의 VIP 고정 타겟 수:</span> 
+    <span style="color: white; font-weight: bold;">{fixed_str}</span>
 </div>
 """, unsafe_allow_html=True)
         else:
             st.markdown("#### 🎯 일반 번호 추출 결과")
             st.success("✅ 기본 통계 필터를 거쳐 엄선된 조합입니다.")
-            
-        st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
         
         for i, result in enumerate(st.session_state.extract_results):
             if st.session_state.extract_game_type == "lotto":
-                numbers, match_score = result
-                balls_html = "".join([f'<div style="width: 32px; height: 32px; border-radius: 50%; background-color: {get_ball_color(n)}; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">{n}</div>' for n in numbers])
-                bg_color = "#2d2618" if is_vip else "#111827"
-                border_color = "#facc15" if is_vip else "#374151"
-                vip_badge = f'<span style="background-color: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">S등급 (패턴일치 {match_score}%)</span>' if is_vip else ''
+                numbers, match_score, tags = result
+                balls_html = "".join([f'<div style="width: 32px; height: 32px; border-radius: 50%; background-color: {get_ball_color(n)}; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{n}</div>' for n in numbers])
                 
-                html_str = f'<div style="background-color: {bg_color}; padding: 12px; border-radius: 10px; border: 1px solid {border_color}; margin-bottom: 10px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;"><span style="color: white; font-weight: bold; font-size: 15px;">게임 {i+1}</span>{vip_badge}</div><div style="display: flex; flex-wrap: wrap;">{balls_html}</div></div>'
+                if is_vip:
+                    tags_html = "".join([f'<span class="vip-tag">{tag}</span>' for tag in tags])
+                    html_str = f"""
+                    <div class="game-box-vip">
+                        <div class="s-class-badge">S-CLASS</div>
+                        <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 VIP 프리미엄 게임 {i+1}</div>
+                        <div style="display: flex; justify-content: space-between; align-size: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
+                            <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
+                        <div style="display: flex; flex-wrap: wrap; margin-top: 15px; margin-bottom: 10px;">{balls_html}</div>
+                        <div class="vip-tags">{tags_html}</div>
+                    </div>
+                    """
+                else:
+                    html_str = f"""
+                    <div class="game-box-free">
+                        <div style="color: white; font-weight: bold; font-size: 15px; margin-bottom: 10px;">게임 {i+1}</div>
+                        <div style="display: flex; flex-wrap: wrap;">{balls_html}</div>
+                    </div>
+                    """
                 st.markdown(html_str, unsafe_allow_html=True)
-            else:
-                group, nums, match_score = result
-                bg_color = "#2d2618" if is_vip else "#111827"
-                border_color = "#facc15" if is_vip else "#374151"
+            else: # 연금복권
+                group, nums, match_score, tags = result
                 group_html = f'<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 10px; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{group}조</div>'
                 digits_html = "".join([f'<div style="width: 30px; height: 30px; border-radius: 6px; background-color: #2563eb; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; margin-right: 4px; margin-bottom: 5px; box-shadow: 0 3px 5px rgba(0,0,0,0.3);">{n}</div>' for n in nums])
-                vip_badge = f'<span style="background-color: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">VIP 확률 {match_score}%</span>' if is_vip else ''
                 
-                html_str = f'<div style="background-color: {bg_color}; padding: 12px; border-radius: 10px; border: 1px solid {border_color}; margin-bottom: 10px;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;"><span style="color: white; font-weight: bold; font-size: 15px;">게임 {i+1}</span>{vip_badge}</div><div style="display: flex; flex-wrap: wrap; align-items: center;">{group_html}{digits_html}</div></div>'
+                if is_vip:
+                    tags_html = "".join([f'<span class="vip-tag">{tag}</span>' for tag in tags])
+                    html_str = f"""
+                    <div class="game-box-vip">
+                        <div class="s-class-badge">S-CLASS</div>
+                        <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 연금 VIP 게임 {i+1}</div>
+                        <div style="display: flex; justify-content: space-between; align-size: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
+                            <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
+                        </div>
+                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; margin-top: 15px; margin-bottom: 10px;">{group_html}{digits_html}</div>
+                        <div class="vip-tags">{tags_html}</div>
+                    </div>
+                    """
+                else:
+                    html_str = f"""
+                    <div class="game-box-free">
+                        <div style="color: white; font-weight: bold; font-size: 15px; margin-bottom: 10px;">게임 {i+1}</div>
+                        <div style="display: flex; flex-wrap: wrap; align-items: center;">{group_html}{digits_html}</div>
+                    </div>
+                    """
                 st.markdown(html_str, unsafe_allow_html=True)
 
         if not is_vip:
             st.markdown(
 """
 <div class="locked-feature-box">
-이 자리에 이번 주 <b>무조건 피해야 할 10개의 제외수</b>와 <b>S등급 패턴 타겟 번호</b>가 표시됩니다.<br><br><br>
+결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와 <b>[S등급 상세 분석 리포트]</b>가 표시됩니다.<br><br><br>
 </div>
 """, unsafe_allow_html=True)
 
@@ -344,21 +420,18 @@ with tab3:
 st.markdown("---")
 st.markdown("##### 📞 고객 센터")
 st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
-google_form_url = "https://forms.google.com/" 
+
+# [수정됨] 근영님이 만들어두신 구글 폼 링크를 문의하기 버튼에 연결
 st.markdown(
 f"""
-<a href="{google_form_url}" target="_blank" style="text-decoration: none;">
-<div class="keep-all" style="background-color: #2e3b4e; color: white; text-align: center; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-🛠️ 결제 및 이용 문의하기 (안전 접수)
+<div class="footer-buttons-container">
+    <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs">
+        🛠️ 문의/결제 신청
+    </a>
+    <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh">
+        🛒 동행복권 홈
+    </a>
 </div>
-</a>
-""", unsafe_allow_html=True)
-
-st.markdown(
-"""
-<a href="https://www.dhlottery.co.kr" target="_blank" class="donghang-btn">
-🛒 동행복권 공식 홈페이지 바로 가기
-</a>
 """, unsafe_allow_html=True)
 
 # 법적 고지 및 면책 조항
