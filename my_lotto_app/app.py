@@ -55,20 +55,22 @@ st.markdown(
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
 
-/* VIP 프리미엄 버튼 */
-@keyframes vip-premium-pulse { 0% { box-shadow: 0 0 10px #b91c1c, 0 0 5px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px #ef4444, 0 0 20px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 10px #b91c1c, 0 0 5px #facc15; transform: scale(1); } }
-.vip-purchase-btn { display: block; width: 100%; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: vip-premium-pulse 1.5s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.6); margin-bottom: 15px; word-break: keep-all; }
-.vip-purchase-btn:hover { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border-color: #fde047; box-shadow: 0 0 35px #ef4444, 0 0 25px #facc15; }
+/* [수정] 부드럽고 고급스러운 에메랄드 그린 VIP 프리미엄 버튼 */
+@keyframes emerald-premium-pulse { 0% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), 0 0 18px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } }
+.vip-purchase-btn { display: block; width: 100%; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 15px; word-break: keep-all; }
+.vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { background-color: #FF0000 !important; border: 2px solid #CC0000 !important; color: white !important; }
+div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { background-color: #059669 !important; border: 2px solid #facc15 !important; color: white !important; }
 div.element-container:has(#vip-btn-target) + div.element-container button p, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button p { font-weight: 900 !important; font-size: 18px !important; }
 
 .extract-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-bottom: 25px; position: relative; }
 .free-badge-top { background-color: #ff3b30; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -15px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); white-space: nowrap; }
 
-.extract-box-btn { display: flex; justify-content: center; align-items: center; width: 100%; background-color: #3b82f6; border: 2px solid #60a5fa; color: white !important; padding: 22px 10px 18px 10px; border-radius: 12px; text-decoration: none !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s ease-in-out; }
-.extract-box-btn span { font-size: clamp(18px, 5.5vw, 22px); font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
+/* [추가] 일반 추출 버튼 역동적 블루 네온 광채 애니메이션 */
+@keyframes free-pulse-glow { 0% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } 50% { box-shadow: 0 0 28px rgba(96, 165, 250, 0.9), 0 0 10px rgba(255, 255, 255, 0.4); transform: scale(1.02); } 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); transform: scale(1); } }
+.extract-box-btn { display: flex; justify-content: center; align-items: center; width: 100%; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); border: 2px solid #60a5fa; color: white !important; padding: 22px 10px 18px 10px; border-radius: 12px; text-decoration: none !important; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: all 0.2s ease-in-out; animation: free-pulse-glow 1.8s infinite ease-in-out; }
+.extract-box-btn span { font-size: clamp(17px, 5vw, 21px); font-weight: 900; letter-spacing: -0.5px; white-space: nowrap; }
 
 .extract-vip-btn { background: linear-gradient(135deg, #ca8a04, #facc15); border: 2px solid #fde047; box-shadow: 0 0 25px rgba(250, 204, 21, 0.5); }
 .extract-vip-btn span { color: #451a03 !important; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
@@ -143,19 +145,19 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (결제 유도) =================
+# ================= 4. 금빛 VIP 시스템 (결제 유도 - 부드러운 에메랄드 그린 톤 적용) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 """
-<div class="keep-all" style="background-color: #1e1b18; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
-<h4 style="margin-top: 0; font-size: 17px; margin-bottom: 15px;">👑 VIP 프리패스 혜택 안내</h4>
-<p style="font-size: 14px; line-height: 1.6; text-align: left; color: #fde047;">
+<div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
+<h4 style="margin-top: 0; font-size: 17px; margin-bottom: 15px; color: #fde047;">👑 VIP 프리패스 혜택 안내</h4>
+<p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
 ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
 ✅ AI 패턴 기반 <b>S등급 일치율 점수</b> 제공<br>
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
-<hr style="border-color: #451a03; margin: 15px 0;">
-<div style="font-size: 13px; color: #d97706; margin-bottom: 15px;">🔒 아래 버튼을 통해 VIP 이용권을 구매하고 코드를 입력하세요.</div>
+<hr style="border-color: #022c22; margin: 15px 0;">
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 VIP 이용권을 구매하고 코드를 입력하세요.</div>
 <a href="https://order.pay.naver.com" target="_blank" class="vip-purchase-btn">
 💎 네이버페이 간편 결제 💎
 <span class="vip-purchase-text">(VIP 프리패스 이용권 구매)</span>
@@ -176,14 +178,14 @@ if not st.session_state.vip_unlocked:
 else:
     st.markdown(
 """
-<div style="background-color: #451a03; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
+<div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
 👑 VIP 계정 활성화 상태입니다. 모든 S등급 프리미엄 데이터가 적용됩니다.
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# ================= 5. 추출 버튼 (VIP 여부에 따라 변경) =================
+# ================= 5. 추출 버튼 (문구 수정 및 양쪽 모두 화려한 번쩍임 적용) =================
 query_params = st.query_params
 if "extract" in query_params and query_params["extract"] == "true":
     st.session_state.triggered = True
@@ -206,7 +208,7 @@ else:
 <div class="extract-container">
 <div class="free-badge-top" style="animation: pulse-red 1.2s infinite ease-in-out;">🔥 100% 무료 일반 분석</div>
 <a href="?extract=true" target="_self" class="extract-box-btn">
-<span>🚀 일반 번호 조합 추출 실행</span>
+<span>🚀 일반 번호 조합 무료추출 실행</span>
 </a>
 </div>
 """, unsafe_allow_html=True
@@ -262,7 +264,7 @@ tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "
 
 with tab1:
     if not st.session_state.extract_results:
-        st.info("👆 상단의 파란색(또는 황금색) **[🚀 추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
+        st.info("👆 상단의 화려한 **[🚀 일반 번호 조합 무료추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
     else:
         is_vip = st.session_state.get("is_vip_result", False)
         
@@ -284,7 +286,6 @@ f"""
             
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # [수정] HTML 코드가 노출되는 마크다운 버그 원천 차단 (한 줄 문자열 생성 방식)
         for i, result in enumerate(st.session_state.extract_results):
             if st.session_state.extract_game_type == "lotto":
                 numbers, match_score = result
@@ -339,7 +340,7 @@ with tab3:
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 7. 하단 버튼 및 고지 사항 (복구 완료) =================
+# ================= 7. 하단 버튼 및 고지 사항 =================
 st.markdown("---")
 st.markdown("##### 📞 고객 센터")
 st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
@@ -360,7 +361,7 @@ st.markdown(
 </a>
 """, unsafe_allow_html=True)
 
-# [복구] 법적 고지 및 면책 조항
+# 법적 고지 및 면책 조항
 st.markdown(
 """
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #888; font-size: 11px; line-height: 1.6; word-break: keep-all;">
