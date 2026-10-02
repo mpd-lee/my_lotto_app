@@ -60,6 +60,38 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
+/* [디자인 복구] 잠금해제 버튼 (사파이어 블루) */
+div.st-key-unlock_btn button { 
+    background: linear-gradient(135deg, #1e3a8a, #172554) !important; 
+    border: 2px solid #60a5fa !important; 
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.4) !important;
+}
+
+/* [디자인 복구] 일반 무료 추출 버튼 (역동적 블루) */
+div.st-key-free_extract_btn button {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    border: 2px solid #60a5fa !important;
+    font-size: 18px !important;
+    padding: 18px !important;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* [디자인 복구 & 강화] VIP 프리미엄 추출 버튼 (황금빛 화려한 광채) */
+div.st-key-vip_extract_btn button {
+    background: linear-gradient(135deg, #ca8a04, #eab308) !important;
+    border: 2px solid #fef08a !important;
+    color: #451a03 !important;
+    font-size: 19px !important;
+    font-weight: 900 !important;
+    padding: 20px !important;
+    box-shadow: 0 0 30px rgba(250, 204, 21, 0.8) !important;
+    animation: gold-glow 1.8s infinite ease-in-out;
+}
+div.st-key-vip_extract_btn button p {
+    color: #451a03 !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+}
+
 /* 배지 디자인 */
 .free-badge-top { background-color: #ff3b30; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
@@ -149,7 +181,6 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# 정식 발급된 구글 폼 링크 반영
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"
 
 # ================= 4. 금빛 VIP 시스템 (결제 유도) =================
@@ -192,7 +223,7 @@ else:
 
 st.markdown("---")
 
-# ================= 5. 추출 버튼 =================
+# ================= 5. 추출 버튼 (화려한 골드/블루 광채 버튼 복원) =================
 if st.session_state.vip_unlocked:
     st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
     clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
