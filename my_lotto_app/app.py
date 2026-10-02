@@ -49,8 +49,8 @@ st.markdown(
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
-@keyframes pulse-red { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } 50% { transform: scale(1.08); background-color: #dc2626; box-shadow: 0 0 20px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } }
 @keyframes pulse-orange { 0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } }
+@keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 
 /* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
@@ -62,32 +62,33 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* [잠금해제 버튼]: 고급스러운 딥 블루 & 네온 사이버 블루 테두리 */
+/* [잠금해제 버튼]: 따뜻하고 활기찬 선셋 오렌지 */
 div.st-key-unlock_btn button { 
-    background: linear-gradient(135deg, #1e3a8a, #1e1b4b) !important; 
-    border: 2px solid #60a5fa !important; 
-    box-shadow: 0 0 20px rgba(96, 165, 250, 0.4) !important;
+    background: linear-gradient(135deg, #f97316, #ea580c) !important; 
+    border: 2px solid #fed7aa !important; 
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.5) !important;
     font-size: 16px !important;
-}
-div.st-key-unlock_btn button:hover {
-    background: linear-gradient(135deg, #2563eb, #1e3a8a) !important;
-    border-color: #93c5fd !important;
-    box-shadow: 0 0 30px rgba(96, 165, 250, 0.7) !important;
-}
-
-/* [일반 무료 추출 버튼]: 활기찬 선셋 오렌지 웜톤 (시선 집중 & 혜택 강조) */
-div.st-key-free_extract_btn button {
-    background: linear-gradient(135deg, #f97316, #ea580c) !important;
-    border: 2px solid #fed7aa !important;
-    font-size: 18px !important;
-    padding: 18px !important;
-    box-shadow: 0 0 25px rgba(249, 115, 22, 0.6) !important;
     animation: pulse-orange 2s infinite ease-in-out;
 }
-div.st-key-free_extract_btn button:hover {
+div.st-key-unlock_btn button:hover {
     background: linear-gradient(135deg, #fb923c, #f97316) !important;
     border-color: #ffedd5 !important;
-    box-shadow: 0 0 35px rgba(249, 115, 22, 0.9) !important;
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.8) !important;
+}
+
+/* [일반 무료 추출 버튼]: 편안하고 밝은 스카이 블루 */
+div.st-key-free_extract_btn button {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+    border: 2px solid #bae6fd !important;
+    font-size: 18px !important;
+    padding: 18px !important;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
+    animation: pulse-sky 2s infinite ease-in-out;
+}
+div.st-key-free_extract_btn button:hover {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+    border-color: #e0f2fe !important;
+    box-shadow: 0 0 35px rgba(56, 189, 248, 0.8) !important;
 }
 
 /* VIP 프리미엄 추출 버튼 (황금빛 광채) */
@@ -107,7 +108,7 @@ div.st-key-vip_extract_btn button p {
 }
 
 /* 뱃지 디자인 */
-.free-badge-top { background-color: #c2410c; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; animation: pulse-red 1.5s infinite ease-in-out; border: 1px solid #fdba74; }
+.free-badge-top { background-color: #0284c7; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; animation: pulse-sky 1.5s infinite ease-in-out; border: 1px solid #bae6fd; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
 
 /* 게임 박스 디자인 (VIP vs 일반) */
@@ -243,7 +244,7 @@ if st.session_state.vip_unlocked:
     st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
     clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
 else:
-    st.markdown('<div style="text-align:center;"><div class="free-badge-top">🔥 100% 무료 일반 분석</div></div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center;"><div class="free-badge-top">✨ 100% 무료 일반 분석</div></div>', unsafe_allow_html=True)
     clicked = st.button("🚀 일반 번호 조합 무료추출 실행", use_container_width=True, key="free_extract_btn")
 
 if clicked:
