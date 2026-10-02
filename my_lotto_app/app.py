@@ -50,7 +50,7 @@ st.markdown(
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 @keyframes pulse-red { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } 50% { transform: scale(1.08); background-color: #dc2626; box-shadow: 0 0 20px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 10px #991b1b; } }
-@keyframes pulse-free-cta { 0% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); transform: scale(1); } }
+@keyframes pulse-orange { 0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } }
 
 /* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
@@ -62,32 +62,32 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* [디자인 업그레이드 1] 잠금해제 버튼: 신뢰와 승인의 '에메랄드 그린' 톤 적용 */
+/* [잠금해제 버튼]: 고급스러운 딥 블루 & 네온 사이버 블루 테두리 */
 div.st-key-unlock_btn button { 
-    background: linear-gradient(135deg, #047857, #065f46) !important; 
-    border: 2px solid #34d399 !important; 
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.4) !important;
+    background: linear-gradient(135deg, #1e3a8a, #1e1b4b) !important; 
+    border: 2px solid #60a5fa !important; 
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.4) !important;
     font-size: 16px !important;
 }
 div.st-key-unlock_btn button:hover {
-    background: linear-gradient(135deg, #059669, #047857) !important;
-    border-color: #6ee7b7 !important;
-    box-shadow: 0 0 30px rgba(52, 211, 153, 0.7) !important;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a) !important;
+    border-color: #93c5fd !important;
+    box-shadow: 0 0 30px rgba(96, 165, 250, 0.7) !important;
 }
 
-/* [디자인 업그레이드 2] 일반 무료 추출 버튼: 무료 뱃지와 통일감을 주는 '핫 레드/오렌지' 에너제틱 톤 적용 */
+/* [일반 무료 추출 버튼]: 활기찬 선셋 오렌지 웜톤 (시선 집중 & 혜택 강조) */
 div.st-key-free_extract_btn button {
-    background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-    border: 2px solid #fca5a5 !important;
+    background: linear-gradient(135deg, #f97316, #ea580c) !important;
+    border: 2px solid #fed7aa !important;
     font-size: 18px !important;
     padding: 18px !important;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.6) !important;
-    animation: pulse-free-cta 2s infinite ease-in-out;
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.6) !important;
+    animation: pulse-orange 2s infinite ease-in-out;
 }
 div.st-key-free_extract_btn button:hover {
-    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-    border-color: #fee2e2 !important;
-    box-shadow: 0 0 35px rgba(239, 68, 68, 0.9) !important;
+    background: linear-gradient(135deg, #fb923c, #f97316) !important;
+    border-color: #ffedd5 !important;
+    box-shadow: 0 0 35px rgba(249, 115, 22, 0.9) !important;
 }
 
 /* VIP 프리미엄 추출 버튼 (황금빛 광채) */
@@ -107,7 +107,7 @@ div.st-key-vip_extract_btn button p {
 }
 
 /* 뱃지 디자인 */
-.free-badge-top { background-color: #991b1b; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; animation: pulse-red 1.5s infinite ease-in-out; border: 1px solid #f87171; }
+.free-badge-top { background-color: #c2410c; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: inline-block; animation: pulse-red 1.5s infinite ease-in-out; border: 1px solid #fdba74; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
 
 /* 게임 박스 디자인 (VIP vs 일반) */
@@ -220,7 +220,6 @@ f"""
 
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
-    # [컬러 아이디어 적용] 잠금 해제 시작 -> 에메랄드 그린 (신뢰, 승인, 보안 해제)
     if st.button("🔓 잠금 해제 시작", use_container_width=True, key="unlock_btn"):
         if vip_input in ["MPD2026", "VIP2026"]:
             st.session_state.vip_unlocked = True
@@ -245,7 +244,6 @@ if st.session_state.vip_unlocked:
     clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
 else:
     st.markdown('<div style="text-align:center;"><div class="free-badge-top">🔥 100% 무료 일반 분석</div></div>', unsafe_allow_html=True)
-    # [컬러 아이디어 적용] 일반 번호 조합 무료추출 실행 -> 강렬한 핫 레드/오렌지 (무료 혜택 강조 및 시선 집중)
     clicked = st.button("🚀 일반 번호 조합 무료추출 실행", use_container_width=True, key="free_extract_btn")
 
 if clicked:
