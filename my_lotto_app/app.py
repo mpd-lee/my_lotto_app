@@ -63,8 +63,17 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* 잠금해제 버튼 타겟팅 (초록색 톤 유지) */
-div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { background-color: #059669 !important; border: 2px solid #facc15 !important; color: white !important; }
+/* [수정됨] 잠금해제 버튼 타겟팅 (사파이어 블루톤으로 변경하여 초록색과 차별화) */
+div.element-container:has(#vip-btn-target) + div.element-container button, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button { 
+    background: linear-gradient(135deg, #1e3a8a, #172554) !important; 
+    border: 2px solid #60a5fa !important; 
+    color: white !important; 
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.4) !important;
+}
+div.element-container:has(#vip-btn-target) + div.element-container button:hover, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button:hover { 
+    box-shadow: 0 0 25px rgba(96, 165, 250, 0.8) !important; 
+    transform: scale(1.02); 
+}
 div.element-container:has(#vip-btn-target) + div.element-container button p, div[data-testid="stElementContainer"]:has(#vip-btn-target) + div[data-testid="stElementContainer"] button p { font-weight: 900 !important; font-size: 18px !important; }
 
 /* 추출 버튼 컨테이너 및 뱃지 */
@@ -165,10 +174,13 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
+# [수정됨] 근영님이 만들어두신 구글 폼 링크 연결
+GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1BxlvtKkWrwdl7VuG6PsjL6PvkAZ7NCrSmlQXIeY9L30/viewform"
+
 # ================= 4. 금빛 VIP 시스템 (결제 유도 - 부드러운 에메랄드 그린 톤 적용) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
-"""
+f"""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 17px; margin-bottom: 15px; color: #fde047;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
@@ -177,18 +189,19 @@ if not st.session_state.vip_unlocked:
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 VIP 이용권을 구매하고 코드를 입력하세요.</div>
-<a href="https://order.pay.naver.com" target="_blank" class="vip-purchase-btn">
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 결제 및 신청서를 작성하신 후 코드를 입력하세요.</div>
+<a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn">
 💎 네이버페이 간편 결제 💎
-<span class="vip-purchase-text">(VIP 프리패스 이용권 구매)</span>
+<span class="vip-purchase-text">(VIP 프리패스 이용권 신청서 작성)</span>
 </a>
 </div>
 """, unsafe_allow_html=True)
 
-    vip_input = st.text_input("VIP 코드를 입력하세요 (예: VIP2026)", type="password", key="vip_code_input")
+    vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
+    # 이 span 태그를 기준으로 CSS에서 바로 다음 버튼(잠금 해제 시작)의 색상을 사파이어 블루로 변경함
     st.markdown('<span id="vip-btn-target" style="display:none;"></span>', unsafe_allow_html=True)
-    if st.button("잠금 해제 시작", use_container_width=True, key="vip_unlock_btn"):
+    if st.button("🔓 잠금 해제 시작", use_container_width=True, key="vip_unlock_btn"):
         if vip_input in ["MPD2026", "VIP2026"]:
             st.session_state.vip_unlocked = True
             st.success("✨ VIP 프리패스 활성화 완료!")
@@ -408,13 +421,12 @@ st.markdown("---")
 st.markdown("##### 📞 고객 센터")
 st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
 
-# [수정됨] CSS Flexbox를 활용해 버튼 2개를 완벽하게 일직선 및 동일 비율로 맞춤
-google_form_url = "https://forms.google.com/" 
+# [수정됨] 근영님이 만들어두신 구글 폼 링크를 문의하기 버튼에 연결
 st.markdown(
 f"""
 <div class="footer-buttons-container">
-    <a href="{google_form_url}" target="_blank" class="footer-btn footer-btn-cs">
-        🛠️ 문의하기
+    <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs">
+        🛠️ 문의/결제 신청
     </a>
     <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh">
         🛒 동행복권 홈
@@ -422,7 +434,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-# [수정됨] 법적 고지 및 면책 조항 (원본 상세 버전으로 복구)
+# 법적 고지 및 면책 조항
 st.markdown(
 """
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #888; font-size: 11px; line-height: 1.6; word-break: keep-all;">
