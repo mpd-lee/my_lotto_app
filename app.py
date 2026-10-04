@@ -39,14 +39,14 @@ st.markdown(
 /* 배경 및 텍스트 */
 .stApp { background-color: #0e1117; color: #fafafa; }
 
-/* 타이틀 및 모바일 클로버 잘림 방지 레이아웃 (overflow: visible 필수) */
-.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; overflow: visible; box-sizing: border-box; }
-.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex-wrap: nowrap; width: 100%; overflow: visible; }
-.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(16px, 4.8vw, 24px); letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); white-space: nowrap; flex-shrink: 1; }
+/* 타이틀 및 모바일 클로버 줄바꿈 허용 레이아웃 (잘림 방지) */
+.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; box-sizing: border-box; }
+.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%; max-width: 100%; box-sizing: border-box; padding: 0 5px; }
+.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(20px, 5.5vw, 26px); letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); text-align: center; word-break: keep-all; }
 
-/* 클로버 크기 최적화 및 폰트 확대 대응 */
-@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
-.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(16px, 4.2vw, 22px); vertical-align: middle; flex-shrink: 0; }
+/* 클로버 애니메이션 및 유연한 크기 설정 */
+@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.25) rotate(10deg); filter: drop-shadow(0 0 15px #4ade80) drop-shadow(0 0 25px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
+.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(20px, 5vw, 25px); vertical-align: middle; flex-shrink: 0; }
 
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
@@ -143,7 +143,7 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 타이틀 배너 (클로버 잘림 방지 최적화) =================
+# ================= 1. 타이틀 배너 (줄바꿈 허용형 구조) =================
 st.markdown(
 """
 <div class="cyber-title">
