@@ -39,13 +39,15 @@ st.markdown(
 /* 배경 및 텍스트 */
 .stApp { background-color: #0e1117; color: #fafafa; }
 
-.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; }
-.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(22px, 6vw, 28px); letter-spacing: -0.8px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+/* 타이틀 및 모바일 클로버 완벽 정렬 레이아웃 */
+.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; }
+.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; flex-wrap: nowrap; width: 100%; overflow: hidden; }
+.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(20px, 5.5vw, 26px); letter-spacing: -0.8px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); white-space: nowrap; flex-shrink: 0; }
 
-/* 애니메이션 모음 */
-@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.35) rotate(12deg); filter: drop-shadow(0 0 18px #4ade80) drop-shadow(0 0 30px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
-.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(24px, 6vw, 30px); vertical-align: middle; }
+/* 애니메이션 및 클로버 크기 최적화 */
+@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.3) rotate(10deg); filter: drop-shadow(0 0 15px #4ade80) drop-shadow(0 0 25px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
+.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(20px, 5vw, 26px); vertical-align: middle; flex-shrink: 0; }
+
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
@@ -141,7 +143,7 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 타이틀 배너 =================
+# ================= 1. 타이틀 배너 (모바일 줄바꿈 방지 적용) =================
 st.markdown(
 """
 <div class="cyber-title">
@@ -150,7 +152,7 @@ st.markdown(
 <span class="lottopick-brand">로또픽 (Lotto Pick)</span>
 <span class="sparkle-clover">🍀</span>
 </div>
-<div style="margin-top: 12px; line-height: 1.5; text-align: center;">
+<div style="margin-top: 12px; line-height: 1.5; text-align: center; width: 100%;">
 <div style="color: #e2e8f0; font-size: clamp(16px, 4vw, 18px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
 초정밀 통계·조합 분석 시스템
 </div>
@@ -426,7 +428,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 8. 토스 심사용 상품 안내 (추가됨) =================
+# ================= 8. 토스 심사용 상품 안내 =================
 st.markdown("---")
 st.markdown("### 💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)")
 st.info("""
