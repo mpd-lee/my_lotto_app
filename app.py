@@ -28,11 +28,11 @@ components.html(
     height=0, width=0
 )
 
-# ================= 커스텀 CSS 스타일 =================
+# ================= 커스텀 CSS 스타일 (모바일 시스템 폰트 확대 대응형) =================
 st.markdown(
 """
 <style>
-.block-container { max-width: 500px; padding-top: 1.5rem; padding-bottom: 2rem; }
+.block-container { max-width: 500px; padding-top: 1.5rem; padding-bottom: 2rem; padding-left: 1rem; padding-right: 1rem; }
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
@@ -40,13 +40,13 @@ st.markdown(
 .stApp { background-color: #0e1117; color: #fafafa; }
 
 /* 타이틀 및 모바일 클로버 완벽 정렬 레이아웃 */
-.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; }
-.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; flex-wrap: nowrap; width: 100%; overflow: hidden; }
-.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(20px, 5.5vw, 26px); letter-spacing: -0.8px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); white-space: nowrap; flex-shrink: 0; }
+.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; box-sizing: border-box; }
+.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; flex-wrap: nowrap; width: 100%; }
+.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(18px, 5vw, 24px); letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); white-space: nowrap; flex-shrink: 1; }
 
-/* 애니메이션 및 클로버 크기 최적화 */
-@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.3) rotate(10deg); filter: drop-shadow(0 0 15px #4ade80) drop-shadow(0 0 25px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
-.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(20px, 5vw, 26px); vertical-align: middle; flex-shrink: 0; }
+/* 애니메이션 및 클로버 크기 최적화 (글자 커져도 안 잘리게 조정) */
+@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.25) rotate(10deg); filter: drop-shadow(0 0 15px #4ade80) drop-shadow(0 0 25px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
+.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(18px, 4.5vw, 24px); vertical-align: middle; flex-shrink: 0; }
 
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
@@ -143,7 +143,7 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 타이틀 배너 (모바일 줄바꿈 방지 적용) =================
+# ================= 1. 타이틀 배너 (글자 크기 및 여백 최적화) =================
 st.markdown(
 """
 <div class="cyber-title">
@@ -152,14 +152,14 @@ st.markdown(
 <span class="lottopick-brand">로또픽 (Lotto Pick)</span>
 <span class="sparkle-clover">🍀</span>
 </div>
-<div style="margin-top: 12px; line-height: 1.5; text-align: center; width: 100%;">
-<div style="color: #e2e8f0; font-size: clamp(16px, 4vw, 18px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
+<div style="margin-top: 10px; line-height: 1.5; text-align: center; width: 100%;">
+<div style="color: #e2e8f0; font-size: clamp(15px, 3.8vw, 17px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
 초정밀 통계·조합 분석 시스템
 </div>
-<div style="color: #94a3b8; font-size: clamp(10px, 2.5vw, 12px); font-weight: 600; letter-spacing: 1.5px; margin: 5px 0;">
+<div style="color: #94a3b8; font-size: clamp(10px, 2.3vw, 12px); font-weight: 600; letter-spacing: 1.2px; margin: 4px 0;">
 LOTTO & PENSION LOTTERY ANALYTICS
 </div>
-<div style="color: #38bdf8; font-size: clamp(13px, 3.5vw, 15px); font-weight: 700; margin-top: 6px; word-break: keep-all;">
+<div style="color: #38bdf8; font-size: clamp(12px, 3.2vw, 14px); font-weight: 700; margin-top: 5px; word-break: keep-all;">
 "데이터는 정밀하게, 분석은 체계적으로"
 </div>
 </div>
