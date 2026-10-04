@@ -39,13 +39,13 @@ st.markdown(
 /* 배경 및 텍스트 */
 .stApp { background-color: #0e1117; color: #fafafa; }
 
-/* 타이틀 및 상단 클로버 배치 레이아웃 */
-.cyber-title { text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; box-sizing: border-box; }
-.lottopick-brand { font-weight: 900; font-size: clamp(22px, 6vw, 28px); letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); display: inline-block; margin-top: 4px; }
+/* 타이틀 및 모바일 완벽 수평 수용 레이아웃 */
+.cyber-title { text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 0 10px; }
+.lottopick-brand { font-weight: 900; font-size: clamp(15px, 4.2vw, 22px); letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 12px rgba(245, 158, 11, 0.4); display: inline-block; vertical-align: middle; margin: 0 4px; }
 
-/* 클로버 애니메이션 */
-@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.25) rotate(10deg); filter: drop-shadow(0 0 15px #4ade80) drop-shadow(0 0 25px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
-.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(24px, 6.5vw, 30px); margin: 0 6px; vertical-align: middle; }
+/* 클로버 크기 최적화 및 강제 수용 */
+@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
+.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(16px, 4vw, 20px); vertical-align: middle; }
 
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
@@ -142,25 +142,23 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 1. 타이틀 배너 (상단 클로버 배치형) =================
+# ================= 1. 타이틀 배너 (축소형 수평 고정) =================
 st.markdown(
 """
 <div class="cyber-title">
-    <div>
+    <div style="width: 100%; box-sizing: border-box; white-space: nowrap;">
         <span class="sparkle-clover">🍀</span>
-        <span class="sparkle-clover">🍀</span>
-    </div>
-    <div>
         <span class="lottopick-brand">로또픽 (Lotto Pick)</span>
+        <span class="sparkle-clover">🍀</span>
     </div>
-    <div style="margin-top: 14px; line-height: 1.5; text-align: center; width: 100%;">
-        <div style="color: #e2e8f0; font-size: clamp(15px, 3.8vw, 17px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
+    <div style="margin-top: 12px; line-height: 1.5; text-align: center; width: 100%;">
+        <div style="color: #e2e8f0; font-size: clamp(14px, 3.5vw, 16px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
             초정밀 통계·조합 분석 시스템
         </div>
-        <div style="color: #94a3b8; font-size: clamp(10px, 2.3vw, 12px); font-weight: 600; letter-spacing: 1.2px; margin: 4px 0;">
+        <div style="color: #94a3b8; font-size: clamp(9px, 2.2vw, 11px); font-weight: 600; letter-spacing: 1px; margin: 4px 0;">
             LOTTO & PENSION LOTTERY ANALYTICS
         </div>
-        <div style="color: #38bdf8; font-size: clamp(12px, 3.2vw, 14px); font-weight: 700; margin-top: 5px; word-break: keep-all;">
+        <div style="color: #38bdf8; font-size: clamp(11px, 3vw, 13px); font-weight: 700; margin-top: 4px; word-break: keep-all;">
             "데이터는 정밀하게, 분석은 체계적으로"
         </div>
     </div>
