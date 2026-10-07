@@ -14,9 +14,9 @@ st.set_page_config(
     layout="centered"
 )
 
-# ================= URL 링크 관리 (버튼별 분리) =================
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"  # 📌 구글 설문지 신청서 링크
-NAVER_PAY_URL = "https://pay.naver.com/"                  # 📌 네이버페이 결제 페이지 링크
+# ================= URL 및 키 관리 =================
+TOSS_CLIENT_KEY = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"  # 📌 토스페이먼츠 테스트 클라이언트 키
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 구글 설문지 신청서 링크
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
@@ -34,11 +34,16 @@ components.html(
     height=0, width=0
 )
 
+# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 승인) =================
+query_params = st.query_params
+if "payment_success" in query_params or "paymentKey" in query_params:
+    st.session_state.vip_unlocked = True
+    st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
+
 # ================= 커스텀 CSS 스타일 (라이트/다크모드 완벽 대응) =================
 st.markdown(
 """
 <style>
-/* 모바일 브라우저 폰트 강제 확대 방지 */
 html, body, * {
     -webkit-text-size-adjust: 100% !important;
     -moz-text-size-adjust: 100% !important;
@@ -49,7 +54,7 @@ html, body, * {
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
-/* 1. 앱 전체 배경 및 기본 폰트 색상 강제 고정 (라이트 모드 배경 변환 방지) */
+/* 앱 전체 배경 및 기본 폰트 색상 강제 고정 (라이트 모드 배경 변환 방지) */
 .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stToolbar"] { 
     background-color: #0e1117 !important; 
     color: #ffffff !important; 
@@ -66,7 +71,7 @@ html, body, * {
     color: #ffffff;
 }
 
-/* 2. VIP 코드 입력창 라벨 (노란색 고대비 보장) */
+/* VIP 코드 입력창 라벨 */
 div[data-testid="stTextInput"] label p, 
 div[data-testid="stWidgetLabel"] p, 
 .stTextInput label p {
@@ -91,7 +96,7 @@ div[data-testid="stTextInput"] input,
     font-weight: bold !important;
 }
 
-/* 3. 탭 메뉴 글씨 (당첨 번호 추천 / 심층 분석 / 연구 모델) 라이트모드 완벽 고정 */
+/* 탭 메뉴 글씨 고정 */
 button[data-baseweb="tab"] {
     background-color: transparent !important;
     border: none !important;
@@ -115,7 +120,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-bottom: 3px solid #facc15 !important;
 }
 
-/* 4. 안내 박스(st.info) 스타일 */
+/* 안내 박스(st.info) 스타일 */
 div[data-testid="stAlert"] {
     background-color: #1e293b !important;
     border: 1px solid #38bdf8 !important;
@@ -126,7 +131,7 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
     font-weight: bold !important;
 }
 
-/* 애니메이션 정의 */
+/* 애니메이션 및 버튼 스타일 */
 @keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
 .sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: 20px; }
 
@@ -134,10 +139,9 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 @keyframes pulse-orange { 0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } }
-@keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
+@keyframes pulse-sky { 0% { shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
-/* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
 
@@ -269,7 +273,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (네이버 결제 및 구글 신청서 두 버튼 명확히 배치) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -281,25 +285,61 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 결제 및 신청서를 작성하신 후 코드를 입력하세요.</div>
-
-<!-- 1. 네이버페이 결제 페이지 직행 버튼 -->
-<a href="{NAVER_PAY_URL}" target="_blank" class="vip-purchase-btn" style="text-decoration: none;">
-💎 네이버페이 간편 결제 💎
-<span class="vip-purchase-text" style="text-decoration: none;">(네이버페이 결제 페이지로 이동)</span>
-</a>
-
-<!-- 2. 무통장 입금 및 구글 신청서 작성 버튼 -->
-<a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-color: #3b82f6; animation: none; margin-top: 8px; text-decoration: none;">
-📝 무통장 입금 / VIP 프리패스 신청서 작성
-</a>
-
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 [토스결제] 버튼을 통해 1,000원 결제 시 즉시 VIP가 해제됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
+    # 토스 결제 SDK 스크립트 실행 버튼 (HTML/JS)
+    toss_html = f"""
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <div style="text-align: center; margin-bottom: 10px;">
+        <button id="toss-payment-button" style="
+            width: 100%;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border: 2px solid #facc15;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 17px;
+            padding: 16px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.2s ease-in-out;
+        ">
+            💎 토스페이먼츠 간편 결제 (1,000원) 💎
+        </button>
+    </div>
+    <script>
+        var tossPayments = TossPayments('{TOSS_CLIENT_KEY}');
+        document.getElementById('toss-payment-button').addEventListener('click', function () {{
+            tossPayments.requestPayment('카드', {{
+                amount: 1000,
+                orderId: 'LOTTO_' + new Date().getTime(),
+                orderName: '로또픽 VIP 7일 프리패스',
+                customerName: '로또픽 회원',
+                successUrl: window.location.href.split('?')[0] + '?payment_success=true',
+                failUrl: window.location.href.split('?')[0] + '?payment_fail=true',
+            }}).catch(function (error) {{
+                if (error.code === 'USER_CANCEL') {{
+                    console.log('사용자가 결제를 취소했습니다.');
+                }}
+            }});
+        }});
+    </script>
+    """
+    components.html(toss_html, height=80)
+
+    # 수동 구글 폼 링크 (보조)
+    st.markdown(
+    f"""
+    <a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-color: #3b82f6; animation: none; margin-top: 5px; text-decoration: none;">
+    📝 무통장 입금 / VIP 프리패스 신청서 작성
+    </a>
+    """, unsafe_allow_html=True)
+
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
-    if st.button("🔓 잠금 해제 시작", use_container_width=True, key="unlock_btn"):
+    if st.button("🔓 코드 직접 입력하여 잠금 해제", use_container_width=True, key="unlock_btn"):
         if vip_input in ["MPD2026", "VIP2026"]:
             st.session_state.vip_unlocked = True
             st.success("✨ VIP 프리패스 활성화 완료!")
@@ -507,7 +547,7 @@ with tab3:
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 7. 하단 고객센터 (눈에 확 띄는 딥 슬레이트 + 하늘색 고대비 박스) =================
+# ================= 7. 하단 고객센터 =================
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
 
