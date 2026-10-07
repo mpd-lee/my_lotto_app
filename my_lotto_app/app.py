@@ -16,7 +16,8 @@ st.set_page_config(
 
 # ================= URL 및 키 관리 =================
 TOSS_CLIENT_KEY = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"  # 📌 토스페이먼츠 테스트 클라이언트 키
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 구글 설문지 신청서 링크
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
@@ -54,7 +55,7 @@ html, body, * {
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
-/* 앱 전체 배경 및 기본 폰트 색상 강제 고정 (라이트 모드 배경 변환 방지) */
+/* 앱 전체 배경 및 기본 폰트 색상 강제 고정 */
 .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stToolbar"] { 
     background-color: #0e1117 !important; 
     color: #ffffff !important; 
@@ -139,48 +140,11 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 @keyframes pulse-orange { 0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } }
-@keyframes pulse-sky { 0% { shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
+@keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
-
-/* VIP 에메랄드 결제 버튼 */
-@keyframes emerald-premium-pulse { 0% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), 0 0 18px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } }
-.vip-purchase-btn { display: block; width: 100% !important; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 10px; word-break: keep-all; box-sizing: border-box !important; }
-.vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
-.vip-purchase-text { color: #fef08a !important; font-size: 13px; display: block; margin-top: 3px; font-weight: normal; }
-
-/* [잠금해제 버튼] */
-div.st-key-unlock_btn button { 
-    background: linear-gradient(135deg, #f97316, #ea580c) !important; 
-    border: 2px solid #fed7aa !important; 
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.5) !important;
-    font-size: 16px !important;
-    animation: pulse-orange 2s infinite ease-in-out;
-}
-div.st-key-free_extract_btn button {
-    background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
-    border: 2px solid #bae6fd !important;
-    font-size: 18px !important;
-    padding: 18px !important;
-    box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
-    animation: pulse-sky 2s infinite ease-in-out;
-}
-div.st-key-vip_extract_btn button {
-    background: linear-gradient(135deg, #ca8a04, #eab308) !important;
-    border: 2px solid #fef08a !important;
-    color: #451a03 !important;
-    font-size: 19px !important;
-    font-weight: 900 !important;
-    padding: 20px !important;
-    box-shadow: 0 0 30px rgba(250, 204, 21, 0.8) !important;
-    animation: gold-glow 1.8s infinite ease-in-out;
-}
-div.st-key-vip_extract_btn button p {
-    color: #451a03 !important;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
-}
 
 .free-badge-top { background-color: #dc2626; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 15px rgba(239,68,68,0.6); display: inline-block; animation: pulse-red-flash 1.2s infinite ease-in-out; border: 1px solid #fca5a5; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
@@ -273,7 +237,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 단일 자동결제 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -289,7 +253,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스 결제 SDK 스크립트 실행 버튼 (HTML/JS)
+    # 토스 결제 SDK 스크립트 실행 버튼
     toss_html = f"""
     <script src="https://js.tosspayments.com/v1/payment"></script>
     <div style="text-align: center; margin-bottom: 10px;">
@@ -317,11 +281,13 @@ f"""
                 orderId: 'LOTTO_' + new Date().getTime(),
                 orderName: '로또픽 VIP 7일 프리패스',
                 customerName: '로또픽 회원',
-                successUrl: window.location.href.split('?')[0] + '?payment_success=true',
-                failUrl: window.location.href.split('?')[0] + '?payment_fail=true',
+                successUrl: '{APP_SITE_URL}/?payment_success=true',
+                failUrl: '{APP_SITE_URL}/?payment_fail=true',
             }}).catch(function (error) {{
                 if (error.code === 'USER_CANCEL') {{
                     console.log('사용자가 결제를 취소했습니다.');
+                }} else {{
+                    alert('결제 창 오류: ' + error.message);
                 }}
             }});
         }});
@@ -329,14 +295,7 @@ f"""
     """
     components.html(toss_html, height=80)
 
-    # 수동 구글 폼 링크 (보조)
-    st.markdown(
-    f"""
-    <a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-color: #3b82f6; animation: none; margin-top: 5px; text-decoration: none;">
-    📝 무통장 입금 / VIP 프리패스 신청서 작성
-    </a>
-    """, unsafe_allow_html=True)
-
+    # 특별 발급 코드 직접 입력창 (관리자 및 전용 쿠폰 테스트용)
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
     if st.button("🔓 코드 직접 입력하여 잠금 해제", use_container_width=True, key="unlock_btn"):
@@ -555,7 +514,7 @@ st.markdown(
 """
 <div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
     <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
-        📢 결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.
+        📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -564,7 +523,7 @@ st.markdown(
 f"""
 <div class="footer-buttons-container">
     <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs" style="text-decoration: none;">
-        🛠️ 문의/결제 신청
+        🛠️ 고객센터 문의 접수
     </a>
     <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh" style="text-decoration: none;">
         🛒 동행복권 홈
@@ -580,7 +539,7 @@ st.info("""
 - **가격:** 1,000원 (VAT 포함)
 - **제공 서비스:** AI 패턴 기반 S등급 고정수/제외수 리포트 및 초정밀 통계 조합 가동
 - **이용 기간:** 결제일로부터 7일간 무제한 이용
-- **환불 규정:** 디지털 콘텐츠 특성상, VIP 코드 발급 후에는 환불이 불가합니다. (코드 발급 전 전액 환불 가능)
+- **환불 규정:** 디지털 콘텐츠 특성상, VIP 승인 처리 후에는 환불이 불가합니다. (결제 오류 시 전액 환불)
 """)
 
 # ================= 9. 법적 고지 및 사업자 정보 Footer =================
