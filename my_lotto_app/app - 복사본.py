@@ -63,7 +63,7 @@ st.markdown(
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
 .vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* [잠금해제 버튼]: 따뜻하고 활기찬 선셋 오렌지 */
+/* [잠금해제 버튼] */
 div.st-key-unlock_btn button { 
     background: linear-gradient(135deg, #f97316, #ea580c) !important; 
     border: 2px solid #fed7aa !important; 
@@ -77,7 +77,7 @@ div.st-key-unlock_btn button:hover {
     box-shadow: 0 0 30px rgba(249, 115, 22, 0.8) !important;
 }
 
-/* [일반 무료 추출 버튼]: 편안하고 밝은 스카이 블루 */
+/* [일반 무료 추출 버튼] */
 div.st-key-free_extract_btn button {
     background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
     border: 2px solid #bae6fd !important;
@@ -92,7 +92,7 @@ div.st-key-free_extract_btn button:hover {
     box-shadow: 0 0 35px rgba(56, 189, 248, 0.8) !important;
 }
 
-/* VIP 프리미엄 추출 버튼 (황금빛 광채) */
+/* VIP 프리미엄 추출 버튼 */
 div.st-key-vip_extract_btn button {
     background: linear-gradient(135deg, #ca8a04, #eab308) !important;
     border: 2px solid #fef08a !important;
@@ -108,11 +108,9 @@ div.st-key-vip_extract_btn button p {
     text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
 }
 
-/* 뱃지 디자인 (무료 뱃지만 강렬한 빨강색 번쩍번쩍 플래시 애니메이션 적용) */
+/* 뱃지 및 게임박스 디자인 */
 .free-badge-top { background-color: #dc2626; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 15px rgba(239,68,68,0.6); display: inline-block; animation: pulse-red-flash 1.2s infinite ease-in-out; border: 1px solid #fca5a5; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
-
-/* 게임 박스 디자인 (VIP vs 일반) */
 .game-box-free { background-color: #111827; border: 1px solid #374151; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
 .game-box-vip { background: linear-gradient(145deg, #1f1b13, #2d2618); border: 1px solid #facc15; padding: 18px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.15); position: relative; overflow: hidden; }
 .s-class-badge { position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 11px; font-weight: 900; padding: 4px 15px; border-bottom-left-radius: 12px; box-shadow: -2px 2px 5px rgba(0,0,0,0.3); }
@@ -120,13 +118,9 @@ div.st-key-vip_extract_btn button p {
 .score-bar-fill { background: linear-gradient(90deg, #facc15, #22c55e); height: 100%; border-radius: 4px; }
 .vip-tags { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
 .vip-tag { font-size: 11px; background-color: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.3); color: #fef08a; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
-
-/* 잠긴 기능 안내 박스 */
 .locked-feature-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px dashed #64748b; border-radius: 12px; padding: 28px 20px; text-align: center; margin-top: 15px; color: #cbd5e1; position: relative; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
 .locked-feature-title { font-size: 15px; font-weight: 800; color: #fef08a; margin-bottom: 8px; text-shadow: 0 0 8px rgba(250,204,21,0.3); }
 .locked-feature-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; }
-
-/* 하단 버튼 일직선 정렬 컨테이너 */
 .footer-buttons-container { display: flex; gap: 15px; width: 100%; margin-bottom: 25px; align-items: center; justify-content: space-between; }
 .footer-btn { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none !important; color: white !important; font-weight: 900; font-size: 16px; padding: 15px 5px; border-radius: 12px; transition: all 0.2s ease-in-out; word-break: keep-all; text-align: center; }
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -432,22 +426,29 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-# 법적 고지 및 면책 조항
+# ================= 8. 토스 심사용 상품 안내 (추가됨) =================
+st.markdown("---")
+st.markdown("### 💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)")
+st.info("""
+- **상품명:** VIP 골든픽 1주(7일) 프리패스
+- **가격:** 1,000원 (VAT 포함)
+- **제공 서비스:** AI 패턴 기반 S등급 고정수/제외수 리포트 및 초정밀 통계 조합 가동
+- **이용 기간:** 결제일로부터 7일간 무제한 이용
+- **환불 규정:** 디지털 콘텐츠 특성상, VIP 코드 발급 후에는 환불이 불가합니다. (코드 발급 전 전액 환불 가능)
+""")
+
+# ================= 9. 법적 고지 및 사업자 정보 Footer =================
 st.markdown(
 """
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #888; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
 1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
-​2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법적 책임을 지지 않습니다.<br>
+2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법적 책임을 지지 않습니다.<br>
 3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
 </div>
-""", unsafe_allow_html=True)
 
-# 사업자 정보 및 카피라이트 (새로 추가된 부분)
-st.markdown(
-"""
-<div style="text-align: center; color: #777; font-size: 11px; margin-top: 20px; line-height: 1.8;">
-    <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
+<div style="text-align: center; color: #777; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+    <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
     <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
     © 2026 로또픽(Lotto Pick) 분석 시스템. All Rights Reserved.

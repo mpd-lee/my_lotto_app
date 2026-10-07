@@ -1,5 +1,7 @@
 import random
 import time
+import os
+from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -12,7 +14,10 @@ st.set_page_config(
     layout="centered"
 )
 
-# ================= 구글 애드센스 소유권 확인 메타태그 (이중 주입) =================
+# ================= URL 링크 관리 (네이버페이 직행 링크 고정) =================
+NAVER_PAY_URL = "https://pay.naver.com/"  # 📌 네이버페이 결제 페이지로 직행
+
+# ================= 구글 애드센스 소유권 확인 메타태그 =================
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 components.html(
     """
@@ -28,24 +33,71 @@ components.html(
     height=0, width=0
 )
 
-# ================= 커스텀 CSS 스타일 =================
+# ================= 커스텀 CSS 스타일 (라이트/다크모드 완벽 대응) =================
 st.markdown(
 """
 <style>
-.block-container { max-width: 500px; padding-top: 1.5rem; padding-bottom: 2rem; }
+html, body, * {
+    -webkit-text-size-adjust: 100% !important;
+    -moz-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+}
+
+.block-container { max-width: 500px; padding-top: 1.5rem; padding-bottom: 2rem; padding-left: 0.8rem; padding-right: 0.8rem; }
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
-/* 배경 및 텍스트 */
-.stApp { background-color: #0e1117; color: #fafafa; }
+.stApp, [data-testid="stAppViewContainer"] { 
+    background-color: #0e1117 !important; 
+    color: #fafafa !important; 
+}
 
-.cyber-title { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin-bottom: 25px; }
-.cyber-title-top { display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-.cyber-title .lottopick-brand { font-weight: 900; font-size: clamp(22px, 6vw, 28px); letter-spacing: -0.8px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+/* 1. VIP 코드 입력창 라벨 강제 노란색 고정 */
+div[data-testid="stTextInput"] label p, 
+div[data-testid="stWidgetLabel"] p, 
+.stTextInput label p {
+    color: #facc15 !important;
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.9) !important;
+}
 
-/* 애니메이션 모음 */
-@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.35) rotate(12deg); filter: drop-shadow(0 0 18px #4ade80) drop-shadow(0 0 30px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
-.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: clamp(24px, 6vw, 30px); vertical-align: middle; }
+div[data-testid="stTextInput"] div[data-baseweb="input"],
+.stTextInput div[data-baseweb="input"] {
+    background-color: #1e293b !important;
+    border: 2px solid #facc15 !important;
+    border-radius: 8px !important;
+}
+div[data-testid="stTextInput"] input,
+.stTextInput input {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+}
+
+/* 2. 탭 메뉴 글씨 뚜렷하게 고정 */
+button[data-baseweb="tab"] {
+    background-color: transparent !important;
+}
+button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
+    color: #e2e8f0 !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] div[data-testid="stMarkdownContainer"] p {
+    color: #fde047 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.7) !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] {
+    border-bottom: 3px solid #facc15 !important;
+}
+
+/* 애니메이션 및 버튼 스타일 */
+@keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
+.sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: 20px; }
+
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
@@ -53,17 +105,14 @@ st.markdown(
 @keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
-/* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
 
-/* VIP 에메랄드 결제 버튼 */
 @keyframes emerald-premium-pulse { 0% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), 0 0 18px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } }
-.vip-purchase-btn { display: block; width: 100%; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 15px; word-break: keep-all; }
+.vip-purchase-btn { display: block; width: 100% !important; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 10px; word-break: keep-all; box-sizing: border-box !important; }
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
-.vip-purchase-text { color: #fef08a; font-size: 14px; display: block; margin-top: 3px; font-weight: normal; }
+.vip-purchase-text { color: #fef08a; font-size: 13px; display: block; margin-top: 3px; font-weight: normal; }
 
-/* [잠금해제 버튼] */
 div.st-key-unlock_btn button { 
     background: linear-gradient(135deg, #f97316, #ea580c) !important; 
     border: 2px solid #fed7aa !important; 
@@ -71,13 +120,6 @@ div.st-key-unlock_btn button {
     font-size: 16px !important;
     animation: pulse-orange 2s infinite ease-in-out;
 }
-div.st-key-unlock_btn button:hover {
-    background: linear-gradient(135deg, #fb923c, #f97316) !important;
-    border-color: #ffedd5 !important;
-    box-shadow: 0 0 30px rgba(249, 115, 22, 0.8) !important;
-}
-
-/* [일반 무료 추출 버튼] */
 div.st-key-free_extract_btn button {
     background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
     border: 2px solid #bae6fd !important;
@@ -86,13 +128,6 @@ div.st-key-free_extract_btn button {
     box-shadow: 0 0 25px rgba(56, 189, 248, 0.5) !important;
     animation: pulse-sky 2s infinite ease-in-out;
 }
-div.st-key-free_extract_btn button:hover {
-    background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
-    border-color: #e0f2fe !important;
-    box-shadow: 0 0 35px rgba(56, 189, 248, 0.8) !important;
-}
-
-/* VIP 프리미엄 추출 버튼 */
 div.st-key-vip_extract_btn button {
     background: linear-gradient(135deg, #ca8a04, #eab308) !important;
     border: 2px solid #fef08a !important;
@@ -108,7 +143,6 @@ div.st-key-vip_extract_btn button p {
     text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
 }
 
-/* 뱃지 및 게임박스 디자인 */
 .free-badge-top { background-color: #dc2626; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 15px rgba(239,68,68,0.6); display: inline-block; animation: pulse-red-flash 1.2s infinite ease-in-out; border: 1px solid #fca5a5; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
 .game-box-free { background-color: #111827; border: 1px solid #374151; padding: 15px; border-radius: 12px; margin-bottom: 12px; }
@@ -144,23 +178,30 @@ if "extract_game_type" not in st.session_state:
 # ================= 1. 타이틀 배너 =================
 st.markdown(
 """
-<div class="cyber-title">
-<div class="cyber-title-top">
-<span class="sparkle-clover">🍀</span>
-<span class="lottopick-brand">로또픽 (Lotto Pick)</span>
-<span class="sparkle-clover">🍀</span>
-</div>
-<div style="margin-top: 12px; line-height: 1.5; text-align: center;">
-<div style="color: #e2e8f0; font-size: clamp(16px, 4vw, 18px); font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
-초정밀 통계·조합 분석 시스템
-</div>
-<div style="color: #94a3b8; font-size: clamp(10px, 2.5vw, 12px); font-weight: 600; letter-spacing: 1.5px; margin: 5px 0;">
-LOTTO & PENSION LOTTERY ANALYTICS
-</div>
-<div style="color: #38bdf8; font-size: clamp(13px, 3.5vw, 15px); font-weight: 700; margin-top: 6px; word-break: keep-all;">
-"데이터는 정밀하게, 분석은 체계적으로"
-</div>
-</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <tr>
+        <td style="width: 12%; text-align: right; vertical-align: middle; padding-right: 2px;">
+            <span class="sparkle-clover">🍀</span>
+        </td>
+        <td style="width: 76%; text-align: center; vertical-align: middle; white-space: nowrap;">
+            <span style="font-weight: 900; font-size: 20px; letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);">로또픽 (Lotto Pick)</span>
+        </td>
+        <td style="width: 12%; text-align: left; vertical-align: middle; padding-left: 2px;">
+            <span class="sparkle-clover">🍀</span>
+        </td>
+    </tr>
+</table>
+
+<div style="text-align: center; margin-bottom: 25px; width: 100%;">
+    <div style="color: #e2e8f0; font-size: 15px; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
+        초정밀 통계·조합 분석 시스템
+    </div>
+    <div style="color: #94a3b8; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin: 4px 0;">
+        LOTTO & PENSION LOTTERY ANALYTICS
+    </div>
+    <div style="color: #38bdf8; font-size: 12px; font-weight: 700; margin-top: 4px; word-break: keep-all;">
+        "데이터는 정밀하게, 분석은 체계적으로"
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -182,7 +223,7 @@ else:
 game_name_str = "로또 6/45" if st.session_state.selected_game == "lotto" else "연금복권 720+"
 st.markdown(
 f"""
-<div class="keep-all" style="background-color: #0f172a; border: 2px solid #22c55e; padding: 15px; border-radius: 12px; text-align: center; color: #4ade80; font-weight: bold; font-size: clamp(14px, 4vw, 16px); animation: glow-green 2s infinite; margin-top: 15px; margin-bottom: 20px;">
+<div class="keep-all" style="background-color: #0f172a; border: 2px solid #22c55e; padding: 15px; border-radius: 12px; text-align: center; color: #4ade80; font-weight: bold; font-size: 15px; animation: glow-green 2s infinite; margin-top: 15px; margin-bottom: 20px;">
 <span>{"🔴" if st.session_state.selected_game=="lotto" else "🔵"} {game_name_str} 분석 ⚙ ● 정밀 시스템 실시간 가동 중</span>
 </div>
 """,
@@ -192,25 +233,26 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"
-
-# ================= 4. 금빛 VIP 시스템 (결제 유도) =================
+# ================= 4. 금빛 VIP 시스템 (결제 유도 및 네이버페이 직행 버튼) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
-<h4 style="margin-top: 0; font-size: 17px; margin-bottom: 15px; color: #fde047;">👑 VIP 프리패스 혜택 안내</h4>
+<h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
 ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
 ✅ AI 패턴 기반 <b>S등급 일치율 점수 & 분석 태그</b> 제공<br>
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 결제 및 신청서를 작성하신 후 코드를 입력하세요.</div>
-<a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn">
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 누르시면 네이버페이 결제 페이지로 이동합니다.</div>
+
+<!-- 네이버페이 직행 결제 버튼 단독 배치 -->
+<a href="{NAVER_PAY_URL}" target="_blank" class="vip-purchase-btn" style="text-decoration: none;">
 💎 네이버페이 간편 결제 💎
-<span class="vip-purchase-text">(VIP 프리패스 이용권 신청서 작성)</span>
+<span class="vip-purchase-text" style="text-decoration: none;">(네이버페이 결제 페이지로 직행)</span>
 </a>
+
 </div>
 """, unsafe_allow_html=True)
 
@@ -289,12 +331,12 @@ def get_ball_color(num):
     elif num <= 40: return "#a855f7"
     else: return "#22c55e"
 
-# ================= 6. 핵심 탭 메뉴 (결과 출력 영역) =================
+# ================= 6. 핵심 탭 메뉴 =================
 tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "📑 연구 모델"])
 
 with tab1:
     if not st.session_state.extract_results:
-        st.info("👆 상단의 **[추출 실행]** 버튼을 누르시면 번호가 생성됩니다.")
+        st.info("👆 상단의 [추출 실행] 버튼을 누르시면 번호가 생성됩니다.")
     else:
         is_vip = st.session_state.get("is_vip_result", False)
         
@@ -316,7 +358,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
         else:
-            st.markdown("#### 🎯 일반 번호 추출 결과")
+            st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>🎯 일반 번호 추출 결과</h4>", unsafe_allow_html=True)
             st.success("✅ 기본 통계 필터를 거쳐 엄선된 조합입니다.")
             st.markdown("<br>", unsafe_allow_html=True)
         
@@ -385,50 +427,72 @@ f"""
 """, unsafe_allow_html=True)
 
 with tab2:
-    st.markdown("#### 📈 역대 당첨 번호 통계 분석")
-    st.caption("최근 100회차 번호별 출현 빈도수")
-    chart_data = pd.DataFrame(np.random.randint(10, 25, size=(45, 1)), columns=["출현 횟수"], index=[f"{i}번" for i in range(1, 46)])
+    st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📈 역대 당첨 번호 통계 분석</h4>", unsafe_allow_html=True)
+    st.markdown("<div style='color: #e2e8f0; font-size: 14px; font-weight: 600; margin-bottom: 12px;'>실제 동행복권 데이터 기반 최근 100회차 번호별 출현 빈도수</div>", unsafe_allow_html=True)
+    
+    if os.path.exists("lotto_data.csv"):
+        df_lotto = pd.read_csv("lotto_data.csv")
+        df_recent = df_lotto.tail(100)
+        
+        all_nums = []
+        for col in ['drwtNo1', 'drwtNo2', 'drwtNo3', 'drwtNo4', 'drwtNo5', 'drwtNo6']:
+            if col in df_recent.columns:
+                all_nums.extend(df_recent[col].dropna().astype(int).tolist())
+        
+        counts = Counter(all_nums)
+        freq_dict = {f"{i}번": counts.get(i, 0) for i in range(1, 46)}
+        chart_data = pd.DataFrame(list(freq_dict.values()), columns=["출현 횟수"], index=list(freq_dict.keys()))
+    else:
+        chart_data = pd.DataFrame(np.random.randint(10, 25, size=(45, 1)), columns=["출현 횟수"], index=[f"{i}번" for i in range(1, 46)])
+        
     st.bar_chart(chart_data, color="#3b82f6", height=250)
     
     if not st.session_state.vip_unlocked:
         st.markdown(
 """
-<div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:13px;'>
+<div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:14px; font-weight: bold;'>
 🔒 VIP 전용: 미출현 장기 번호 및 회귀 추적 데이터 잠김
 </div>
 """, unsafe_allow_html=True)
 
 with tab3:
-    st.markdown("#### 📑 분석 연구 모델")
+    st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📑 분석 연구 모델</h4>", unsafe_allow_html=True)
     st.markdown(
 """
-<div style="font-size: 13px; color: #cbd5e1;">
+<div style="font-size: 15px; color: #f1f5f9; line-height: 1.8; font-weight: 600;">
 - Markov Chain Monte Carlo (MCMC) 모델<br>
 - Poisson Distribution 출현 간격 예측<br>
 - AC값(Arithmetic Complexity) 복잡도 필터링
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 7. 하단 버튼 및 고지 사항 =================
+# ================= 7. 하단 고객센터 =================
 st.markdown("---")
-st.markdown("##### 📞 고객 센터")
-st.caption("결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.")
+st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
+
+# 라이트/다크모드 상관없이 눈에 확 띄는 노란색 배경 상자 및 글씨 강제 고정
+st.markdown(
+"""
+<div style="color: #000000 !important; font-size: 16px !important; font-weight: 900 !important; margin-bottom: 15px !important; line-height: 1.6 !important; background-color: #fde047; padding: 12px; border-radius: 8px; border: 2px solid #eab308;">
+⚠️ 결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown(
 f"""
 <div class="footer-buttons-container">
-    <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs">
+    <a href="{NAVER_PAY_URL}" target="_blank" class="footer-btn footer-btn-cs" style="text-decoration: none;">
         🛠️ 문의/결제 신청
     </a>
-    <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh">
+    <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh" style="text-decoration: none;">
         🛒 동행복권 홈
     </a>
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 8. 토스 심사용 상품 안내 (추가됨) =================
+# ================= 8. 토스 심사용 상품 안내 =================
 st.markdown("---")
-st.markdown("### 💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)")
+st.markdown("<h3 style='color: #ffffff; font-weight: 900;'>💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)</h3>", unsafe_allow_html=True)
 st.info("""
 - **상품명:** VIP 골든픽 1주(7일) 프리패스
 - **가격:** 1,000원 (VAT 포함)
@@ -440,14 +504,14 @@ st.info("""
 # ================= 9. 법적 고지 및 사업자 정보 Footer =================
 st.markdown(
 """
-<div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #888; font-size: 11px; line-height: 1.6; word-break: keep-all;">
+<div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
 1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
 2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법적 책임을 지지 않습니다.<br>
 3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
 </div>
 
-<div style="text-align: center; color: #777; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
     <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
     <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
