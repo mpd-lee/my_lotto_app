@@ -1,14 +1,77 @@
+import os
+import requests
 import pandas as pd
 
-# 최근 회차(1100~1104회) 데이터를 직접 입력하여 CSV 파일 생성
-data = [
-    {"drwNo": 1100, "drwNoDate": "2023-12-30", "drwtNo1": 17, "drwtNo2": 26, "drwtNo3": 29, "drwtNo4": 30, "drwtNo5": 31, "drwtNo6": 43, "bnusNo": 12},
-    {"drwNo": 1101, "drwNoDate": "2024-01-06", "drwtNo1": 6, "drwtNo2": 7, "drwtNo3": 13, "drwtNo4": 28, "drwtNo5": 36, "drwtNo6": 42, "bnusNo": 41},
-    {"drwNo": 1102, "drwNoDate": "2024-01-13", "drwtNo1": 13, "drwtNo2": 14, "drwtNo3": 22, "drwtNo4": 26, "drwtNo5": 37, "drwtNo6": 38, "bnusNo": 20},
-    {"drwNo": 1103, "drwNoDate": "2024-01-20", "drwtNo1": 10, "drwtNo2": 12, "drwtNo3": 29, "drwtNo4": 31, "drwtNo5": 40, "drwtNo6": 44, "bnusNo": 2},
-    {"drwNo": 1104, "drwNoDate": "2024-01-27", "drwtNo1": 1, "drwtNo2": 7, "drwtNo3": 21, "drwtNo4": 30, "drwtNo5": 35, "drwtNo6": 38, "bnusNo": 2}
-]
+CSV_FILE = "lotto_data.csv"
 
-df = pd.DataFrame(data)
-df.to_csv("lotto_data.csv", index=False, encoding="utf-8-sig")
-print("✅ 임시 lotto_data.csv 파일이 성공적으로 생성되었습니다! 이제 다음 단계로 넘어갑시다.")
+def get_lotto_data(drw_no):
+    """동행복권 공식 API에서 특정 회차 당첨 번호 및 통계 데이터 조회 (User-Agent 헤더 추가)"""
+    url = f"https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={drw_no}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    try:
+        res = requests.get(url, headers=headers, timeout=5)
+        if res.status_code != 200:
+            return None
+        
+        # JSON 형식인지 안전하게 확인 후 파싱
+        data = res.json()
+        if data.get("returnValue") == "success":
+            return {
+                "drwNo": data.get("drwNo"),
+                "drwNoDate": data.get("drwNoDate"),
+                "drwtNo1": data.get("drwtNo1"),
+                "drwtNo2": data.get("drwtNo2"),
+                "drwtNo3": data.get("drwtNo3"),
+                "drwtNo4": data.get("drwtNo4"),
+                "drwtNo5": data.get("drwtNo5"),
+                "drwtNo6": data.get("drwtNo6"),
+                "bnusNo": data.get("bnusNo"),
+                "totSellamnt": data.get("totSellamnt"),
+                "firstAccumamnt": data.get("firstAccumamnt"),
+                "firstPrzwnerCo": data.get("firstPrzwnerCo"),
+                "firstWinamnt": data.get("firstWinamnt")
+            }
+    except Exception:
+        # 응답이 깨지거나 HTML 에러 페이지일 경우 무시하고 종료
+        pass
+    return None
+
+def update_lotto_csv():
+    """기존 CSV 파일을 확인하고 누락된 최신 회차 데이터를 자동 수집하여 업데이트"""
+    if os.path.exists(CSV_FILE):
+        df = pd.read_csv(CSV_FILE)
+        last_drw = int(df['drwNo'].max()) if 'drwNo' in df.columns and not df.empty else 0
+    else:
+        df = pd.DataFrame()
+        last_drw = 0
+    
+    print(f"현재 저장된 마지막 로또 회차: {last_drw}회")
+    
+    current_drw = last_drw + 1
+    new_rows = []
+    
+    while True:
+        print(f"{current_drw}회차 데이터 확인 중...")
+        data = get_lotto_data(current_drw)
+        if not data:
+            print(f"아직 추첨되지 않았거나 최신 회차에 도달했습니다 ({current_drw}회).")
+            break
+        new_rows.append(data)
+        print(f"-> 성공적으로 불러옴: {current_drw}회차 ({data['drwNoDate']})")
+        current_drw += 1
+        
+    if new_rows:
+        new_df = pd.DataFrame(new_rows)
+        if not df.empty:
+            df = pd.concat([df, new_df], ignore_index=True)
+        else:
+            df = new_df
+        df.to_csv(CSV_FILE, index=False, encoding='utf-8-sig')
+        print(f"✨ 총 {len(new_rows)}개 회차가 성공적으로 업데이트되었습니다! 최신 회차: {current_drw - 1}회")
+    else:
+        print("✅ 이미 최신 데이터까지 모두 업데이트되어 있습니다.")
+
+if __name__ == "__main__":
+    update_lotto_csv()
