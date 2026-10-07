@@ -14,8 +14,9 @@ st.set_page_config(
     layout="centered"
 )
 
-# ================= URL 링크 관리 (네이버페이 직행 링크 고정) =================
-NAVER_PAY_URL = "https://pay.naver.com/"  # 📌 네이버페이 결제 페이지로 직행
+# ================= URL 링크 관리 (버튼별 분리) =================
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"  # 📌 구글 설문지 신청서 링크
+NAVER_PAY_URL = "https://pay.naver.com/"                  # 📌 네이버페이 결제 페이지 링크
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
@@ -37,6 +38,7 @@ components.html(
 st.markdown(
 """
 <style>
+/* 모바일 브라우저 폰트 강제 확대 방지 */
 html, body, * {
     -webkit-text-size-adjust: 100% !important;
     -moz-text-size-adjust: 100% !important;
@@ -47,12 +49,24 @@ html, body, * {
 #MainMenu {visibility: hidden;} header {visibility: hidden;} footer {visibility: hidden;}
 .keep-all { word-break: keep-all; }
 
-.stApp, [data-testid="stAppViewContainer"] { 
+/* 1. 앱 전체 배경 및 기본 폰트 색상 강제 고정 (라이트 모드 배경 변환 방지) */
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stToolbar"] { 
     background-color: #0e1117 !important; 
-    color: #fafafa !important; 
+    color: #ffffff !important; 
 }
 
-/* 1. VIP 코드 입력창 라벨 강제 노란색 고정 */
+/* 마크다운 기본 글자색 고정 */
+[data-testid="stMarkdownContainer"] p, 
+[data-testid="stMarkdownContainer"] span, 
+[data-testid="stMarkdownContainer"] div, 
+[data-testid="stMarkdownContainer"] h1, 
+[data-testid="stMarkdownContainer"] h2, 
+[data-testid="stMarkdownContainer"] h3, 
+[data-testid="stMarkdownContainer"] h4 {
+    color: #ffffff;
+}
+
+/* 2. VIP 코드 입력창 라벨 (노란색 고대비 보장) */
 div[data-testid="stTextInput"] label p, 
 div[data-testid="stWidgetLabel"] p, 
 .stTextInput label p {
@@ -62,6 +76,7 @@ div[data-testid="stWidgetLabel"] p,
     text-shadow: 1px 1px 4px rgba(0,0,0,0.9) !important;
 }
 
+/* 입력 박스 디자인 고정 */
 div[data-testid="stTextInput"] div[data-baseweb="input"],
 .stTextInput div[data-baseweb="input"] {
     background-color: #1e293b !important;
@@ -71,22 +86,28 @@ div[data-testid="stTextInput"] div[data-baseweb="input"],
 div[data-testid="stTextInput"] input,
 .stTextInput input {
     color: #ffffff !important;
+    background-color: #1e293b !important;
     font-size: 16px !important;
     font-weight: bold !important;
 }
 
-/* 2. 탭 메뉴 글씨 뚜렷하게 고정 */
+/* 3. 탭 메뉴 글씨 (당첨 번호 추천 / 심층 분석 / 연구 모델) 라이트모드 완벽 고정 */
 button[data-baseweb="tab"] {
     background-color: transparent !important;
+    border: none !important;
 }
-button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
-    color: #e2e8f0 !important;
-    font-size: 17px !important;
+button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p,
+button[data-baseweb="tab"] p,
+button[data-baseweb="tab"] span {
+    color: #cbd5e1 !important;
+    font-size: 16px !important;
     font-weight: 800 !important;
 }
-button[data-baseweb="tab"][aria-selected="true"] div[data-testid="stMarkdownContainer"] p {
+button[data-baseweb="tab"][aria-selected="true"] div[data-testid="stMarkdownContainer"] p,
+button[data-baseweb="tab"][aria-selected="true"] p,
+button[data-baseweb="tab"][aria-selected="true"] span {
     color: #fde047 !important;
-    font-size: 18px !important;
+    font-size: 17px !important;
     font-weight: 900 !important;
     text-shadow: 0 0 10px rgba(250, 204, 21, 0.7) !important;
 }
@@ -94,7 +115,18 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-bottom: 3px solid #facc15 !important;
 }
 
-/* 애니메이션 및 버튼 스타일 */
+/* 4. 안내 박스(st.info) 스타일 */
+div[data-testid="stAlert"] {
+    background-color: #1e293b !important;
+    border: 1px solid #38bdf8 !important;
+}
+div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
+    color: #f8fafc !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+}
+
+/* 애니메이션 정의 */
 @keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
 .sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: 20px; }
 
@@ -105,14 +137,17 @@ button[data-baseweb="tab"][aria-selected="true"] {
 @keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
+/* 기본 버튼 스타일 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
 
+/* VIP 에메랄드 결제 버튼 */
 @keyframes emerald-premium-pulse { 0% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), 0 0 18px #fde047; transform: scale(1.02); } 100% { box-shadow: 0 0 12px rgba(5, 150, 105, 0.6), 0 0 6px #facc15; transform: scale(1); } }
 .vip-purchase-btn { display: block; width: 100% !important; font-weight: 900; font-size: 17px; border-radius: 12px; padding: 16px 15px; text-align: center; text-decoration: none; color: #ffffff !important; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; transition: all 0.3s ease-in-out; animation: emerald-premium-pulse 1.8s infinite ease-in-out; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); margin-bottom: 10px; word-break: keep-all; box-sizing: border-box !important; }
 .vip-purchase-btn:hover { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #fde047; box-shadow: 0 0 35px #10b981, 0 0 25px #facc15; }
-.vip-purchase-text { color: #fef08a; font-size: 13px; display: block; margin-top: 3px; font-weight: normal; }
+.vip-purchase-text { color: #fef08a !important; font-size: 13px; display: block; margin-top: 3px; font-weight: normal; }
 
+/* [잠금해제 버튼] */
 div.st-key-unlock_btn button { 
     background: linear-gradient(135deg, #f97316, #ea580c) !important; 
     border: 2px solid #fed7aa !important; 
@@ -155,6 +190,7 @@ div.st-key-vip_extract_btn button p {
 .locked-feature-box { background: linear-gradient(135deg, #1e293b, #0f172a); border: 2px dashed #64748b; border-radius: 12px; padding: 28px 20px; text-align: center; margin-top: 15px; color: #cbd5e1; position: relative; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); }
 .locked-feature-title { font-size: 15px; font-weight: 800; color: #fef08a; margin-bottom: 8px; text-shadow: 0 0 8px rgba(250,204,21,0.3); }
 .locked-feature-desc { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+
 .footer-buttons-container { display: flex; gap: 15px; width: 100%; margin-bottom: 25px; align-items: center; justify-content: space-between; }
 .footer-btn { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none !important; color: white !important; font-weight: 900; font-size: 16px; padding: 15px 5px; border-radius: 12px; transition: all 0.2s ease-in-out; word-break: keep-all; text-align: center; }
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -233,7 +269,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (결제 유도 및 네이버페이 직행 버튼) =================
+# ================= 4. 금빛 VIP 시스템 (네이버 결제 및 구글 신청서 두 버튼 명확히 배치) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -245,12 +281,17 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 누르시면 네이버페이 결제 페이지로 이동합니다.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 버튼을 통해 결제 및 신청서를 작성하신 후 코드를 입력하세요.</div>
 
-<!-- 네이버페이 직행 결제 버튼 단독 배치 -->
+<!-- 1. 네이버페이 결제 페이지 직행 버튼 -->
 <a href="{NAVER_PAY_URL}" target="_blank" class="vip-purchase-btn" style="text-decoration: none;">
 💎 네이버페이 간편 결제 💎
-<span class="vip-purchase-text" style="text-decoration: none;">(네이버페이 결제 페이지로 직행)</span>
+<span class="vip-purchase-text" style="text-decoration: none;">(네이버페이 결제 페이지로 이동)</span>
+</a>
+
+<!-- 2. 무통장 입금 및 구글 신청서 작성 버튼 -->
+<a href="{GOOGLE_FORM_URL}" target="_blank" class="vip-purchase-btn" style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-color: #3b82f6; animation: none; margin-top: 8px; text-decoration: none;">
+📝 무통장 입금 / VIP 프리패스 신청서 작성
 </a>
 
 </div>
@@ -466,22 +507,23 @@ with tab3:
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 7. 하단 고객센터 =================
+# ================= 7. 하단 고객센터 (눈에 확 띄는 딥 슬레이트 + 하늘색 고대비 박스) =================
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
 
-# 라이트/다크모드 상관없이 눈에 확 띄는 노란색 배경 상자 및 글씨 강제 고정
 st.markdown(
 """
-<div style="color: #000000 !important; font-size: 16px !important; font-weight: 900 !important; margin-bottom: 15px !important; line-height: 1.6 !important; background-color: #fde047; padding: 12px; border-radius: 8px; border: 2px solid #eab308;">
-⚠️ 결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.
+<div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+    <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
+        📢 결제 오류 및 VIP 관련 문의는 아래 버튼을 통해 안전하게 접수해 주세요.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown(
 f"""
 <div class="footer-buttons-container">
-    <a href="{NAVER_PAY_URL}" target="_blank" class="footer-btn footer-btn-cs" style="text-decoration: none;">
+    <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs" style="text-decoration: none;">
         🛠️ 문의/결제 신청
     </a>
     <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dh" style="text-decoration: none;">
