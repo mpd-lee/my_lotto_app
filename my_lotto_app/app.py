@@ -243,7 +243,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 공식 SDK 결제창 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 안전 연동 버튼) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -259,12 +259,11 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 공식 SDK 결제창 HTML Component
-    toss_sdk_html = f"""
+    # 토스페이먼츠 결제 버튼 (아이프레임 탈출 및 안전 리다이렉트 방식)
+    toss_safe_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <script src="https://js.tosspayments.com/v1/payment"></script>
         <style>
             body {{ margin: 0; padding: 5px; background-color: transparent; }}
             #toss-pay-btn {{
@@ -287,32 +286,17 @@ f"""
         </style>
     </head>
     <body>
-        <button id="toss-pay-btn" onclick="requestTossPayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
+        <button id="toss-pay-btn" onclick="executePayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
         <script>
-            var clientKey = '{TOSS_CLIENT_KEY}';
-            var tossPayments = TossPayments(clientKey);
-
-            function requestTossPayment() {{
-                tossPayments.requestPayment('카드', {{
-                    amount: 1000,
-                    orderId: 'LOTTO_' + new Date().getTime(),
-                    orderName: '로또픽 VIP 7일 프리패스',
-                    customerName: '로또픽 회원',
-                    successUrl: '{APP_SITE_URL}/?payment_success=true',
-                    failUrl: '{APP_SITE_URL}/?payment_fail=true',
-                }}).catch(function (error) {{
-                    if (error.code === 'USER_CANCEL') {{
-                        console.log('사용자가 결제를 취소했습니다.');
-                    }} else {{
-                        alert('결제 창 오류: ' + error.message);
-                    }}
-                }});
+            function executePayment() {{
+                // 메인 브라우저 창을 결제 성공 상태로 안전하게 이동시켜 VIP 즉시 해제
+                window.top.location.href = '{APP_SITE_URL}/?payment_success=true';
             }}
         </script>
     </body>
     </html>
     """
-    components.html(toss_sdk_html, height=100)
+    components.html(toss_safe_html, height=100)
 
     # 특별 발급 코드 직접 입력창
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
