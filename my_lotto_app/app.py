@@ -141,7 +141,7 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 @keyframes clover-sparkle { 0% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } 50% { transform: scale(1.2) rotate(8deg); filter: drop-shadow(0 0 12px #4ade80) drop-shadow(0 0 20px #facc15); } 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #22c55e); } }
 .sparkle-clover { display: inline-block; animation: clover-sparkle 1.4s infinite ease-in-out; font-size: 20px; }
 
-@keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
+@keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e1b18; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
@@ -230,7 +230,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 팝업 결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 일반 결제 호출 방식) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -242,11 +242,11 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 버튼을 누르면 토스 결제창이 팝업으로 호출되며, 완료 시 즉시 VIP가 해제됩니다.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 결제 버튼을 누르면 토스 결제창이 팝업으로 호출됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 높이를 75px로 유지하여 평소에는 불필요한 빈 공간 없이 버튼만 깔끔하게 밀착 표시
+    # 높이를 65px로 딱 고정하여 평소에는 빈 공간 없이 비상 버튼과 가깝게 밀착되도록 설정
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -262,7 +262,7 @@ f"""
                 color: #ffffff;
                 font-weight: 900;
                 font-size: 16px;
-                padding: 15px 10px;
+                padding: 14px 10px;
                 border-radius: 12px;
                 cursor: pointer;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -303,11 +303,9 @@ f"""
     </body>
     </html>
     """
-    components.html(toss_sdk_html, height=75)
+    components.html(toss_sdk_html, height=65)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # 비상용 코드 직접 입력창 (결제 버튼 바로 아래에 밀착 배치)
+    # 비상용 코드 직접 입력창 (결제 버튼 바로 아래에 바짝 밀착)
     with st.expander("🔑 [비상] VIP 코드 직접 입력하기", expanded=False):
         vip_input = st.text_input("VIP 코드를 입력하세요", type="password", key="vip_code_input")
         if st.button("코드 입력으로 잠금 해제", use_container_width=True, key="unlock_btn"):
