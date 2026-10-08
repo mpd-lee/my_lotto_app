@@ -1,12 +1,10 @@
 import random
 import time
 import os
-import uuid
 from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
@@ -21,19 +19,10 @@ GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 �
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
+# 화면 무한 로딩 에러를 유발했던 자바스크립트(components.html)를 완전히 제거하고 안전한 마크다운 방식으로만 삽입합니다.
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 
-# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 안내) =================
-try:
-    query_params = st.query_params
-    if "payment_success" in query_params:
-        st.toast("🎉 토스 결제가 완료되었습니다! 아래에서 발급된 코드를 확인하세요.", icon="✨")
-    elif "payment_fail" in query_params:
-        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
-except Exception:
-    pass
-
-# ================= 세션 상태 초기화 (주문번호 및 VIP 상태 관리) =================
+# ================= 세션 상태 초기화 =================
 if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "selected_game" not in st.session_state:
@@ -42,8 +31,23 @@ if "extract_results" not in st.session_state:
     st.session_state.extract_results = []
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
-if "order_id" not in st.session_state:
-    st.session_state.order_id = f"LOTTO_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+
+# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 승인) =================
+try:
+    query_params = st.query_params
+    if "payment_success" in query_params or "paymentKey" in query_params:
+        st.session_state.vip_unlocked = True
+        st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
+        time.sleep(1.5)
+        st.query_params.clear()
+        st.rerun()
+    elif "payment_fail" in query_params:
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        time.sleep(1.5)
+        st.query_params.clear()
+        st.rerun()
+except Exception:
+    pass
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -229,7 +233,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 공식 JS SDK 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스 결제 URL 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -241,88 +245,24 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스페이먼츠 간편 결제] 버튼을 통해 1,000원 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 15px;">🔒 아래 [토스결제] 버튼을 통해 1,000원 결제 시 즉시 VIP가 해제됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 주문 번호 상태 확인 및 새로고침 버튼
-    col_ord1, col_ord2 = st.columns([3, 1])
-    with col_ord1:
-        st.markdown(f"<div style='font-size:12px; color:#94a3b8; margin-bottom:5px;'>주문번호: <b>{st.session_state.order_id}</b></div>", unsafe_allow_html=True)
-    with col_ord2:
-        if st.button("주문번호 갱신", use_container_width=True, key="refresh_order"):
-            st.session_state.order_id = f"LOTTO_{int(time.time())}_{uuid.uuid4().hex[:6]}"
-            st.rerun()
+    import time as t_mod
+    order_id_val = f"LOTTO_{int(t_mod.time())}"
+    
+    # 📌 실제 토스페이먼츠 샌드박스 결제창 URL (새 탭으로 열려 결제 진행)
+    toss_sandbox_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
 
-    # 토스페이먼츠 공식 JavaScript SDK(v1) 연동 HTML 컴포넌트
-    toss_sdk_html = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{ margin: 0; padding: 4px; background-color: transparent; text-align: center; font-family: sans-serif; }}
-            .toss-btn {{
-                width: 100%;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                border: 2px solid #facc15;
-                color: #ffffff;
-                font-weight: 900;
-                font-size: 16px;
-                padding: 15px 10px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                transition: all 0.2s ease-in-out;
-            }}
-            .toss-btn:hover {{
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-            }}
-        </style>
-    </head>
-    <body>
-        <button class="toss-btn" onclick="payToss()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
-        <script>
-            function payToss() {{
-                try {{
-                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                    tossPayments.requestPayment('카드', {{
-                        amount: 1000,
-                        orderId: "{st.session_state.order_id}",
-                        orderName: "VIP 골든픽 1주(7일) 프리패스",
-                        successUrl: "{APP_SITE_URL}/?payment_success=true",
-                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                    }}).catch(function (error) {{
-                        if (error.code === 'USER_CANCEL') {{
-                            console.log('결제 취소됨');
-                        }} else {{
-                            alert('결제창 호출 오류: ' + error.message);
-                        }}
-                    }});
-                }} catch (err) {{
-                    alert('SDK 초기화 오류: ' + err.message);
-                }}
-            }}
-        </script>
-    </body>
-    </html>
-    """
-    components.html(toss_sdk_html, height=80)
-
-    # 결제 성공 시 안내 메시지
-    if "payment_success" in query_params:
-        st.markdown(
-        """
-        <div style="background-color: #022c22; border: 2px solid #4ade80; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0;">
-            <div style="color: #4ade80; font-weight: 900; font-size: 15px;">🎉 결제 승인 완료! VIP 발급 코드: <span style="color: #facc15; font-size: 18px;">VIP2026</span></div>
-            <div style="color: #d1d5db; font-size: 12px; margin-top: 4px;">아래 입력창에 위 코드를 입력하시면 VIP 프리패스가 즉시 해제됩니다.</div>
-        </div>
-        """, unsafe_allow_html=True)
+    st.link_button(
+        "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
+        toss_sandbox_url, 
+        use_container_width=True
+    )
 
     # 특별 발급 코드 직접 입력창
-    vip_input = st.text_input("VIP 코드를 입력하세요 (예: VIP2026)", type="password", key="vip_code_input")
+    vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
     if st.button("🔓 코드 직접 입력하여 잠금 해제", use_container_width=True, key="unlock_btn"):
         if vip_input in ["MPD2026", "VIP2026"]:
@@ -455,7 +395,7 @@ f"""
                     </div>
                     """
                 st.markdown(html_str, unsafe_allow_html=True)
-            else: # 연금복권
+            else: 
                 group, nums, match_score, tags = result
                 group_html = f'<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 10px; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{group}조</div>'
                 digits_html = "".join([f'<div style="width: 30px; height: 30px; border-radius: 6px; background-color: #2563eb; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; margin-right: 4px; margin-bottom: 5px; box-shadow: 0 3px 5px rgba(0,0,0,0.3);">{n}</div>' for n in nums])
