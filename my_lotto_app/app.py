@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_DpexMgkW36vmkLY17OyM3GbR"    # 📌 토스페이먼츠 클라이언트 키
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 올바른 API 개별 연동 클라이언트 키 적용 완료[cite: 9]
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
