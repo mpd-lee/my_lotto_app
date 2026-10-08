@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 올바른 API 개별 연동 클라이언트 키 적용 완료[cite: 9]
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 올바른 API 개별 연동 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
@@ -247,7 +247,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 공식 JS SDK 연동 HTML 컴포넌트 (동적 고유 주문번호 생성)
+    # 토스페이먼츠 공식 JS SDK 연동 HTML 컴포넌트 (높이를 500px로 확대하여 잘림 방지)
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -304,7 +304,7 @@ f"""
     </body>
     </html>
     """
-    components.html(toss_sdk_html, height=75)
+    components.html(toss_sdk_html, height=500)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
