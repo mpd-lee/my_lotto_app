@@ -243,7 +243,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 안전 연동 버튼) =================
+# ================= 4. 금빛 VIP 시스템 (안전한 표준 링크 방식 적용) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -259,40 +259,40 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 결제 버튼 (아이프레임 탈출 및 안전 리다이렉트 방식)
+    # 표준 <a> 태그(target="_top")를 사용하여 브라우저가 차단하지 않고 곧바로 이동하도록 처리
     toss_safe_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
             body {{ margin: 0; padding: 5px; background-color: transparent; }}
-            #toss-pay-btn {{
+            .toss-pay-btn {{
+                display: block;
                 width: 100%;
                 background: linear-gradient(135deg, #059669 0%, #047857 100%);
                 border: 2px solid #facc15;
-                color: #ffffff;
+                color: #ffffff !important;
                 font-weight: 900;
                 font-size: 17px;
                 padding: 16px 15px;
                 border-radius: 12px;
-                cursor: pointer;
+                text-align: center;
+                text-decoration: none !important;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                box-sizing: border-box;
+                cursor: pointer;
                 transition: all 0.2s ease-in-out;
             }}
-            #toss-pay-btn:hover {{
+            .toss-pay-btn:hover {{
                 background: linear-gradient(135deg, #10b981 0%, #059669 100%);
                 box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
             }}
         </style>
     </head>
     <body>
-        <button id="toss-pay-btn" onclick="executePayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
-        <script>
-            function executePayment() {{
-                // 메인 브라우저 창을 결제 성공 상태로 안전하게 이동시켜 VIP 즉시 해제
-                window.top.location.href = '{APP_SITE_URL}/?payment_success=true';
-            }}
-        </script>
+        <a href="{APP_SITE_URL}/?payment_success=true" target="_top" class="toss-pay-btn">
+            💎 토스페이먼츠 간편 결제 (1,000원) 💎
+        </a>
     </body>
     </html>
     """
