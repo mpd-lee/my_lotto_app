@@ -5,7 +5,6 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
@@ -226,7 +225,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 안전 결제 브릿지 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 네이티브 링크 버튼 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -238,60 +237,22 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 버튼을 누르면 안전한 결제 승인 페이지로 이동하며, 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래에 입력해 주세요.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스페이먼츠 간편 결제] 버튼을 누르면 안전한 결제 창이 새 탭으로 열립니다. 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 파이썬 f-string 안에서 자바스크립트 중괄호 에러가 나지 않도록 모두 겹괄호({{, }})로 이스케이프 처리 완료
-    toss_safe_html = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{ margin: 0; padding: 5px; background-color: transparent; text-align: center; font-family: sans-serif; }}
-            .toss-btn {{
-                width: 100%;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                border: 2px solid #facc15;
-                color: #ffffff;
-                font-weight: 900;
-                font-size: 17px;
-                padding: 16px 15px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                transition: all 0.2s ease-in-out;
-            }}
-            .toss-btn:hover {{
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-            }}
-        </style>
-    </head>
-    <body>
-        <button class="toss-btn" onclick="openPayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
-        <script>
-            function openPayment() {{
-                try {{
-                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                    tossPayments.requestPayment('카드', {{
-                        amount: 1000,
-                        orderId: 'LOTTO_' + new Date().getTime(),
-                        orderName: 'VIP 골든픽 1주(7일) 프리패스',
-                        successUrl: '{APP_SITE_URL}/?payment_success=true',
-                        failUrl: '{APP_SITE_URL}/?payment_fail=true'
-                    }});
-                }} catch (err) {{
-                    window.parent.location.href = "{APP_SITE_URL}/?payment_success=true";
-                }}
-            }}
-        </script>
-    </body>
-    </html>
-    """
-    components.html(toss_safe_html, height=80)
+    import time as t_mod
+    order_id_val = f"LOTTO_{int(t_mod.time())}"
+    
+    # 토스페이먼츠 샌드박스 결제 URL (새 탭에서 안전하게 열림)
+    toss_sandbox_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
+
+    # 스트림릿 공식 네이티브 링크 버튼 (iframe 보안 제한에 걸리지 않고 완벽하게 새 탭으로 열림)
+    st.link_button(
+        "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
+        toss_sandbox_url, 
+        use_container_width=True
+    )
 
     # 결제 성공 시 안내 메시지 및 발급 코드 안내
     if "payment_success" in query_params:
