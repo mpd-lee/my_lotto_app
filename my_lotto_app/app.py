@@ -243,7 +243,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (안전한 표준 링크 방식 적용) =================
+# ================= 4. 금빛 VIP 시스템 (네이티브 링크 버튼 적용) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -259,44 +259,12 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 표준 <a> 태그(target="_top")를 사용하여 브라우저가 차단하지 않고 곧바로 이동하도록 처리
-    toss_safe_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            body {{ margin: 0; padding: 5px; background-color: transparent; }}
-            .toss-pay-btn {{
-                display: block;
-                width: 100%;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                border: 2px solid #facc15;
-                color: #ffffff !important;
-                font-weight: 900;
-                font-size: 17px;
-                padding: 16px 15px;
-                border-radius: 12px;
-                text-align: center;
-                text-decoration: none !important;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                box-sizing: border-box;
-                cursor: pointer;
-                transition: all 0.2s ease-in-out;
-            }}
-            .toss-pay-btn:hover {{
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-            }}
-        </style>
-    </head>
-    <body>
-        <a href="{APP_SITE_URL}/?payment_success=true" target="_top" class="toss-pay-btn">
-            💎 토스페이먼츠 간편 결제 (1,000원) 💎
-        </a>
-    </body>
-    </html>
-    """
-    components.html(toss_safe_html, height=100)
+    # iframe 제약을 완전히 우회하는 스트림릿 네이티브 링크 버튼
+    st.link_button(
+        "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
+        f"{APP_SITE_URL}/?payment_success=true", 
+        use_container_width=True
+    )
 
     # 특별 발급 코드 직접 입력창
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
