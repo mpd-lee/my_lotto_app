@@ -170,30 +170,6 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 .footer-btn-dh { background-color: #16a34a; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
-/* 토스페이먼츠 간편결제 다이렉트 버튼 스타일 */
-.toss-pay-btn {
-    display: block;
-    width: 100%;
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    border: 2px solid #facc15;
-    color: #ffffff !important;
-    font-weight: 900;
-    font-size: 17px;
-    padding: 16px 15px;
-    border-radius: 12px;
-    text-align: center;
-    text-decoration: none !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-}
-.toss-pay-btn:hover {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-    transform: translateY(-2px);
-}
 </style>
 """,
     unsafe_allow_html=True,
@@ -267,7 +243,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 직관적 링크 버튼 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 공식 SDK 결제창 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -283,20 +259,60 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    import time as t_mod
-    order_id_val = f"LOTTO_{int(t_mod.time())}"
-    
-    # 토스페이먼츠 결제 연동 URL
-    toss_checkout_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
+    # 토스페이먼츠 공식 SDK 결제창 HTML Component
+    toss_sdk_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{ margin: 0; padding: 5px; background-color: transparent; }}
+            #toss-pay-btn {{
+                width: 100%;
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                border: 2px solid #facc15;
+                color: #ffffff;
+                font-weight: 900;
+                font-size: 17px;
+                padding: 16px 15px;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                transition: all 0.2s ease-in-out;
+            }}
+            #toss-pay-btn:hover {{
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
+            }}
+        </style>
+    </head>
+    <body>
+        <button id="toss-pay-btn" onclick="requestTossPayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
+        <script>
+            var clientKey = '{TOSS_CLIENT_KEY}';
+            var tossPayments = TossPayments(clientKey);
 
-    st.markdown(
-        f"""
-        <a href="{toss_checkout_url}" target="_self" class="toss-pay-btn">
-            💎 토스페이먼츠 간편 결제 (1,000원) 💎
-        </a>
-        """,
-        unsafe_allow_html=True
-    )
+            function requestTossPayment() {{
+                tossPayments.requestPayment('카드', {{
+                    amount: 1000,
+                    orderId: 'LOTTO_' + new Date().getTime(),
+                    orderName: '로또픽 VIP 7일 프리패스',
+                    customerName: '로또픽 회원',
+                    successUrl: '{APP_SITE_URL}/?payment_success=true',
+                    failUrl: '{APP_SITE_URL}/?payment_fail=true',
+                }}).catch(function (error) {{
+                    if (error.code === 'USER_CANCEL') {{
+                        console.log('사용자가 결제를 취소했습니다.');
+                    }} else {{
+                        alert('결제 창 오류: ' + error.message);
+                    }}
+                }});
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_sdk_html, height=100)
 
     # 특별 발급 코드 직접 입력창
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
