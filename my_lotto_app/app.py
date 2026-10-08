@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 올바른 API 개별 연동 클라이언트 키
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 API 개별 연동 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
@@ -126,7 +126,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-bottom: 3px solid #facc15 !important;
 }
 
-/* 안내 박스(st.info) 스타일 */
+/* 안내 박스 스타일 */
 div[data-testid="stAlert"] {
     background-color: #1e293b !important;
     border: 1px solid #38bdf8 !important;
@@ -230,7 +230,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 완벽 전체 표시형 결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 팝업 결제 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -242,11 +242,11 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 결제 버튼을 누르면 모든 간편결제 및 카드 선택창이 <b>잘림 없이 완벽하게 표시</b>됩니다.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 버튼을 누르면 토스 결제창이 팝업으로 호출되며, 완료 시 즉시 VIP가 해제됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 결제창 높이를 620px로 넉넉하게 설정하여 모든 결제 수단이 잘림 없이 한눈에 보이도록 처리
+    # 높이를 75px로 유지하여 평소에는 불필요한 빈 공간 없이 버튼만 깔끔하게 밀착 표시
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -254,13 +254,7 @@ f"""
         <meta charset="UTF-8">
         <script src="https://js.tosspayments.com/v1/payment"></script>
         <style>
-            body {{ 
-                margin: 0; 
-                padding: 5px; 
-                background-color: #0e1117; 
-                text-align: center; 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            }}
+            body {{ margin: 0; padding: 2px; background-color: transparent; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
             .toss-btn {{
                 width: 100%;
                 background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -268,12 +262,11 @@ f"""
                 color: #ffffff;
                 font-weight: 900;
                 font-size: 16px;
-                padding: 16px 10px;
+                padding: 15px 10px;
                 border-radius: 12px;
                 cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
                 transition: all 0.2s ease-in-out;
-                margin-bottom: 10px;
             }}
             .toss-btn:hover {{
                 background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -310,11 +303,11 @@ f"""
     </body>
     </html>
     """
-    components.html(toss_sdk_html, height=620)
+    components.html(toss_sdk_html, height=75)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # 비상용 코드 직접 입력창
+    # 비상용 코드 직접 입력창 (결제 버튼 바로 아래에 밀착 배치)
     with st.expander("🔑 [비상] VIP 코드 직접 입력하기", expanded=False):
         vip_input = st.text_input("VIP 코드를 입력하세요", type="password", key="vip_code_input")
         if st.button("코드 입력으로 잠금 해제", use_container_width=True, key="unlock_btn"):
