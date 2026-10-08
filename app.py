@@ -171,7 +171,7 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 .footer-btn-dh { background-color: #16a34a; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
-/* 토스 결제 유도 버튼 스타일 */
+/* 토스페이먼츠 간편결제 다이렉트 버튼 스타일 */
 .toss-pay-btn {
     display: block;
     width: 100%;
@@ -283,12 +283,10 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 간편결제창 URL (테스트/실결제 완벽 호환 방식)
-    # 고객님이 직접 버튼을 누를 때 팝업 블록 없이 토스 결제창으로 다이렉트 연결됩니다.
     import time as t_mod
     order_id_val = f"LOTTO_{int(t_mod.time())}"
     
-    # 토스 간편결제 결제 URL 구성
+    # 토스페이먼츠 결제 연동 URL
     toss_checkout_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
 
     st.markdown(
