@@ -16,24 +16,12 @@ st.set_page_config(
 )
 
 # ================= URL 및 키 관리 =================
-# 📌 API 개별 연동 키 섹션에서 [복사]한 선생님의 클라이언트 키를 아래 큰따옴표 안에 붙여넣으세요.
-TOSS_CLIENT_KEY = "test_ck_DpexMgkW36vmkLY17OyM3GbR"  
-
+TOSS_CLIENT_KEY = "test_ck_DpexMgkW36vmkLY17OyM3GbR"    # 📌 토스페이먼츠 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
-
-# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 안내) =================
-try:
-    query_params = st.query_params
-    if "payment_success" in query_params:
-        st.toast("🎉 토스 결제가 완료되었습니다! 아래에서 발급된 코드를 확인하세요.", icon="✨")
-    elif "payment_fail" in query_params:
-        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
-except Exception:
-    pass
 
 # ================= 세션 상태 초기화 =================
 if "vip_unlocked" not in st.session_state:
@@ -44,6 +32,18 @@ if "extract_results" not in st.session_state:
     st.session_state.extract_results = []
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
+
+# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 해제) =================
+try:
+    query_params = st.query_params
+    if "payment_success" in query_params:
+        if not st.session_state.vip_unlocked:
+            st.session_state.vip_unlocked = True
+        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 자동으로 활성화되었습니다.", icon="✨")
+    elif "payment_fail" in query_params:
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+except Exception:
+    pass
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -229,7 +229,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 개별 연동 키 방식) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 간편 결제 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -241,11 +241,11 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스페이먼츠 간편 결제] 버튼을 눌러 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 버튼을 눌러 1,000원 결제를 완료하시면 <b>즉시 VIP 프리패스가 자동으로 해제</b>됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 공식 JS SDK 연동 HTML 컴포넌트 (동적 주문번호 + 개별 클라이언트 키)
+    # 토스페이먼츠 공식 JS SDK 연동 HTML 컴포넌트 (동적 고유 주문번호 생성)
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -304,27 +304,19 @@ f"""
     """
     components.html(toss_sdk_html, height=75)
 
-    # 결제 성공 시 안내 메시지
-    if "payment_success" in query_params:
-        st.markdown(
-        """
-        <div style="background-color: #022c22; border: 2px solid #4ade80; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0;">
-            <div style="color: #4ade80; font-weight: 900; font-size: 15px;">🎉 결제 완료! VIP 발급 코드: <span style="color: #facc15; font-size: 18px;">VIP2026</span></div>
-            <div style="color: #d1d5db; font-size: 12px; margin-top: 4px;">아래 입력창에 위 코드를 입력하시면 VIP 프리패스가 즉시 해제됩니다.</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # 특별 발급 코드 직접 입력창
-    vip_input = st.text_input("VIP 코드를 입력하세요 (예: VIP2026)", type="password", key="vip_code_input")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("🔓 코드 직접 입력하여 잠금 해제", use_container_width=True, key="unlock_btn"):
-        if vip_input in ["MPD2026", "VIP2026"]:
-            st.session_state.vip_unlocked = True
-            st.success("✨ VIP 프리패스 활성화 완료!")
-            time.sleep(0.5)
-            st.rerun()
-        else:
-            st.error("❌ 올바르지 않은 코드입니다.")
+    # 비상용 코드 직접 입력창 (혹시 모를 상황 대비)
+    with st.expander("🔑 [비상] VIP 코드 직접 입력하기", expanded=False):
+        vip_input = st.text_input("VIP 코드를 입력하세요", type="password", key="vip_code_input")
+        if st.button("코드 입력으로 잠금 해제", use_container_width=True, key="unlock_btn"):
+            if vip_input in ["MPD2026", "VIP2026"]:
+                st.session_state.vip_unlocked = True
+                st.success("✨ VIP 프리패스 활성화 완료!")
+                time.sleep(0.5)
+                st.rerun()
+            else:
+                st.error("❌ 올바르지 않은 코드입니다.")
 else:
     st.markdown(
 """
