@@ -16,7 +16,9 @@ st.set_page_config(
 )
 
 # ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"  # 📌 토스페이먼츠 테스트 클라이언트 키
+# 📌 API 개별 연동 키 섹션에서 [복사]한 선생님의 클라이언트 키를 아래 큰따옴표 안에 붙여넣으세요.
+TOSS_CLIENT_KEY = "test_ck_DpexMgkW36vmkLY17OyM3GbR"  
+
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 문의용 구글 폼 링크
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
@@ -227,7 +229,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 공식 JS SDK 정밀 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 개별 연동 키 방식) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -243,7 +245,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 💡 핵심 수정 파트: 자바스크립트 내부에서 버튼 클릭 시 매번 새로운 고유 ID 생성
+    # 토스페이먼츠 공식 JS SDK 연동 HTML 컴포넌트 (동적 주문번호 + 개별 클라이언트 키)
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -277,8 +279,6 @@ f"""
             function payToss() {{
                 try {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                    
-                    // 💡 클릭할 때마다 시간값+난수 조합으로 완벽히 새로운 주문번호(orderId) 즉시 생성
                     var uniqueOrderId = "LOTTO_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 8);
                     
                     tossPayments.requestPayment('카드', {{
@@ -289,7 +289,7 @@ f"""
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
                         if (error.code === 'USER_CANCEL') {{
-                            alert('결제가 취소되었습니다.');
+                            console.log('결제 취소됨');
                         }} else {{
                             alert('결제창 오류: ' + error.message);
                         }}
