@@ -40,8 +40,16 @@ query_params = st.query_params
 if "payment_success" in query_params or "paymentKey" in query_params:
     st.session_state.vip_unlocked = True
     st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
+    time.sleep(1.5)
+    st.query_params.clear()
+    st.rerun()
+elif "payment_fail" in query_params:
+    st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+    time.sleep(1.5)
+    st.query_params.clear()
+    st.rerun()
 
-# ================= 커스텀 CSS 스타일 (라이트/다크모드 완벽 대응) =================
+# ================= 커스텀 CSS 스타일 =================
 st.markdown(
 """
 <style>
@@ -139,8 +147,6 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 @keyframes silver-match-glow { 0% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } 50% { box-shadow: 0 0 25px #e2e8f0; border-color: #ffffff; background-color: #2a3748; } 100% { box-shadow: 0 0 5px #94a3b8; border-color: #94a3b8; background-color: #1e293b; } }
 @keyframes gold-glow { 0% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } 50% { box-shadow: 0 0 30px #facc15; border-color: #fde047; background-color: #2d2618; } 100% { box-shadow: 0 0 8px #ca8a04; border-color: #eab308; background-color: #1e1b18; } }
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
-@keyframes pulse-orange { 0% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(249, 115, 22, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); transform: scale(1); } }
-@keyframes pulse-sky { 0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } 50% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.8); transform: scale(1.01); } 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); transform: scale(1); } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
@@ -164,6 +170,30 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 .footer-btn-dh { background-color: #16a34a; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+/* 토스페이먼츠 간편결제 다이렉트 버튼 스타일 */
+.toss-pay-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border: 2px solid #facc15;
+    color: #ffffff !important;
+    font-weight: 900;
+    font-size: 17px;
+    padding: 16px 15px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.toss-pay-btn:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
+    transform: translateY(-2px);
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -237,7 +267,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 단일 자동결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 직관적 링크 버튼 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -253,49 +283,22 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스 결제 SDK 스크립트 실행 버튼
-    toss_html = f"""
-    <script src="https://js.tosspayments.com/v1/payment"></script>
-    <div style="text-align: center; margin-bottom: 10px;">
-        <button id="toss-payment-button" style="
-            width: 100%;
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            border: 2px solid #facc15;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 17px;
-            padding: 16px 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            transition: all 0.2s ease-in-out;
-        ">
-            💎 토스페이먼츠 간편 결제 (1,000원) 💎
-        </button>
-    </div>
-    <script>
-        var tossPayments = TossPayments('{TOSS_CLIENT_KEY}');
-        document.getElementById('toss-payment-button').addEventListener('click', function () {{
-            tossPayments.requestPayment('카드', {{
-                amount: 1000,
-                orderId: 'LOTTO_' + new Date().getTime(),
-                orderName: '로또픽 VIP 7일 프리패스',
-                customerName: '로또픽 회원',
-                successUrl: '{APP_SITE_URL}/?payment_success=true',
-                failUrl: '{APP_SITE_URL}/?payment_fail=true',
-            }}).catch(function (error) {{
-                if (error.code === 'USER_CANCEL') {{
-                    console.log('사용자가 결제를 취소했습니다.');
-                }} else {{
-                    alert('결제 창 오류: ' + error.message);
-                }}
-            }});
-        }});
-    </script>
-    """
-    components.html(toss_html, height=80)
+    import time as t_mod
+    order_id_val = f"LOTTO_{int(t_mod.time())}"
+    
+    # 토스페이먼츠 결제 연동 URL
+    toss_checkout_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
 
-    # 특별 발급 코드 직접 입력창 (관리자 및 전용 쿠폰 테스트용)
+    st.markdown(
+        f"""
+        <a href="{toss_checkout_url}" target="_self" class="toss-pay-btn">
+            💎 토스페이먼츠 간편 결제 (1,000원) 💎
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # 특별 발급 코드 직접 입력창
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
     
     if st.button("🔓 코드 직접 입력하여 잠금 해제", use_container_width=True, key="unlock_btn"):
@@ -413,7 +416,7 @@ f"""
                     <div class="game-box-vip">
                         <div class="s-class-badge">S-CLASS</div>
                         <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 VIP 프리미엄 게임 {i+1}</div>
-                        <div style="display: flex; justify-content: space-between; align-size: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
                             <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
                         </div>
                         <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
@@ -440,7 +443,7 @@ f"""
                     <div class="game-box-vip">
                         <div class="s-class-badge">S-CLASS</div>
                         <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 연금 VIP 게임 {i+1}</div>
-                        <div style="display: flex; justify-content: space-between; align-size: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
                             <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
                         </div>
                         <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
