@@ -5,7 +5,6 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
@@ -20,34 +19,35 @@ GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 �
 APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 앱 배포 주소
 
 # ================= 구글 애드센스 소유권 확인 메타태그 =================
+# 화면 무한 로딩 에러를 유발했던 자바스크립트(components.html)를 완전히 제거하고 안전한 마크다운 방식으로만 삽입합니다.
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
-components.html(
-    """
-    <script>
-        try {
-            var meta = window.parent.document.createElement('meta');
-            meta.name = "google-adsense-account";
-            meta.content = "ca-pub-2324282297166072";
-            window.parent.document.getElementsByTagName('head')[0].appendChild(meta);
-        } catch (e) {}
-    </script>
-    """,
-    height=0, width=0
-)
+
+# ================= 세션 상태 초기화 =================
+if "vip_unlocked" not in st.session_state:
+    st.session_state.vip_unlocked = False
+if "selected_game" not in st.session_state:
+    st.session_state.selected_game = "lotto"
+if "extract_results" not in st.session_state:
+    st.session_state.extract_results = []
+if "extract_game_type" not in st.session_state:
+    st.session_state.extract_game_type = "lotto"
 
 # ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 승인) =================
-query_params = st.query_params
-if "payment_success" in query_params or "paymentKey" in query_params:
-    st.session_state.vip_unlocked = True
-    st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
-    time.sleep(1.5)
-    st.query_params.clear()
-    st.rerun()
-elif "payment_fail" in query_params:
-    st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
-    time.sleep(1.5)
-    st.query_params.clear()
-    st.rerun()
+try:
+    query_params = st.query_params
+    if "payment_success" in query_params or "paymentKey" in query_params:
+        st.session_state.vip_unlocked = True
+        st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
+        time.sleep(1.5)
+        st.query_params.clear()
+        st.rerun()
+    elif "payment_fail" in query_params:
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        time.sleep(1.5)
+        st.query_params.clear()
+        st.rerun()
+except Exception:
+    pass
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -175,16 +175,6 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
     unsafe_allow_html=True,
 )
 
-# ================= 세션 상태 초기화 =================
-if "vip_unlocked" not in st.session_state:
-    st.session_state.vip_unlocked = False
-if "selected_game" not in st.session_state:
-    st.session_state.selected_game = "lotto"
-if "extract_results" not in st.session_state:
-    st.session_state.extract_results = []
-if "extract_game_type" not in st.session_state:
-    st.session_state.extract_game_type = "lotto"
-
 # ================= 1. 타이틀 배너 =================
 st.markdown(
 """
@@ -243,7 +233,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (실제 토스 결제 테스트 URL 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스 결제 URL 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -265,7 +255,6 @@ f"""
     # 📌 실제 토스페이먼츠 샌드박스 결제창 URL (새 탭으로 열려 결제 진행)
     toss_sandbox_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
 
-    # st.link_button을 사용하여 새 탭으로 토스 결제 페이지가 열리도록 연결 (바로 성공 처리되지 않음)
     st.link_button(
         "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
         toss_sandbox_url, 
@@ -406,7 +395,7 @@ f"""
                     </div>
                     """
                 st.markdown(html_str, unsafe_allow_html=True)
-            else: # 연금복권
+            else: 
                 group, nums, match_score, tags = result
                 group_html = f'<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 10px; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{group}조</div>'
                 digits_html = "".join([f'<div style="width: 30px; height: 30px; border-radius: 6px; background-color: #2563eb; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; margin-right: 4px; margin-bottom: 5px; box-shadow: 0 3px 5px rgba(0,0,0,0.3);">{n}</div>' for n in nums])
