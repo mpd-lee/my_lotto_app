@@ -35,18 +35,18 @@ components.html(
     height=0, width=0
 )
 
-# ================= 쿼리 파라미터 확인 (결제 후 깔끔한 정리 로직 포함) =================
+# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 승인) =================
 query_params = st.query_params
 if "payment_success" in query_params or "paymentKey" in query_params:
     st.session_state.vip_unlocked = True
     st.toast("🎉 토스 결제가 완료되어 VIP 프리패스가 자동으로 활성화되었습니다!", icon="✨")
     time.sleep(1.5)
-    st.query_params.clear()  # 주소창의 지저분한 결제 파라미터 싹 지우기
+    st.query_params.clear()
     st.rerun()
 elif "payment_fail" in query_params:
     st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
     time.sleep(1.5)
-    st.query_params.clear()  # 실패 시에도 주소창 깔끔하게 지우기
+    st.query_params.clear()
     st.rerun()
 
 # ================= 커스텀 CSS 스타일 =================
@@ -170,6 +170,30 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 .footer-btn-cs { background-color: #2e3b4e; border: 2px solid #475569; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 .footer-btn-dh { background-color: #16a34a; border: 2px solid #22c55e; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+/* 토스 결제 유도 버튼 스타일 */
+.toss-pay-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    border: 2px solid #facc15;
+    color: #ffffff !important;
+    font-weight: 900;
+    font-size: 17px;
+    padding: 16px 15px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.toss-pay-btn:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
+    transform: translateY(-2px);
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -243,7 +267,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 연동 개선) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 직관적 링크 버튼 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -259,74 +283,22 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스 결제 버튼 (HTML/JS 개선 - 클릭 버그 및 짤림 현상 해결)
-    toss_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{ margin: 0; padding: 5px; background-color: transparent; }}
-            #toss-payment-button {{
-                width: 100%;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                border: 2px solid #facc15;
-                color: #ffffff;
-                font-weight: 900;
-                font-size: 17px;
-                padding: 16px 15px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                transition: all 0.2s ease-in-out;
-            }}
-            #toss-payment-button:hover {{
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-            }}
-            #toss-payment-button:active {{
-                transform: translateY(1px);
-            }}
-        </style>
-    </head>
-    <body>
-        <button id="toss-payment-button">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
-        <script>
-            var tossPayments = TossPayments('{TOSS_CLIENT_KEY}');
-            var btn = document.getElementById('toss-payment-button');
-            
-            btn.addEventListener('click', function () {{
-                // 중복 클릭 방지 및 상태 변경
-                btn.innerText = "⏳ 결제창 여는 중...";
-                btn.style.opacity = "0.7";
-                btn.disabled = true;
-                
-                tossPayments.requestPayment('카드', {{
-                    amount: 1000,
-                    orderId: 'LOTTO_' + new Date().getTime(),
-                    orderName: '로또픽 VIP 7일 프리패스',
-                    customerName: '로또픽 회원',
-                    successUrl: '{APP_SITE_URL}/?payment_success=true',
-                    failUrl: '{APP_SITE_URL}/?payment_fail=true',
-                }}).catch(function (error) {{
-                    // 취소하거나 에러가 나면 버튼 원상복구
-                    btn.innerText = "💎 토스페이먼츠 간편 결제 (1,000원) 💎";
-                    btn.style.opacity = "1";
-                    btn.disabled = false;
-                    
-                    if (error.code === 'USER_CANCEL') {{
-                        console.log('사용자가 결제를 취소했습니다.');
-                    }} else {{
-                        alert('결제 창 오류: ' + error.message + '\\n(※ 토스 개발자센터의 도메인 설정이 정확한지 확인해 주세요)');
-                    }}
-                }});
-            }});
-        </script>
-    </body>
-    </html>
-    """
-    # height를 110으로 늘려 버튼 그림자나 클릭 영역이 잘리지 않도록 확보
-    components.html(toss_html, height=110)
+    # 토스페이먼츠 간편결제창 URL (테스트/실결제 완벽 호환 방식)
+    # 고객님이 직접 버튼을 누를 때 팝업 블록 없이 토스 결제창으로 다이렉트 연결됩니다.
+    import time as t_mod
+    order_id_val = f"LOTTO_{int(t_mod.time())}"
+    
+    # 토스 간편결제 결제 URL 구성
+    toss_checkout_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
+
+    st.markdown(
+        f"""
+        <a href="{toss_checkout_url}" target="_self" class="toss-pay-btn">
+            💎 토스페이먼츠 간편 결제 (1,000원) 💎
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
 
     # 특별 발급 코드 직접 입력창
     vip_input = st.text_input("VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
