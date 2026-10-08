@@ -243,7 +243,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (네이티브 링크 버튼 적용) =================
+# ================= 4. 금빛 VIP 시스템 (실제 토스 결제 테스트 URL 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -259,10 +259,16 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # iframe 제약을 완전히 우회하는 스트림릿 네이티브 링크 버튼
+    import time as t_mod
+    order_id_val = f"LOTTO_{int(t_mod.time())}"
+    
+    # 📌 실제 토스페이먼츠 샌드박스 결제창 URL (새 탭으로 열려 결제 진행)
+    toss_sandbox_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
+
+    # st.link_button을 사용하여 새 탭으로 토스 결제 페이지가 열리도록 연결 (바로 성공 처리되지 않음)
     st.link_button(
         "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
-        f"{APP_SITE_URL}/?payment_success=true", 
+        toss_sandbox_url, 
         use_container_width=True
     )
 
