@@ -42,8 +42,6 @@ if "extract_results" not in st.session_state:
     st.session_state.extract_results = []
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
-if "order_id" not in st.session_state:
-    st.session_state.order_id = f"LOTTO_{int(time.time())}_{uuid.uuid4().hex[:6]}"
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -245,7 +243,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 공식 JS SDK v1 호출 컴포넌트 (모든 중괄호 이스케이프 완벽 처리)
+    # 💡 핵심 수정 파트: 자바스크립트 내부에서 버튼 클릭 시 매번 새로운 고유 ID 생성
     toss_sdk_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -279,15 +277,19 @@ f"""
             function payToss() {{
                 try {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    
+                    // 💡 클릭할 때마다 시간값+난수 조합으로 완벽히 새로운 주문번호(orderId) 즉시 생성
+                    var uniqueOrderId = "LOTTO_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 8);
+                    
                     tossPayments.requestPayment('카드', {{
                         amount: 1000,
-                        orderId: "{st.session_state.order_id}",
+                        orderId: uniqueOrderId,
                         orderName: "VIP 골든픽 1주(7일) 프리패스",
                         successUrl: "{APP_SITE_URL}/?payment_success=true",
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
                         if (error.code === 'USER_CANCEL') {{
-                            console.log('사용자 결제 취소');
+                            alert('결제가 취소되었습니다.');
                         }} else {{
                             alert('결제창 오류: ' + error.message);
                         }}
