@@ -1,10 +1,12 @@
 import random
 import time
 import os
+import uuid
 from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
@@ -31,7 +33,7 @@ try:
 except Exception:
     pass
 
-# ================= 세션 상태 초기화 =================
+# ================= 세션 상태 초기화 (주문번호 및 VIP 상태 관리) =================
 if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "selected_game" not in st.session_state:
@@ -40,6 +42,8 @@ if "extract_results" not in st.session_state:
     st.session_state.extract_results = []
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
+if "order_id" not in st.session_state:
+    st.session_state.order_id = f"LOTTO_{int(time.time())}_{uuid.uuid4().hex[:6]}"
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -225,7 +229,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 네이티브 링크 버튼 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 공식 JS SDK 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -237,24 +241,77 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스페이먼츠 간편 결제] 버튼을 누르면 안전한 결제 창이 새 탭으로 열립니다. 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스페이먼츠 간편 결제] 버튼을 통해 1,000원 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    import time as t_mod
-    order_id_val = f"LOTTO_{int(t_mod.time())}"
-    
-    # 토스페이먼츠 샌드박스 결제 URL (새 탭에서 안전하게 열림)
-    toss_sandbox_url = f"https://pay.tosspayments.com/sandbox/payments?clientKey={TOSS_CLIENT_KEY}&amount=1000&orderId={order_id_val}&orderName=VIP7일프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true"
+    # 주문 번호 상태 확인 및 새로고침 버튼
+    col_ord1, col_ord2 = st.columns([3, 1])
+    with col_ord1:
+        st.markdown(f"<div style='font-size:12px; color:#94a3b8; margin-bottom:5px;'>주문번호: <b>{st.session_state.order_id}</b></div>", unsafe_allow_html=True)
+    with col_ord2:
+        if st.button("주문번호 갱신", use_container_width=True, key="refresh_order"):
+            st.session_state.order_id = f"LOTTO_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+            st.rerun()
 
-    # 스트림릿 공식 네이티브 링크 버튼 (iframe 보안 제한에 걸리지 않고 완벽하게 새 탭으로 열림)
-    st.link_button(
-        "💎 토스페이먼츠 간편 결제 (1,000원) 💎", 
-        toss_sandbox_url, 
-        use_container_width=True
-    )
+    # 토스페이먼츠 공식 JavaScript SDK(v1) 연동 HTML 컴포넌트
+    toss_sdk_html = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{ margin: 0; padding: 4px; background-color: transparent; text-align: center; font-family: sans-serif; }}
+            .toss-btn {{
+                width: 100%;
+                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                border: 2px solid #facc15;
+                color: #ffffff;
+                font-weight: 900;
+                font-size: 16px;
+                padding: 15px 10px;
+                border-radius: 12px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                transition: all 0.2s ease-in-out;
+            }}
+            .toss-btn:hover {{
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
+            }}
+        </style>
+    </head>
+    <body>
+        <button class="toss-btn" onclick="payToss()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
+        <script>
+            function payToss() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment('카드', {{
+                        amount: 1000,
+                        orderId: "{st.session_state.order_id}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code === 'USER_CANCEL') {{
+                            console.log('결제 취소됨');
+                        }} else {{
+                            alert('결제창 호출 오류: ' + error.message);
+                        }}
+                    }});
+                }} catch (err) {{
+                    alert('SDK 초기화 오류: ' + err.message);
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_sdk_html, height=80)
 
-    # 결제 성공 시 안내 메시지 및 발급 코드 안내
+    # 결제 성공 시 안내 메시지
     if "payment_success" in query_params:
         st.markdown(
         """
