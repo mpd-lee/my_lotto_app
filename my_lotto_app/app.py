@@ -33,11 +33,16 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
+# [추가됨] 토스 결제창을 동적으로 늘리고 줄이기 위한 상태 변수
+if "show_toss_iframe" not in st.session_state:
+    st.session_state.show_toss_iframe = False
+
 # ================= 쿼리 파라미터 확인 및 무한 리런 방지 처리 =================
 try:
     if "payment_success" in st.query_params:
         if not st.session_state.vip_unlocked:
             st.session_state.vip_unlocked = True
+        st.session_state.show_toss_iframe = False # 결제 완료 시 창 접기
         st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
         st.query_params.clear()
     elif "payment_fail" in st.query_params:
@@ -146,8 +151,28 @@ div[data-testid="stAlert"] p, div[data-testid="stAlert"] div {
 @keyframes glow-green { 0% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } 50% { box-shadow: 0 0 25px #4ade80; border-color: #4ade80; } 100% { box-shadow: 0 0 5px #22c55e; border-color: #22c55e; } }
 @keyframes pulse-red-flash { 0% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } 50% { transform: scale(1.06); background-color: #dc2626; box-shadow: 0 0 25px #ef4444; } 100% { transform: scale(1); background-color: #991b1b; box-shadow: 0 0 12px #991b1b; } }
 
+/* 일반 버튼 디자인 */
 .stButton>button { font-weight: bold; border-radius: 10px; padding: 12px 10px; color: white !important; background-color: #1e293b; border: 2px solid #475569; transition: all 0.2s ease-in-out; width: 100%; word-break: keep-all; }
 .stButton>button:hover { border-color: #ffffff !important; background-color: #2a3748 !important; box-shadow: 0 0 25px #e2e8f0 !important; }
+
+/* 🔥 동적 상태전환용 토스 전용 스트림릿 버튼(type="primary") 디자인 🔥 */
+button[kind="primary"], button[data-testid="baseButton-primary"] {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    border: 2px solid #facc15 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-size: 16px !important;
+    padding: 15px 10px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+button[kind="primary"]:hover, button[data-testid="baseButton-primary"]:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6) !important;
+    border-color: #ffffff !important;
+    color: white !important;
+}
 
 .free-badge-top { background-color: #dc2626; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; box-shadow: 0 4px 15px rgba(239,68,68,0.6); display: inline-block; animation: pulse-red-flash 1.2s infinite ease-in-out; border: 1px solid #fca5a5; }
 .vip-badge-top { background-color: #ca8a04; color: #ffffff; font-size: 14px; font-weight: 900; padding: 6px 16px; border-radius: 20px; margin-bottom: -12px; z-index: 10; border: 1px solid #fef08a; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.5); display: inline-block; }
@@ -230,11 +255,11 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 일반 결제 호출 방식) =================
+# ================= 4. 금빛 VIP 시스템 (스트림릿 동적 크기 변환 결제 모듈) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
-<div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto; color: #fef08a; text-align: center;">
+<div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 10px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
 ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
@@ -242,43 +267,37 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 결제 버튼을 누르면 토스 결제창이 팝업으로 호출됩니다.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 결제 버튼을 누르면 <b>토스 결제창이 넓게 펼쳐집니다.</b></div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 높이를 65px로 딱 고정하여 평소에는 빈 공간 없이 비상 버튼과 가깝게 밀착되도록 설정
-    toss_sdk_html = f"""
-    <!DOCTYPE html>
-    <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{ margin: 0; padding: 2px; background-color: transparent; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
-            .toss-btn {{
-                width: 100%;
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                border: 2px solid #facc15;
-                color: #ffffff;
-                font-weight: 900;
-                font-size: 16px;
-                padding: 14px 10px;
-                border-radius: 12px;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                transition: all 0.2s ease-in-out;
-            }}
-            .toss-btn:hover {{
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                box-shadow: 0 6px 20px rgba(4, 120, 87, 0.6);
-            }}
-        </style>
-    </head>
-    <body>
-        <button class="toss-btn" onclick="payToss()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
-        <script>
-            function payToss() {{
-                try {{
+    # 핵심 로직: 평소(누르기 전)에는 스트림릿 버튼 하나로 좁게 보여주고, 누르면 620px 공간을 확보하며 렌더링!
+    if not st.session_state.show_toss_iframe:
+        if st.button("💎 토스페이먼츠 간편 결제 (1,000원) 💎", type="primary", use_container_width=True):
+            st.session_state.show_toss_iframe = True
+            st.rerun()
+    else:
+        st.markdown("<div style='text-align:center; color:#4ade80; font-weight:bold; margin-bottom:10px;'>✅ 결제창 로딩 완료! 아래에서 원하는 결제 수단을 터치하세요.</div>", unsafe_allow_html=True)
+        
+        # 버튼을 누른 후에만 높이 620px의 넉넉한 공간을 앱 내에 할당해 줌 (은행 잘림 현상 완벽 해결)
+        toss_sdk_html = f"""
+        <!DOCTYPE html>
+        <html lang="ko">
+        <head>
+            <meta charset="UTF-8">
+            <script src="https://js.tosspayments.com/v1/payment"></script>
+            <style>
+                body {{ margin: 0; padding: 5px; background-color: #0e1117; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+                .toss-btn {{
+                    width: 100%; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #facc15; color: #ffffff; font-weight: 900; font-size: 16px; padding: 16px 10px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); margin-bottom: 10px;
+                }}
+            </style>
+        </head>
+        <body onload="payToss()">
+            <!-- 혹시 모를 브라우저 팝업 차단 대비용 재실행 버튼 -->
+            <button class="toss-btn" onclick="payToss()">⚡ (결제창이 닫혔다면) 여기를 눌러 결제 재개하기 ⚡</button>
+            <script>
+                function payToss() {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
                     var uniqueOrderId = "LOTTO_" + new Date().getTime() + "_" + Math.random().toString(36).substring(2, 8);
                     
@@ -289,28 +308,31 @@ f"""
                         successUrl: "{APP_SITE_URL}/?payment_success=true",
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
-                        if (error.code === 'USER_CANCEL') {{
-                            console.log('결제 취소됨');
-                        }} else {{
-                            alert('결제창 오류: ' + error.message);
+                        if (error.code !== 'USER_CANCEL') {{
+                            console.log('결제창 오류: ' + error.message);
                         }}
                     }});
-                }} catch (err) {{
-                    alert('결제 모듈 호출 실패: ' + err.message);
                 }}
-            }}
-        </script>
-    </body>
-    </html>
-    """
-    components.html(toss_sdk_html, height=65)
+            </script>
+        </body>
+        </html>
+        """
+        components.html(toss_sdk_html, height=620)
+        
+        # 다시 좁은 화면으로 돌아갈 수 있는 접기 버튼
+        if st.button("❌ 결제 취소 (창 접기)", use_container_width=True):
+            st.session_state.show_toss_iframe = False
+            st.rerun()
 
-    # 비상용 코드 직접 입력창 (결제 버튼 바로 아래에 바짝 밀착)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # 비상용 코드 직접 입력창 (결제 버튼 바로 아래에 밀착)
     with st.expander("🔑 [비상] VIP 코드 직접 입력하기", expanded=False):
         vip_input = st.text_input("VIP 코드를 입력하세요", type="password", key="vip_code_input")
         if st.button("코드 입력으로 잠금 해제", use_container_width=True, key="unlock_btn"):
             if vip_input in ["MPD2026", "VIP2026"]:
                 st.session_state.vip_unlocked = True
+                st.session_state.show_toss_iframe = False
                 st.success("✨ VIP 프리패스 활성화 완료!")
                 time.sleep(0.5)
                 st.rerun()
