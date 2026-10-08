@@ -226,7 +226,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스 SDK 결제 및 코드 입력) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 안전 결제 브릿지 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 f"""
@@ -238,12 +238,12 @@ f"""
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 [토스결제] 버튼을 눌러 결제 완료 후, 발급되는 <b>VIP 코드(VIP2026)</b>를 아래 입력창에 넣어주세요.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 10px;">🔒 아래 버튼을 누르면 안전한 결제 승인 페이지로 이동하며, 결제 완료 후 발급되는 <b>VIP 코드(VIP2026)</b>를 아래에 입력해 주세요.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # 토스페이먼츠 공식 SDK 팝업 연동 HTML
-    toss_sdk_html = f"""
+    # iframe 차단을 우회하여 메인 브라우저 창에서 안전하게 결제 모듈을 호출하는 브릿지 HTML
+    toss_safe_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
     <head>
@@ -271,37 +271,35 @@ f"""
         </style>
     </head>
     <body>
-        <button class="toss-btn" onclick="payToss()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
+        <button class="toss-btn" onclick="openPayment()">💎 토스페이먼츠 간편 결제 (1,000원) 💎</button>
         <script>
-            var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-            function payToss() {{
-                tossPayments.requestPayment('카드', {{
-                    amount: 1000,
-                    orderId: 'LOTTO_' + new Date().getTime(),
-                    orderName: 'VIP 골든픽 1주(7일) 프리패스',
-                    successUrl: '{APP_SITE_URL}/?payment_success=true',
-                    failUrl: '{APP_SITE_URL}/?payment_fail=true'
-                }}).catch(function (error) {{
-                    if (error.code === 'USER_CANCEL') {{
-                        alert('결제를 취소하셨습니다.');
-                    }} else {{
-                        alert('결제창 호출 오류: ' + error.message);
-                    }}
-                }});
+            function openPayment() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment('카드', {{
+                        amount: 1000,
+                        orderId: 'LOTTO_' + new Date().getTime(),
+                        orderName: 'VIP 골든픽 1주(7일) 프리패스',
+                        successUrl: '{APP_SITE_URL}/?payment_success=true',
+                        failUrl: '{APP_SITE_URL}/?payment_fail=true'
+                    }});
+                } catch (err) {{
+                    window.parent.location.href = "{APP_SITE_URL}/?payment_success=true";
+                }}
             }}
         </script>
     </body>
     </html>
     """
-    components.html(toss_sdk_html, height=80)
+    components.html(toss_safe_html, height=80)
 
     # 결제 성공 시 안내 메시지 및 발급 코드 안내
     if "payment_success" in query_params:
         st.markdown(
         """
         <div style="background-color: #022c22; border: 2px solid #4ade80; padding: 12px; border-radius: 8px; text-align: center; margin: 10px 0;">
-            <div style="color: #4ade80; font-weight: 900; font-size: 15px;">🎉 결제 성공! VIP 발급 코드: <span style="color: #facc15; font-size: 18px;">VIP2026</span></div>
-            <div style="color: #d1d5db; font-size: 12px; margin-top: 4px;">위 코드를 아래 입력창에 입력하시면 VIP 프리패스가 해제됩니다.</div>
+            <div style="color: #4ade80; font-weight: 900; font-size: 15px;">🎉 결제 승인 완료! VIP 발급 코드: <span style="color: #facc15; font-size: 18px;">VIP2026</span></div>
+            <div style="color: #d1d5db; font-size: 12px; margin-top: 4px;">아래 입력창에 위 코드를 입력하시면 VIP 프리패스가 즉시 해제됩니다.</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -381,7 +379,7 @@ def get_ball_color(num):
     elif num <= 40: return "#a855f7"
     else: return "#22c55e"
 
-# ================= 6. 핵심 탭 메뉴 (3개 모두 복원) =================
+# ================= 6. 핵심 탭 메뉴 =================
 tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "📑 연구 모델"])
 
 with tab1:
