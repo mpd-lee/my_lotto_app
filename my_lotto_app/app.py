@@ -33,15 +33,17 @@ if "extract_results" not in st.session_state:
 if "extract_game_type" not in st.session_state:
     st.session_state.extract_game_type = "lotto"
 
-# ================= 쿼리 파라미터 확인 (결제 성공 시 자동 VIP 해제) =================
+# ================= 쿼리 파라미터 확인 및 무한 리런 방지 처리 =================
 try:
-    query_params = st.query_params
-    if "payment_success" in query_params:
+    if "payment_success" in st.query_params:
         if not st.session_state.vip_unlocked:
             st.session_state.vip_unlocked = True
-        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 자동으로 활성화되었습니다.", icon="✨")
-    elif "payment_fail" in query_params:
+        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
+        # 처리 후 파라미터를 비워주어 무한 새로고침(리런) 방지
+        st.query_params.clear()
+    elif "payment_fail" in st.query_params:
         st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        st.query_params.clear()
 except Exception:
     pass
 
