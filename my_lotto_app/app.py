@@ -242,7 +242,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-    # iframe 차단을 우회하여 메인 브라우저 창에서 안전하게 결제 모듈을 호출하는 브릿지 HTML
+    # 파이썬 f-string 안에서 자바스크립트 중괄호 에러가 나지 않도록 모두 겹괄호({{, }})로 이스케이프 처리 완료
     toss_safe_html = f"""
     <!DOCTYPE html>
     <html lang="ko">
@@ -283,7 +283,7 @@ f"""
                         successUrl: '{APP_SITE_URL}/?payment_success=true',
                         failUrl: '{APP_SITE_URL}/?payment_fail=true'
                     }});
-                } catch (err) {{
+                }} catch (err) {{
                     window.parent.location.href = "{APP_SITE_URL}/?payment_success=true";
                 }}
             }}
