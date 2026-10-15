@@ -5,13 +5,16 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import hmac
 import hashlib
 from datetime import datetime, timezone
 
 # ================= URL 및 키 관리 =================
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
 
 # ================= 솔라피(Solapi) API 설정 =================
 SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
@@ -79,11 +82,13 @@ if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "vip_expire_time" not in st.session_state:
     st.session_state.vip_expire_time = 0
+if "current_order_id" not in st.session_state:
+    st.session_state.current_order_id = ""
 
 if st.session_state.vip_unlocked:
     if time.time() > st.session_state.vip_expire_time:
         st.session_state.vip_unlocked = False
-        st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 계속 이용하시려면 재승인을 진행해 주세요.")
+        st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 계속 이용하시려면 재결제를 진행해 주세요.")
 
 if "selected_game" not in st.session_state:
     st.session_state.selected_game = "lotto"
@@ -98,6 +103,104 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
+# ================= 결제 성공/실패 쿼리 처리 =================
+try:
+    if "payment_success" in st.query_params:
+        if not st.session_state.vip_unlocked:
+            st.session_state.vip_unlocked = True
+            st.session_state.is_vip_result = True
+            st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
+            
+            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
+            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
+            
+        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
+        st.session_state.trigger_snow = True
+        st.query_params.clear()
+        st.rerun()
+
+    elif "payment_fail" in st.query_params:
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        st.query_params.clear()
+        st.rerun()
+except Exception:
+    pass
+
+# ================= 🚨 전체 화면 결제 모드 (pay_popup=true 시 구동) =================
+if "pay_popup" in st.query_params and st.query_params["pay_popup"] == "true" and not st.session_state.vip_unlocked:
+    st.markdown("""
+    <style>
+    .block-container { max-width: 800px !important; padding-top: 1.5rem !important; }
+    
+    /* 5번째 사진 스타일 완벽 반영된 결제 취소 버튼 커스텀 디자인 */
+    div.stButton > button[kind="secondary"] {
+        background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+        border: 2px solid #ef4444 !important;
+        color: #ffffff !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
+        border-radius: 12px !important;
+        padding: 14px 10px !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    div.stButton > button[kind="secondary"]:hover {
+        background: #dc2626 !important;
+        border-color: #fca5a5 !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 1) !important;
+        transform: translateY(-2px) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    col_c1, col_c2, col_c3 = st.columns([1, 4, 1])
+    with col_c2:
+        if st.button("❌ 결제 취소하고 메인으로 돌아가기", use_container_width=True, key="cancel_pay_mode"):
+            st.query_params.clear()
+            st.rerun()
+            
+    if not st.session_state.current_order_id:
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        
+    order_id_gen = st.session_state.current_order_id
+    
+    toss_button_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{ margin: 0; padding: 0; background-color: transparent; }}
+        </style>
+    </head>
+    <body>
+        <script>
+            window.onload = function() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment("카드", {{
+                        amount: 1000,
+                        orderId: "{order_id_gen}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code !== "USER_CANCEL") {{
+                            alert("결제 알림: " + error.message);
+                        }}
+                    }});
+                }} catch(e) {{
+                    alert("결제창 초기화 중 오류가 발생했습니다: " + e.message);
+                }}
+            }};
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_button_html, height=680, scrolling=True)
+    st.stop()
+
 # ================= 세레모니 실행 처리 =================
 if st.session_state.trigger_snow:
     st.snow()
@@ -106,6 +209,46 @@ if st.session_state.trigger_snow:
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
+
+# ================= 자바스크립트 기반 버튼 및 네온 스타일 강제 적용 =================
+components.html("""
+<script>
+function applyStrictStyles() {
+    try {
+        const doc = window.parent.document;
+        const buttons = doc.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const text = btn.innerText || btn.textContent || "";
+            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
+                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+                btn.style.setProperty('border', '2px solid #facc15', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
+                btn.style.setProperty('color', '#ffffff', 'important');
+            } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
+                btn.style.setProperty('border', '2px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
+                btn.style.setProperty('background', '#1e293b', 'important');
+                btn.style.setProperty('color', '#ffffff', 'important');
+                btn.style.setProperty('font-weight', '900', 'important');
+            } else if (text.includes('로또 6/45 분석')) {
+                btn.style.setProperty('border', '3px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #ef4444, inset 0 0 8px #ef4444', 'important');
+            } else if (text.includes('연금복권 720+')) {
+                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #3b82f6, inset 0 0 8px #3b82f6', 'important');
+            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
+                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #38bdf8, inset 0 0 8px #38bdf8', 'important');
+            } else if (text.includes('프리미엄 조합 추출 실행')) {
+                btn.style.setProperty('border', '3px solid #eab308', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #eab308, inset 0 0 8px #eab308', 'important');
+            }
+        });
+    } catch(e) {}
+}
+setInterval(applyStrictStyles, 50);
+</script>
+""", height=0)
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown(
@@ -317,7 +460,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (완벽 안정화된 직접 승인 및 코드 입력) =================
+# ================= 4. 금빛 VIP 시스템 =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 """
@@ -329,24 +472,14 @@ if not st.session_state.vip_unlocked:
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 즉시 VIP 승인 및 문자가 발송됩니다.</div>
-<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 뱅글뱅글 멈춤 현상 없이 즉시 프리패스가 활성화됩니다!</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 공식 결제창이 열립니다.</div>
+<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 자동으로 메인 페이지로 돌아오며 휴대폰으로 VIP 코드가 발송됩니다!</div>
 </div>
 """, unsafe_allow_html=True)
 
-    # iframe 충돌 및 뱅글뱅글 로딩을 100% 없애기 위한 다이렉트 VIP 즉시 승인 버튼
-    if st.button("💎 토스페이먼츠 1,000원 결제 및 VIP 즉시 승인", use_container_width=True, key="instant_pay_approval"):
-        st.session_state.vip_unlocked = True
-        st.session_state.is_vip_result = True
-        st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
-        st.session_state.trigger_snow = True
-        
-        # 문자 발송 실행
-        generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
-        send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
-        
-        st.success("🎉 결제가 안전하게 승인되었습니다! 휴대폰으로 VIP 코드가 발송되었습니다.")
-        time.sleep(0.6)
+    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        st.query_params["pay_popup"] = "true"
         st.rerun()
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
