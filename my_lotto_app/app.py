@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (아이프레임 충돌 및 무한 로딩 완벽 해결 최종본)
-- 토스페이먼츠 메인 창 직접 호출을 통한 뱅글뱅글 멈춤 현상 원천 차단
-- Solapi 자동 문자 연동 및 로또/연금복권 통합 프리미엄 시스템
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (구문 오류 수정 최종 완성본)
+- 토스페이먼츠 메인 창 직접 호출 및 Solapi 자동 문자 연동
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
 import random
@@ -143,8 +143,7 @@ if st.session_state.trigger_balloons:
     st.session_state.trigger_balloons = False
 
 # ================= 커스텀 CSS 스타일 =================
-st.markdown(
-"""
+st.markdown("""
 <style>
 html, body, * {
     -webkit-text-size-adjust: 100% !important;
@@ -291,13 +290,10 @@ div.stFormSubmitButton > button:hover {
 .footer-btn-dhlottery { background-color: #15803d !important; border: 2px solid #ffffff !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important; }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # ================= 1. 타이틀 배너 =================
-st.markdown(
-"""
+st.markdown("""
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
     <tr>
         <td style="width: 12%; text-align: right; vertical-align: middle; padding-right: 2px;">
@@ -352,10 +348,9 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (아이프레임 충돌 해결형 토스 결제 버튼) =================
+# ================= 4. 금빛 VIP 시스템 =================
 if not st.session_state.vip_unlocked:
-    st.markdown(
-"""
+    st.markdown("""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
@@ -371,7 +366,6 @@ if not st.session_state.vip_unlocked:
 
     order_id_val = f"lotto{int(time.time())}{random.randint(100, 999)}"
     
-    # 아이프레임 충돌을 막기 위해 메인 윈도우에서 직접 토스 결제 SDK를 호출하는 순수 HTML/JS 버튼
     toss_direct_button_html = f"""
     <script src="https://js.tosspayments.com/v1/payment"></script>
     <div style="text-align:center; margin: 15px 0;">
@@ -419,8 +413,7 @@ if not st.session_state.vip_unlocked:
             else:
                 st.error("❌ 올바르지 않은 코드입니다. 문자/카톡으로 받으신 코드를 확인해 주세요.")
 else:
-    st.markdown(
-"""
+    st.markdown("""
 <div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
 👑 VIP 계정 활성화 상태입니다. 아래에서 프리미엄 조합 추출을 실행해 주세요!
 </div>
@@ -487,8 +480,7 @@ with tab1:
             if st.session_state.extract_game_type == "lotto":
                 fixed_str = ", ".join(map(str, st.session_state.get("vip_fixed", [1, 2])))
                 excl_str = ", ".join(map(str, st.session_state.get("vip_excluded", [3, 4, 5])))
-                st.markdown(
-f"""
+                st.markdown(f"""
 <div style="background-color: #2b1f1f; border-left: 5px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
     <h5 style="color: #ef4444; margin-top: 0; margin-bottom: 8px;">🚫 금주의 VIP 완벽 제외수 10개</h5>
     <div style="color: white; font-size: 15px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 5px;">{excl_str}</div>
@@ -567,8 +559,7 @@ f"""
                 st.markdown(html_str, unsafe_allow_html=True)
 
         if not is_vip:
-            st.markdown(
-"""
+            st.markdown("""
 <div class="locked-feature-box">
     <div class="locked-feature-title">🔒 VIP 프리미엄 전용 콘텐츠</div>
     <div class="locked-feature-desc">결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
@@ -597,8 +588,7 @@ with tab2:
     st.bar_chart(chart_data, color="#3b82f6", height=250)
     
     if not st.session_state.vip_unlocked:
-        st.markdown(
-"""
+        st.markdown("""
 <div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:14px; font-weight: bold;'>
 🔒 VIP 전용: 미출현 장기 번호 및 회귀 추적 데이터 잠김
 </div>
@@ -606,8 +596,7 @@ with tab2:
 
 with tab3:
     st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📑 분석 연구 모델</h4>", unsafe_allow_html=True)
-    st.markdown(
-"""
+    st.markdown("""
 <div style="font-size: 15px; color: #f1f5f9; line-height: 1.8; font-weight: 600;">
 - Markov Chain Monte Carlo (MCMC) 모델<br>
 - Poisson Distribution 출현 간격 예측<br>
@@ -619,8 +608,7 @@ with tab3:
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
 
-st.markdown(
-"""
+st.markdown("""
 <div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
     <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
         📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
@@ -652,9 +640,18 @@ st.info("""
 """)
 
 # ================= 9. 법적 고지 및 사업자 정보 Footer =================
-st.markdown(
-"""
+st.markdown("""
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
 1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
-2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법
+2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법적 책임을 지지 않습니다.<br>
+3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
+</div>
+
+<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+    <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
+    <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
+    <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
+    © 2026 로또픽(Lotto Pick) 분석 시스템. All Rights Reserved.
+</div>
+""", unsafe_allow_html=True)
