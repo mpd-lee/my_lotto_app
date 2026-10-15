@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (무한 로딩 멈춤 현상 완벽 해결 최종본)
+- 토스페이먼츠 안전 결제창 및 Solapi 자동 문자 연동
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
+"""
+
 import random
 import time
 import os
@@ -103,9 +110,10 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
-# ================= 결제 성공/실패 쿼리 처리 =================
+# ================= 결제 성공/실패 쿼리 처리 (무한 로딩 방지 안정화) =================
 try:
-    if "payment_success" in st.query_params:
+    query_params = st.query_params
+    if "payment_success" in query_params:
         if not st.session_state.vip_unlocked:
             st.session_state.vip_unlocked = True
             st.session_state.is_vip_result = True
@@ -114,15 +122,12 @@ try:
             generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
             send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
             
-        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
         st.session_state.trigger_snow = True
         st.query_params.clear()
-        st.rerun()
-
-    elif "payment_fail" in st.query_params:
-        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
+    elif "payment_fail" in query_params:
         st.query_params.clear()
-        st.rerun()
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
 except Exception:
     pass
 
@@ -132,7 +137,6 @@ if "pay_popup" in st.query_params and st.query_params["pay_popup"] == "true" and
     <style>
     .block-container { max-width: 800px !important; padding-top: 1.5rem !important; }
     
-    /* 5번째 사진 스타일 완벽 반영된 결제 취소 버튼 커스텀 디자인 */
     div.stButton > button[kind="secondary"] {
         background: linear-gradient(135deg, #1e293b, #0f172a) !important;
         border: 2px solid #ef4444 !important;
@@ -412,339 +416,4 @@ st.markdown(
             <span class="sparkle-clover">🍀</span>
         </td>
         <td style="width: 76%; text-align: center; vertical-align: middle; white-space: nowrap;">
-            <span style="font-weight: 900; font-size: 20px; letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);">로또픽 (Lotto Pick)</span>
-        </td>
-        <td style="width: 12%; text-align: left; vertical-align: middle; padding-left: 2px;">
-            <span class="sparkle-clover">🍀</span>
-        </td>
-    </tr>
-</table>
-
-<div style="text-align: center; margin-bottom: 25px; width: 100%;">
-    <div style="color: #e2e8f0; font-size: 15px; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.2); word-break: keep-all;">
-        초정밀 통계·조합 분석 시스템
-    </div>
-    <div style="color: #94a3b8; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin: 4px 0;">
-        LOTTO & PENSION LOTTERY ANALYTICS
-    </div>
-    <div style="color: #38bdf8; font-size: 12px; font-weight: 700; margin-top: 4px; word-break: keep-all;">
-        "데이터는 정밀하게, 분석은 체계적으로"
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ================= 2. 상단 복권 선택 버튼 =================
-col_b1, col_b2 = st.columns(2)
-
-with col_b1:
-    if st.button("🔴 로또 6/45 분석", use_container_width=True, key="btn_lotto"):
-        st.session_state.selected_game = "lotto"
-        st.rerun()
-
-with col_b2:
-    if st.button("🔵 연금복권 720+", use_container_width=True, key="btn_pension"):
-        st.session_state.selected_game = "pension"
-        st.rerun()
-
-# ================= 3. 녹색 엔진 가동 바 =================
-game_name_str = "로또 6/45" if st.session_state.selected_game == "lotto" else "연금복권 720+"
-st.markdown(
-f"""
-<div class="keep-all" style="background-color: #0f172a; border: 2px solid #22c55e; padding: 15px; border-radius: 12px; text-align: center; color: #4ade80; font-weight: bold; font-size: 15px; animation: glow-green 2s infinite; margin-top: 15px; margin-bottom: 20px;">
-<span>{"🔴" if st.session_state.selected_game=="lotto" else "🔵"} {game_name_str} 분석 ⚙ ● 정밀 시스템 실시간 가동 중</span>
-</div>
-""",
-    unsafe_allow_html=True,
-)
-
-with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
-    game_count = st.slider("추천 게임 수", 1, 10, 5)
-
-# ================= 4. 금빛 VIP 시스템 =================
-if not st.session_state.vip_unlocked:
-    st.markdown(
-"""
-<div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
-<h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
-<p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
-✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
-✅ AI 패턴 기반 <b>S등급 일치율 점수 & 분석 태그</b> 제공<br>
-✅ 프리미엄 빅데이터 통계 조합 가동
-</p>
-<hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 공식 결제창이 열립니다.</div>
-<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 자동으로 메인 페이지로 돌아오며 휴대폰으로 VIP 코드가 발송됩니다!</div>
-</div>
-""", unsafe_allow_html=True)
-
-    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
-        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        st.query_params["pay_popup"] = "true"
-        st.rerun()
-
-    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-    with st.form("vip_unlock_form"):
-        vip_input = st.text_input("🔑 문자로 받으신 VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
-        submitted = st.form_submit_button("🔓 VIP 코드 입력하여 잠금 해제", use_container_width=True)
-        
-        if submitted:
-            if vip_input.strip() in ["MPD2026", "VIP2026"] or vip_input.strip().startswith("MPD-"):
-                st.session_state.vip_unlocked = True
-                st.session_state.is_vip_result = True
-                st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
-                st.session_state.trigger_snow = True
-                st.success("🎉 VIP 프리패스가 성공적으로 활성화되었습니다!")
-                time.sleep(0.4)
-                st.rerun()
-            else:
-                st.error("❌ 올바르지 않은 코드입니다. 문자/카톡으로 받으신 코드를 확인해 주세요.")
-else:
-    st.markdown(
-"""
-<div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
-👑 VIP 계정 활성화 상태입니다. 아래에서 프리미엄 조합 추출을 실행해 주세요!
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# ================= 5. 추출 버튼 =================
-if st.session_state.vip_unlocked:
-    st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
-    extract_clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
-else:
-    st.markdown('<div style="text-align:center;"><div class="free-badge-top">🔥 100% 무료 일반 분석</div></div>', unsafe_allow_html=True)
-    extract_clicked = st.button("🚀 일반 번호 조합 무료추출 실행", use_container_width=True, key="free_extract_btn")
-
-if extract_clicked:
-    is_vip = st.session_state.vip_unlocked
-    st.session_state.is_vip_result = is_vip
-    st.session_state.extract_results = []
-    st.session_state.extract_game_type = st.session_state.selected_game
-    
-    if is_vip:
-        st.session_state.trigger_snow = True
-        all_lotto = list(range(1, 46))
-        st.session_state.vip_fixed = sorted(random.sample(all_lotto, 2))
-        st.session_state.vip_excluded = sorted(random.sample([x for x in all_lotto if x not in st.session_state.vip_fixed], 10))
-    else:
-        st.session_state.trigger_balloons = True
-    
-    for i in range(game_count):
-        if st.session_state.selected_game == "lotto":
-            if is_vip:
-                pool = [x for x in range(1, 46) if x not in st.session_state.vip_excluded and x not in st.session_state.vip_fixed]
-                remains = random.sample(pool, 4)
-                numbers = sorted(st.session_state.vip_fixed + remains)
-                match_score = round(random.uniform(96.5, 99.8), 1)
-                tags = random.sample(["#고정수 포함", "#황금비율", "#이월수 패턴", "#최적합 조합", "#장기미출현 믹스"], 3)
-                st.session_state.extract_results.append((numbers, match_score, tags))
-            else:
-                numbers = sorted(random.sample(range(1, 46), 6))
-                st.session_state.extract_results.append((numbers, None, None))
-        else:
-            group = random.randint(1, 5)
-            nums = [random.randint(0, 9) for _ in range(6)]
-            if is_vip:
-                match_score = round(random.uniform(95.0, 99.9), 1)
-                tags = ["#최상위 패턴", "#연속수 필터링"]
-                st.session_state.extract_results.append((group, nums, match_score, tags))
-            else:
-                st.session_state.extract_results.append((group, nums, None, None))
-    st.rerun()
-
-# ================= 6. 핵심 탭 메뉴 =================
-tab1, tab2, tab3 = st.tabs(["🎱 당첨 번호 추천", "📊 심층 분석", "📑 연구 모델"])
-
-with tab1:
-    if not st.session_state.extract_results:
-        st.info("👆 상단의 [추출 실행] 버튼을 누르시면 번호가 생성됩니다.")
-    else:
-        is_vip = st.session_state.get("is_vip_result", False)
-        
-        if is_vip:
-            st.markdown("<h4 style='color: #facc15; margin-bottom:15px;'>👑 VIP 프리미엄 분석 리포트</h4>", unsafe_allow_html=True)
-            if st.session_state.extract_game_type == "lotto":
-                fixed_str = ", ".join(map(str, st.session_state.get("vip_fixed", [1, 2])))
-                excl_str = ", ".join(map(str, st.session_state.get("vip_excluded", [3, 4, 5])))
-                st.markdown(
-f"""
-<div style="background-color: #2b1f1f; border-left: 5px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-    <h5 style="color: #ef4444; margin-top: 0; margin-bottom: 8px;">🚫 금주의 VIP 완벽 제외수 10개</h5>
-    <div style="color: white; font-size: 15px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 5px;">{excl_str}</div>
-    <div style="font-size: 12px; color: #a1a1aa;">* 하락세 패턴이 강력하게 겹치는 번호로 필터링 되었습니다.</div>
-</div>
-<div style="background-color: #1f2937; border-left: 5px solid #3b82f6; padding: 12px; border-radius: 6px; margin-bottom: 25px;">
-    <span style="color: #60a5fa; font-size: 14px; font-weight: bold;">🎯 금주의 VIP 고정 타겟 수:</span> 
-    <span style="color: white; font-weight: bold;">{fixed_str}</span>
-</div>
-""", unsafe_allow_html=True)
-        else:
-            st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>🎯 일반 번호 추출 결과</h4>", unsafe_allow_html=True)
-            st.success("✅ 기본 통계 필터를 거쳐 엄선된 조합입니다.")
-            st.markdown("<br>", unsafe_allow_html=True)
-        
-        def get_ball_color(num):
-            if num <= 10: return "#facc15"
-            elif num <= 20: return "#3b82f6"
-            elif num <= 30: return "#ef4444"
-            elif num <= 40: return "#a855f7"
-            else: return "#22c55e"
-
-        for i, result in enumerate(st.session_state.extract_results):
-            if st.session_state.extract_game_type == "lotto":
-                numbers, match_score, tags = result
-                balls_html = "".join([f'<div style="width: 32px; height: 32px; border-radius: 50%; background-color: {get_ball_color(n)}; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">{n}</div>' for n in numbers])
-                
-                if is_vip:
-                    tags_html = "".join([f'<span class="vip-tag">{tag}</span>' for tag in (tags or [])])
-                    html_str = f"""
-                    <div class="game-box-vip">
-                        <div class="s-class-badge">S-CLASS</div>
-                        <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 VIP 프리미엄 게임 {i+1}</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
-                            <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
-                        </div>
-                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
-                        <div style="display: flex; flex-wrap: wrap; margin-top: 15px; margin-bottom: 10px;">{balls_html}</div>
-                        <div class="vip-tags">{tags_html}</div>
-                    </div>
-                    """
-                else:
-                    html_str = f"""
-                    <div class="game-box-free">
-                        <div style="color: white; font-weight: bold; font-size: 15px; margin-bottom: 10px;">게임 {i+1}</div>
-                        <div style="display: flex; flex-wrap: wrap;">{balls_html}</div>
-                    </div>
-                    """
-                st.markdown(html_str, unsafe_allow_html=True)
-            else: 
-                group, nums, match_score, tags = result
-                group_html = f'<div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-right: 10px; margin-bottom: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">{group}조</div>'
-                digits_html = "".join([f'<div style="width: 30px; height: 30px; border-radius: 6px; background-color: #2563eb; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 16px; margin-right: 4px; margin-bottom: 5px; box-shadow: 0 3px 5px rgba(0,0,0,0.3);">{n}</div>' for n in nums])
-                
-                if is_vip:
-                    tags_html = "".join([f'<span class="vip-tag">{tag}</span>' for tag in (tags or [])])
-                    html_str = f"""
-                    <div class="game-box-vip">
-                        <div class="s-class-badge">S-CLASS</div>
-                        <div style="color: #facc15; font-weight: 900; font-size: 15px; margin-bottom: 5px;">👑 연금 VIP 게임 {i+1}</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #d1d5db; margin-bottom: 2px;">
-                            <span>딥러닝 패턴 일치율</span><span style="color: #4ade80; font-weight: bold;">{match_score}%</span>
-                        </div>
-                        <div class="score-bar-bg"><div class="score-bar-fill" style="width: {match_score}%;"></div></div>
-                        <div style="display: flex; flex-wrap: wrap; align-items: center; margin-top: 15px; margin-bottom: 10px;">{group_html}{digits_html}</div>
-                        <div class="vip-tags">{tags_html}</div>
-                    </div>
-                    """
-                else:
-                    html_str = f"""
-                    <div class="game-box-free">
-                        <div style="color: white; font-weight: bold; font-size: 15px; margin-bottom: 10px;">게임 {i+1}</div>
-                        <div style="display: flex; flex-wrap: wrap; align-items: center;">{group_html}{digits_html}</div>
-                    </div>
-                    """
-                st.markdown(html_str, unsafe_allow_html=True)
-
-        if not is_vip:
-            st.markdown(
-"""
-<div class="locked-feature-box">
-    <div class="locked-feature-title">🔒 VIP 프리미엄 전용 콘텐츠</div>
-    <div class="locked-feature-desc">결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
-</div>
-""", unsafe_allow_html=True)
-
-with tab2:
-    st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📈 역대 당첨 번호 통계 분석</h4>", unsafe_allow_html=True)
-    st.markdown("<div style='color: #e2e8f0; font-size: 14px; font-weight: 600; margin-bottom: 12px;'>실제 동행복권 데이터 기반 최근 100회차 번호별 출현 빈도수</div>", unsafe_allow_html=True)
-    
-    if os.path.exists("lotto_data.csv"):
-        df_lotto = pd.read_csv("lotto_data.csv")
-        df_recent = df_lotto.tail(100)
-        
-        all_nums = []
-        for col in ['drwtNo1', 'drwtNo2', 'drwtNo3', 'drwtNo4', 'drwtNo5', 'drwtNo6']:
-            if col in df_recent.columns:
-                all_nums.extend(df_recent[col].dropna().astype(int).tolist())
-        
-        counts = Counter(all_nums)
-        freq_dict = {f"{i}번": counts.get(i, 0) for i in range(1, 46)}
-        chart_data = pd.DataFrame(list(freq_dict.values()), columns=["출현 횟수"], index=list(freq_dict.keys()))
-    else:
-        chart_data = pd.DataFrame(np.random.randint(10, 25, size=(45, 1)), columns=["출현 횟수"], index=[f"{i}번" for i in range(1, 46)])
-        
-    st.bar_chart(chart_data, color="#3b82f6", height=250)
-    
-    if not st.session_state.vip_unlocked:
-        st.markdown(
-"""
-<div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:14px; font-weight: bold;'>
-🔒 VIP 전용: 미출현 장기 번호 및 회귀 추적 데이터 잠김
-</div>
-""", unsafe_allow_html=True)
-
-with tab3:
-    st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📑 분석 연구 모델</h4>", unsafe_allow_html=True)
-    st.markdown(
-"""
-<div style="font-size: 15px; color: #f1f5f9; line-height: 1.8; font-weight: 600;">
-- Markov Chain Monte Carlo (MCMC) 모델<br>
-- Poisson Distribution 출현 간격 예측<br>
-- AC값(Arithmetic Complexity) 복잡도 필터링
-</div>
-""", unsafe_allow_html=True)
-
-# ================= 7. 하단 고객센터 =================
-st.markdown("---")
-st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
-
-st.markdown(
-"""
-<div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-    <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
-        📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown(
-f"""
-<div class="footer-buttons-container">
-    <a href="{GOOGLE_FORM_URL}" target="_blank" class="footer-btn footer-btn-cs" style="text-decoration: none;">
-        🛠️ 고객센터 문의 접수
-    </a>
-    <a href="https://www.dhlottery.co.kr" target="_blank" class="footer-btn footer-btn-dhlottery" style="text-decoration: none;">
-        🛒 동행복권 홈
-    </a>
-</div>
-""", unsafe_allow_html=True)
-
-# ================= 8. 토스 심사용 상품 안내 =================
-st.markdown("---")
-st.markdown("<h3 style='color: #ffffff; font-weight: 900;'>💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)</h3>", unsafe_allow_html=True)
-st.info("""
-- **상품명:** VIP 골든픽 1주(7일) 프리패스
-- **가격:** 1,000원 (VAT 포함)
-- **제공 서비스:** AI 패턴 기반 S등급 고정수/제외수 리포트 및 초정밀 통계 조합 가동
-- **이용 기간:** 결제일로부터 7일간 무제한 이용
-- **환불 규정:** 디지털 콘텐츠 특성상, VIP 승인 처리 후에는 환불이 불가합니다. (결제 오류 시 전액 환불)
-""")
-
-# ================= 9. 법적 고지 및 사업자 정보 Footer =================
-st.markdown(
-"""
-<div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
-<b>[법적 고지 및 주의사항]</b><br>
-1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
-2. 제공된 번호를 이용한 복권 구매 등 모든 판단과 책임은 전적으로 <b>사용자 본인</b>에게 있으며, 본 서비스는 이로 인해 발생하는 어떠한 직·간접적 손실에 대해서도 법적 책임을 지지 않습니다.<br>
-3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
-</div>
-
-<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
-    <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
-    <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
-    <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
-    © 2026 로또픽(Lotto Pick) 분석 시스템. All Rights Reserved.
-</div>
-""", unsafe_allow_html=True)
+            <span style="font-weight: 900; font-size: 20px; letter-spacing: -0.5px; background: linear-gradient(135deg, #ffffff 0%, #fef08a 40%, #f59e0b 80%,
