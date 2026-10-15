@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- 토스페이먼츠 새 탭 결제 방식을 통한 iframe/무한 로딩 원천 차단
-- Solapi SMS 문자 자동 발송 및 VIP 코드 잠금 해제 시스템 완벽 통합
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (공식 결제 링크 적용 최종본)
+- 토스페이먼츠 SDK 무한 로딩 원천 차단 (공식 결제 링크 방식)
+- 결제 완료 후 Solapi SMS 문자 자동 발송 및 VIP 코드 잠금 해제 시스템 완벽 통합
 - lotto_data.csv 기반 심층 통계 차트, S-CLASS 리포트, 네온 디자인 포함
 """
 
@@ -203,7 +203,7 @@ if "pay_success" in params:
     if ok:
         st.success("✅ 결제가 안전하게 승인되었습니다!")
         st.markdown(f"<h3 style='color:#facc15;'>🔑 발급된 VIP 코드: <code>{result}</code></h3>", unsafe_allow_html=True)
-        st.info("💡 입력하신 휴대폰 번호로 VIP 코드가 문자 발송되었습니다. 아래 버튼을 눌러 메인 화면으로 돌아가 입력해 주세요!")
+        st.info("💡 위 코드가 휴대폰 문자로도 발송되었습니다. 메인 화면으로 돌아가 입력해 주세요!")
     else:
         st.error(f"결제 승인 처리 중 안내: {result}")
     
@@ -336,6 +336,7 @@ if not st.session_state.vip_unlocked:
                 st.error("❌ 올바른 휴대폰 번호를 입력해 주세요.")
             else:
                 oid = create_order(norm_phone)
+                # 토스페이먼츠 공식 결제창 URL 생성 (SDK 충돌 우회)
                 pay_url = (
                     f"https://pay.tosspayments.com/v1/payments?clientKey={TOSS_CLIENT_KEY}"
                     f"&amount={PRODUCT_AMOUNT}&orderId={oid}&orderName={PRODUCT_NAME}"
@@ -347,7 +348,7 @@ if not st.session_state.vip_unlocked:
                     <a href="{pay_url}" target="_blank" style="display: block; width: 100%; padding: 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #111; font-weight: 900; font-size: 16px; text-decoration: none; border-radius: 12px; border: 2px solid #fde047;">
                         🔗 새 창으로 안전결제 페이지 열기
                     </a>
-                    <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">버튼을 누르면 결제 페이지가 새 탭으로 열립니다. 결제 완료 후 발급되는 코드로 잠금을 해제하세요!</p>
+                    <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">버튼을 누르면 결제 페이지가 열립니다. 결제 완료 후 발급되는 코드를 아래에 입력하세요!</p>
                 </div>
                 """, unsafe_allow_html=True)
 
