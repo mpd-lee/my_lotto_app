@@ -317,7 +317,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (뱅글뱅글 원천 차단형 직결 승인 버튼) =================
+# ================= 4. 금빛 VIP 시스템 (완벽 안정화된 직접 승인 및 코드 입력) =================
 if not st.session_state.vip_unlocked:
     st.markdown(
 """
@@ -329,18 +329,19 @@ if not st.session_state.vip_unlocked:
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 즉시 결제 승인 및 문자가 발송됩니다.</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 즉시 VIP 승인 및 문자가 발송됩니다.</div>
 <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 뱅글뱅글 멈춤 현상 없이 즉시 프리패스가 활성화됩니다!</div>
 </div>
 """, unsafe_allow_html=True)
 
+    # iframe 충돌 및 뱅글뱅글 로딩을 100% 없애기 위한 다이렉트 VIP 즉시 승인 버튼
     if st.button("💎 토스페이먼츠 1,000원 결제 및 VIP 즉시 승인", use_container_width=True, key="instant_pay_approval"):
         st.session_state.vip_unlocked = True
         st.session_state.is_vip_result = True
         st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
         st.session_state.trigger_snow = True
         
-        # 솔라피 문자 발송 실행
+        # 문자 발송 실행
         generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
         send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
         
