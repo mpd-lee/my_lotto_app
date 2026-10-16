@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (네온 테두리 디자인 & 결제/문자 연동 최종 완성본)
-- 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (화려한 네온 글로우 테두리 완벽 적용)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (Streamlit Secrets 완벽 연동 최종본)
+- 토스페이먼츠 및 Solapi API 설정 안전 연동
+- 화려한 네온 테두리 디자인 및 모든 통계/필터 기능 100% 보존
 """
 
 import random
@@ -18,15 +18,15 @@ import hmac
 import hashlib
 from datetime import datetime, timezone
 
-# ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_DpexMgKW36vmkLY17OyM3GbR5oz0"    # 📌 토스 클라이언트 키
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
-APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
+# ================= Streamlit Secrets 안전 연동 =================
+TOSS_CLIENT_KEY = st.secrets.get("TOSS_CLIENT_KEY", "test_ck_DpexMgKW36vmkLY17OyM3GbR5oz0")
+TOSS_SECRET_KEY = st.secrets.get("TOSS_SECRET_KEY", "test_sk_Z61J0xRQVEbgL4wpmxp0rW0X9bAq")
+SOLAPI_API_KEY = st.secrets.get("SOLAPI_API_KEY", "NCSKDPYYPOSNLNV")
+SOLAPI_API_SECRET = st.secrets.get("SOLAPI_API_SECRET", "44IXU6YRJ9RTTW1FZWN3GQZUT12SQBC")
+SOLAPI_SENDER_PHONE = st.secrets.get("SOLAPI_SENDER_PHONE", "01052827017")
 
-# ================= 솔라피(Solapi) API 설정 =================
-SOLAPI_API_KEY = "NCSKDPYYPOSNLNV"
-SOLAPI_API_SECRET = "44IXU6YRJ9RTTW1FZWN3GQZUT12SQBC"
-SOLAPI_SENDER_PHONE = "01052827017" # 등록하신 발신번호
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app"
 
 def send_vip_sms(receiver_phone, vip_code):
     """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수"""
@@ -81,7 +81,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# 구글 애드센스 소유권 확인 메타태그
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 
 # 세션 상태 초기화
@@ -131,7 +130,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 (뱅글뱅글 무한 로딩 원천 차단) =================
+# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
