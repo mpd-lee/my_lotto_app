@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (네온 테두리 복원 및 최종 완성본)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (모든 기능 100% 통합 최종 완성본)
 - 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (화려한 네온 효과 적용)
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 광고 및 네온 디자인 적용)
 """
 
 import random
@@ -131,7 +131,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 (뱅글뱅글 원천 차단) =================
+# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -247,7 +247,7 @@ if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
 
-# ================= 💡 화려한 네온 테두리 및 버튼 강제 적용 자바스크립트 =================
+# ================= 💡 화려한 네온 테두리 자바스크립트 =================
 components.html("""
 <script>
 function applyNeonStyles() {
@@ -434,6 +434,16 @@ div.stFormSubmitButton > button:hover {
 .footer-btn-cs { background-color: #2e3b4e !important; border: none !important; box-shadow: none !important; }
 .footer-btn-dhlottery { background-color: #15803d !important; border: 2px solid #ffffff !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important; }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
+
+/* 애드센스 광고 영역 스타일 */
+.adsense-box {
+    background-color: #161b22;
+    border: 1px dashed #30363d;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -463,6 +473,23 @@ st.markdown("""
     <div style="color: #38bdf8; font-size: 12px; font-weight: 700; margin-top: 4px; word-break: keep-all;">
         "데이터는 정밀하게, 분석은 체계적으로"
     </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ================= 상단 애드센스 광고 배너 영역 =================
+st.markdown("""
+<div class="adsense-box">
+    <div style="font-size: 11px; color: #8b949e; margin-bottom: 5px;">[Sponsored Ad / 애드센스 광고]</div>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2324282297166072" crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-2324282297166072"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 </div>
 """, unsafe_allow_html=True)
 
@@ -738,6 +765,23 @@ with tab3:
 </div>
 """, unsafe_allow_html=True)
 
+# ================= 하단 애드센스 광고 배너 영역 =================
+st.markdown("""
+<div class="adsense-box">
+    <div style="font-size: 11px; color: #8b949e; margin-bottom: 5px;">[Sponsored Ad / 애드센스 광고]</div>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2324282297166072" crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-2324282297166072"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+""", unsafe_allow_html=True)
+
 # ================= 7. 하단 고객센터 =================
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
@@ -785,7 +829,7 @@ st.markdown("""
 <div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
     <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
-    <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
+    <b>이메일:</b> mzpdlee@gmail.com<br><br>
     © 2026 로또픽(Lotto Pick) 분석 시스템. All Rights Reserved.
 </div>
 """, unsafe_allow_html=True)
