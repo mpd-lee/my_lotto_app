@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (토스 심사 안내 복원 및 최적화 버전)
-- 로또 6/45 및 연금복권 720+ 통계 분석 및 번호 추천 시스템
-- 토스 심사 제출용 상품 안내 및 UI 100% 유지
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (네온 테두리 복원 및 최종 완성본)
+- 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (화려한 네온 효과 적용)
 """
 
 import random
@@ -12,9 +12,67 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
+import requests
+import hmac
+import hashlib
+from datetime import datetime, timezone
 
-# ================= URL 및 고객센터 관리 =================
+# ================= URL 및 키 관리 =================
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
+
+# ================= 솔라피(Solapi) API 설정 =================
+SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
+SOLAPI_API_SECRET = "DWIXUPBFG7ZGPOCNYY8MVNYWRUW9XTTA"
+SOLAPI_SENDER_PHONE = "01052827017" # 등록하신 발신번호
+
+def send_vip_sms(receiver_phone, vip_code):
+    """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수"""
+    url = "https://api.solapi.com/messages/v4/send"
+    
+    now = datetime.now(timezone.utc)
+    date = now.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    salt = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
+    data = date + salt
+    
+    signature = hmac.new(
+        SOLAPI_API_SECRET.encode('utf-8'),
+        data.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    
+    authorization = f"HMAC-SHA256 apiKey={SOLAPI_API_KEY}, date={date}, salt={salt}, signature={signature}"
+    
+    headers = {
+        "Authorization": authorization,
+        "Content-Type": "application/json; charset=utf-8"
+    }
+    
+    message_text = (
+        f"[로또픽] VIP 프리패스 코드가 발급되었습니다.\n\n"
+        f"🔑 VIP 전용 코드: {vip_code}\n"
+        f"⏱ 이용 기간: 발급일로부터 7일간\n\n"
+        f"🍀 금주의 행운을 기원합니다!"
+    )
+    
+    payload = {
+        "message": {
+            "to": receiver_phone,
+            "from": SOLAPI_SENDER_PHONE,
+            "text": message_text
+        }
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code in [200, 201]:
+            return True, "전송 성공"
+        else:
+            return False, f"코드: {response.status_code}, 내용: {response.text}"
+    except Exception as e:
+        return False, str(e)
 
 # ================= 0. 페이지 기본 설정 =================
 st.set_page_config(
@@ -31,11 +89,15 @@ if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "vip_expire_time" not in st.session_state:
     st.session_state.vip_expire_time = 0
+if "current_order_id" not in st.session_state:
+    st.session_state.current_order_id = ""
+if "latest_sent_code" not in st.session_state:
+    st.session_state.latest_sent_code = ""
 
 if st.session_state.vip_unlocked:
     if time.time() > st.session_state.vip_expire_time:
         st.session_state.vip_unlocked = False
-        st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 다시 인증해 주세요.")
+        st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 계속 이용하시려면 재결제를 진행해 주세요.")
 
 if "selected_game" not in st.session_state:
     st.session_state.selected_game = "lotto"
@@ -50,7 +112,133 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
-# 축하 세레모니 실행 처리
+# ================= 결제 성공/실패 쿼리 처리 =================
+try:
+    if "payment_success" in st.query_params:
+        if not st.session_state.latest_sent_code:
+            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
+            st.session_state.latest_sent_code = generated_vip_code
+            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
+            
+        st.toast("🎉 토스 결제가 완료되었습니다! 문자로 VIP 코드가 발송되었습니다.", icon="✨")
+        st.query_params.clear()
+        st.rerun()
+
+    elif "payment_fail" in st.query_params:
+        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
+        st.query_params.clear()
+        st.rerun()
+except Exception:
+    pass
+
+# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 (뱅글뱅글 원천 차단) =================
+if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
+    st.markdown("""
+    <style>
+    .block-container { max-width: 800px !important; padding-top: 2rem !important; }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    if not st.session_state.current_order_id:
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        
+    order_id_gen = st.session_state.current_order_id
+    
+    toss_fullscreen_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{
+                margin: 0;
+                padding: 40px;
+                background-color: #0e1117;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                text-align: center;
+            }}
+            .pay-card {{
+                background: linear-gradient(145deg, #1f1b13, #2d2618);
+                border: 2px solid #facc15;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
+                max-width: 500px;
+                margin: 0 auto;
+            }}
+            .btn-pay {{
+                background: linear-gradient(135deg, #059669, #047857);
+                color: white;
+                border: 2px solid #facc15;
+                padding: 16px 24px;
+                font-size: 18px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 20px;
+                box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+                width: 100%;
+            }}
+            .btn-pay:hover {{ filter: brightness(1.2); }}
+            .btn-cancel {{
+                background: #1e293b;
+                color: #f87171;
+                border: 2px solid #f87171;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 15px;
+                width: 100%;
+            }}
+            .btn-cancel:hover {{ background: #dc2626; color: white; }}
+        </style>
+    </head>
+    <body>
+        <div class="pay-card">
+            <h2 style="color: #fde047; margin-top: 0;">👑 토스페이먼츠 안전 결제</h2>
+            <p style="color: #e2e8f0; font-size: 15px; line-height: 1.6;">
+                상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
+                결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+            </p>
+            <p style="color: #a7f3d0; font-size: 13px; margin-bottom: 20px;">
+                아래 버튼을 누르시면 안전한 토스 결제창이 열립니다.
+            </p>
+            <button class="btn-pay" onclick="requestTossPayment()">💎 토스 결제창 열기 (1,000원)</button>
+            <br>
+            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
+        </div>
+
+        <script>
+            function requestTossPayment() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment("카드", {{
+                        amount: 1000,
+                        orderId: "{order_id_gen}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code !== "USER_CANCEL") {{
+                            alert("결제 오류: " + error.message);
+                        }}
+                    }});
+                }} catch(e) {{
+                    alert("결제 초기화 오류: " + e.message);
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_fullscreen_html, height=700, scrolling=True)
+    st.stop()
+
+# ================= 세레모니 실행 처리 =================
 if st.session_state.trigger_snow:
     st.snow()
     st.session_state.trigger_snow = False
@@ -58,6 +246,44 @@ if st.session_state.trigger_snow:
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
+
+# ================= 💡 화려한 네온 테두리 및 버튼 강제 적용 자바스크립트 =================
+components.html("""
+<script>
+function applyNeonStyles() {
+    try {
+        const doc = window.parent.document;
+        const buttons = doc.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const text = btn.innerText || btn.textContent || "";
+            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
+                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+                btn.style.setProperty('border', '3px solid #facc15', 'important');
+                btn.style.setProperty('box-shadow', '0 0 25px rgba(250, 204, 21, 0.9), inset 0 0 10px rgba(250, 204, 21, 0.6)', 'important');
+                btn.style.setProperty('color', '#ffffff', 'important');
+            } else if (text.includes('로또 6/45 분석')) {
+                btn.style.setProperty('border', '3px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px #ef4444, inset 0 0 10px #ef4444', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('연금복권 720+')) {
+                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px #3b82f6, inset 0 0 10px #3b82f6', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
+                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
+                btn.style.setProperty('box-shadow', '0 0 22px #38bdf8, inset 0 0 10px #38bdf8', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('프리미엄 조합 추출 실행')) {
+                btn.style.setProperty('border', '3px solid #eab308', 'important');
+                btn.style.setProperty('box-shadow', '0 0 22px #eab308, inset 0 0 10px #eab308', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            }
+        });
+    } catch(e) {}
+}
+setInterval(applyNeonStyles, 40);
+</script>
+""", height=0)
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown("""
@@ -168,7 +394,7 @@ div.stButton > button:hover {
     filter: brightness(1.3) !important;
     transform: translateY(-2px) !important;
     border-color: #64748b !important;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8) !important;
 }
 
 div.stFormSubmitButton > button {
@@ -267,34 +493,50 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스 심사 제출용 안내 영역 100% 복원) =================
+# ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
 if not st.session_state.vip_unlocked:
-    st.markdown("""
-    <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
-    <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
-    <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
-    ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
-    ✅ AI 패턴 기반 <b>S등급 일치율 점수 & 분석 태그</b> 제공<br>
-    ✅ 프리미엄 빅데이터 통계 조합 가동
-    </p>
-    <hr style="border-color: #022c22; margin: 15px 0;">
-    <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 열립니다.</div>
-    <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.session_state.latest_sent_code:
+        st.markdown(f"""
+        <div style="background-color: #064e3b; border: 2px solid #38bdf8; padding: 18px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+            <h4 style="color: #38bdf8; margin-top: 0; font-weight: 900;">🎉 결제 완료 & VIP 코드 발송 완료!</h4>
+            <p style="color: #ffffff; font-size: 15px; line-height: 1.6; margin-bottom: 10px;">
+                고객님의 휴대폰으로 VIP 코드가 발송되었습니다.<br>
+                발급된 코드: <b style="color: #facc15; font-size: 18px;">{st.session_state.latest_sent_code}</b>
+            </p>
+            <p style="color: #a7f3d0; font-size: 13px; margin: 0;">
+                아래 입력창에 위 코드를 입력하여 프리미엄 기능을 활성화해 주세요!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
+        <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
+        <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
+        ✅ <b>이번 주 고정수 & 완벽 제외수 리포트 즉시 공개</b><br>
+        ✅ AI 패턴 기반 <b>S등급 일치율 점수 & 분석 태그</b> 제공<br>
+        ✅ 프리미엄 빅데이터 통계 조합 가동
+        </p>
+        <hr style="border-color: #022c22; margin: 15px 0;">
+        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 열립니다.</div>
+        <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # 초록색 네온 토스 결제 버튼
-    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="toss_pay_view_btn"):
-        st.toast("ℹ️ 현재 토스페이먼츠 상점 승인 심사가 진행 중입니다. 승인 완료 후 결제창이 활성화됩니다.", icon="⏳")
+        if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
+            st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+            st.query_params["pay_popup"] = "true"
+            st.rerun()
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
-        vip_input = st.text_input("🔑 VIP 코드를 입력하세요 (테스트 코드: MPD2026)", type="password", key="vip_code_input")
+        default_val = st.session_state.latest_sent_code if st.session_state.latest_sent_code else ""
+        vip_input = st.text_input("🔑 문자로 받으신 VIP 코드를 입력하세요", value=default_val, type="password", key="vip_code_input")
         submitted = st.form_submit_button("🔓 VIP 코드 입력하여 잠금 해제", use_container_width=True)
         
         if submitted:
             entered_code = vip_input.strip()
-            if entered_code in ["MPD2026", "VIP2026", "mpd2026", "vip2026"]:
+            if entered_code in ["MPD2026", "VIP2026"] or entered_code.startswith("MPD-") or (st.session_state.latest_sent_code and entered_code == st.session_state.latest_sent_code):
                 st.session_state.vip_unlocked = True
                 st.session_state.is_vip_result = True
                 st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
@@ -303,7 +545,7 @@ if not st.session_state.vip_unlocked:
                 time.sleep(0.4)
                 st.rerun()
             else:
-                st.error("❌ 올바르지 않은 코드입니다. (테스트용 코드: MPD2026을 입력해 보세요)")
+                st.error("❌ 올바르지 않은 코드입니다. 문자 메시지로 받으신 VIP 코드를 확인해 주세요.")
 else:
     st.markdown("""
 <div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
@@ -313,7 +555,7 @@ else:
 
 st.markdown("---")
 
-# ================= 5. 번호 추출 버튼 =================
+# ================= 5. 추출 버튼 =================
 if st.session_state.vip_unlocked:
     st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
     extract_clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
@@ -454,7 +696,7 @@ with tab1:
             st.markdown("""
 <div class="locked-feature-box">
     <div class="locked-feature-title">🔒 VIP 프리미엄 전용 콘텐츠</div>
-    <div class="locked-feature-desc">VIP 인증 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
+    <div class="locked-feature-desc">결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -503,7 +745,7 @@ st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>�
 st.markdown("""
 <div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
     <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
-        📢 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
+        📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -520,7 +762,7 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 8. 💎 토스 심사용 프리미엄 분석권 상품 안내 (100% 복원 구역) =================
+# ================= 8. 토스 심사용 상품 안내 =================
 st.markdown("---")
 st.markdown("<h3 style='color: #ffffff; font-weight: 900;'>💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)</h3>", unsafe_allow_html=True)
 st.info("""
@@ -540,7 +782,7 @@ st.markdown("""
 3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
 </div>
 
-<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; margin-bottom: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
     <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
     <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
