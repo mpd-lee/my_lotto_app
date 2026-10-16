@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제 멈춤 현상 완벽 해결 최종본)
-- 토스페이먼츠 안전 결제창 (사용자 클릭 연동 방식) 및 Solapi 자동 문자 연동
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제창 직행 및 무한 로딩 완벽 해결 최종본)
+- 토스페이먼츠 공식 결제창 다이렉트 연동 및 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
@@ -133,7 +133,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 결제 모드 (pay_popup=true 시 사용자 클릭 기반 실행) =================
+# ================= 🚨 전체 화면 다이렉트 결제 모드 (pay_popup=true 시 3번 사진처럼 토스 공식 결제창 즉시 호출) =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -170,8 +170,8 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         
     order_id_gen = st.session_state.current_order_id
     
-    # 💡 브라우저 보안 정책 대응: 사용자 클릭 이벤트에 직접 연결된 결제 실행 스크립트
-    toss_button_html = f"""
+    # 💡 3번 사진처럼 즉시 토스페이먼츠 공식 결제 위젯을 띄우는 스크립트 (중간 버튼 거치지 않음)
+    toss_direct_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -180,56 +180,14 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         <style>
             body {{
                 margin: 0;
-                padding: 20px;
+                padding: 0;
                 background-color: #0e1117;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                color: #ffffff;
-                text-align: center;
-            }}
-            .pay-card {{
-                background: linear-gradient(145deg, #1f1b13, #2d2618);
-                border: 2px solid #facc15;
-                padding: 30px;
-                border-radius: 16px;
-                box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
-                max-width: 450px;
-                width: 100%;
-            }}
-            .btn-pay {{
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                color: #ffffff;
-                border: 2px solid #facc15;
-                padding: 16px 20px;
-                font-size: 18px;
-                font-weight: 900;
-                border-radius: 12px;
-                cursor: pointer;
-                width: 100%;
-                margin-top: 20px;
-                box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
-                transition: all 0.2s;
-            }}
-            .btn-pay:hover {{
-                filter: brightness(1.2);
-                transform: translateY(-2px);
             }}
         </style>
     </head>
     <body>
-        <div class="pay-card">
-            <h2 style="color: #fde047; margin-top: 0;">👑 토스페이먼츠 안전 결제</h2>
-            <p style="color: #e2e8f0; font-size: 15px; line-height: 1.5;">
-                상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
-                결제 금액: <span style="color: #4ade80; font-size: 18px; font-weight: bold;">1,000원</span>
-            </p>
-            <button class="btn-pay" onclick="requestTossPayment()">💳 결제 진행하기</button>
-        </div>
         <script>
-            function requestTossPayment() {{
+            window.onload = function() {{
                 try {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
                     tossPayments.requestPayment("카드", {{
@@ -240,18 +198,18 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
                         if (error.code !== "USER_CANCEL") {{
-                            alert("결제 오류: " + error.message);
+                            alert("결제 알림: " + error.message);
                         }}
                     }});
                 }} catch(e) {{
-                    alert("결제 초기화 오류: " + e.message);
+                    alert("결제창 초기화 중 오류가 발생했습니다: " + e.message);
                 }}
-            }}
+            }};
         </script>
     </body>
     </html>
     """
-    components.html(toss_button_html, height=450, scrolling=True)
+    components.html(toss_direct_html, height=750, scrolling=True)
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
