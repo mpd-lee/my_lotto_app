@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 안정화 버전)
-- UI 100% 보존 및 뱅글뱅글 로딩 오류 원천 차단
-- VIP 코드 즉시 입력 및 무료 분석 통합 시스템
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (토스 심사 안내 복원 및 최적화 버전)
+- 로또 6/45 및 연금복권 720+ 통계 분석 및 번호 추천 시스템
+- 토스 심사 제출용 상품 안내 및 UI 100% 유지
 """
 
 import random
@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# ================= URL 및 키 관리 =================
+# ================= URL 및 고객센터 관리 =================
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
 
 # ================= 0. 페이지 기본 설정 =================
@@ -50,7 +50,7 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
-# ================= 세레모니 실행 처리 =================
+# 축하 세레모니 실행 처리
 if st.session_state.trigger_snow:
     st.snow()
     st.session_state.trigger_snow = False
@@ -267,7 +267,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (VIP 테스트 코드 인증 방식) =================
+# ================= 4. 금빛 VIP 시스템 (토스 심사 제출용 안내 영역 100% 복원) =================
 if not st.session_state.vip_unlocked:
     st.markdown("""
     <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
@@ -278,10 +278,16 @@ if not st.session_state.vip_unlocked:
     ✅ 프리미엄 빅데이터 통계 조합 가동
     </p>
     <hr style="border-color: #022c22; margin: 15px 0;">
-    <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">✨ 플레이스토어 심사 및 테스트용 VIP 코드: <b style="color: #facc15;">MPD2026</b></div>
+    <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 열립니다.</div>
+    <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
     </div>
     """, unsafe_allow_html=True)
 
+    # 초록색 네온 토스 결제 버튼
+    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="toss_pay_view_btn"):
+        st.toast("ℹ️ 현재 토스페이먼츠 상점 승인 심사가 진행 중입니다. 승인 완료 후 결제창이 활성화됩니다.", icon="⏳")
+
+    st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
         vip_input = st.text_input("🔑 VIP 코드를 입력하세요 (테스트 코드: MPD2026)", type="password", key="vip_code_input")
         submitted = st.form_submit_button("🔓 VIP 코드 입력하여 잠금 해제", use_container_width=True)
@@ -307,7 +313,7 @@ else:
 
 st.markdown("---")
 
-# ================= 5. 추출 버튼 =================
+# ================= 5. 번호 추출 버튼 =================
 if st.session_state.vip_unlocked:
     st.markdown('<div style="text-align:center;"><div class="vip-badge-top">👑 프리미엄 S등급 적용됨</div></div>', unsafe_allow_html=True)
     extract_clicked = st.button("🚀 프리미엄 조합 추출 실행", use_container_width=True, key="vip_extract_btn")
@@ -514,7 +520,18 @@ f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ================= 8. 법적 고지 및 사업자 정보 Footer =================
+# ================= 8. 💎 토스 심사용 프리미엄 분석권 상품 안내 (100% 복원 구역) =================
+st.markdown("---")
+st.markdown("<h3 style='color: #ffffff; font-weight: 900;'>💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)</h3>", unsafe_allow_html=True)
+st.info("""
+- **상품명:** VIP 골든픽 1주(7일) 프리패스
+- **가격:** 1,000원 (VAT 포함)
+- **제공 서비스:** AI 패턴 기반 S등급 고정수/제외수 리포트 및 초정밀 통계 조합 가동
+- **이용 기간:** 결제일로부터 7일간 무제한 이용
+- **환불 규정:** 디지털 콘텐츠 특성상, VIP 승인 처리 후에는 환불이 불가합니다. (결제 오류 시 전액 환불)
+""")
+
+# ================= 9. 법적 고지 및 사업자 정보 Footer =================
 st.markdown("""
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
