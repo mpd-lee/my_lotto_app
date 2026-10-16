@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (모든 기능 100% 통합 최종 완성본)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
 - 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 광고 및 네온 디자인 적용)
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 광고 및 메타태그 완벽 적용)
 """
 
 import random
@@ -81,8 +81,9 @@ st.set_page_config(
     layout="centered"
 )
 
-# 구글 애드센스 소유권 확인 메타태그
+# 구글 애드센스 소유권 확인 및 크롤러 인증 메타태그
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
+st.markdown('<meta name="google-site-verification" content="adsense-verification-code">', unsafe_allow_html=True)
 
 # 세션 상태 초기화
 if "vip_unlocked" not in st.session_state:
