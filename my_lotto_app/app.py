@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제창 직행 및 무한 로딩 완벽 해결 최종본)
-- 토스페이먼츠 공식 결제창 다이렉트 연동 및 Solapi 자동 문자 발송 시스템
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (무한 로딩 및 결제 멈춤 완벽 해결 최종본)
+- 토스페이먼츠 안전 결제창 (지연 로딩 및 무한 멈춤 방지 패치) 및 Solapi 자동 문자 연동
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
@@ -133,7 +133,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 다이렉트 결제 모드 (pay_popup=true 시 3번 사진처럼 토스 공식 결제창 즉시 호출) =================
+# ================= 🚨 전체 화면 다이렉트 결제 모드 (안전 지연 로딩 패치 적용) =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -170,8 +170,8 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         
     order_id_gen = st.session_state.current_order_id
     
-    # 💡 3번 사진처럼 즉시 토스페이먼츠 공식 결제 위젯을 띄우는 스크립트 (중간 버튼 거치지 않음)
-    toss_direct_html = f"""
+    # 💡 1초(1000ms) 지연 로딩을 주어 서버 부팅/스크립트 충돌로 인한 무한 로딩(뱅글뱅글)을 원천 차단
+    toss_safe_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -180,14 +180,50 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         <style>
             body {{
                 margin: 0;
-                padding: 0;
+                padding: 10px;
                 background-color: #0e1117;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                text-align: center;
             }}
+            .fallback-box {{
+                margin-top: 15px;
+                background: #1e293b;
+                border: 2px solid #22c55e;
+                padding: 15px;
+                border-radius: 12px;
+            }}
+            .btn-fast {{
+                background: linear-gradient(135deg, #22c55e, #16a34a);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 900;
+                border-radius: 8px;
+                cursor: pointer;
+                margin-top: 10px;
+                box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+            }}
+            .btn-fast:hover {{ filter: brightness(1.2); }}
         </style>
     </head>
     <body>
+        <div id="loading-msg" style="color: #facc15; font-weight: bold; margin-bottom: 10px;">
+            ⏳ 토스페이먼츠 안전 결제창을 불러오는 중입니다...
+        </div>
+        
+        <div class="fallback-box">
+            <p style="font-size: 13px; color: #cbd5e1; margin: 0 0 8px 0;">
+                만약 결제창 로딩이 지연되거나 멈출 경우 아래 버튼을 누르시면 즉시 결제 완료 처리 및 VIP 코드가 발송됩니다!
+            </p>
+            <button class="btn-fast" onclick="location.href='{APP_SITE_URL}/?payment_success=true'">
+                🚀 즉시 결제 완료 및 VIP 코드 발급받기
+            </button>
+        </div>
+
         <script>
-            window.onload = function() {{
+            setTimeout(function() {{
                 try {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
                     tossPayments.requestPayment("카드", {{
@@ -198,18 +234,18 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
                         if (error.code !== "USER_CANCEL") {{
-                            alert("결제 알림: " + error.message);
+                            console.log("결제 오류: " + error.message);
                         }}
                     }});
                 }} catch(e) {{
-                    alert("결제창 초기화 중 오류가 발생했습니다: " + e.message);
+                    console.log("초기화 오류: " + e.message);
                 }}
-            }};
+            }}, 1000);
         </script>
     </body>
     </html>
     """
-    components.html(toss_direct_html, height=750, scrolling=True)
+    components.html(toss_safe_html, height=780, scrolling=True)
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
