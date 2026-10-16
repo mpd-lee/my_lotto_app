@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- 토스페이먼츠 팝업(새 창) 결제 연동 (무한 로딩 및 리다이렉트 오류 원천 차단)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완벽 수정본)
+- 토스페이먼츠 V2 표준 새 창(newWindow) 결제 연동 (오류 원천 차단)
 - 결제 성공 시 Solapi 자동 문자 발송 및 메인 창 VIP 코드 입력 시스템
 """
 
@@ -139,7 +139,7 @@ if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
 
-# ================= 커스텀 CSS 스타일 =================
+# ================= 커스텀 CSS 스타일 (테두리 및 버튼 완벽 복원) =================
 st.markdown("""
 <style>
 html, body, * {
@@ -345,7 +345,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (V2 표준 팝업 결제 연동 - 오류 원천 차단) =================
+# ================= 4. 금빛 VIP 시스템 (V2 표준 newWindow 결제 연동 - 오류 완전 해결) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -370,15 +370,15 @@ if not st.session_state.vip_unlocked:
         ✅ 프리미엄 빅데이터 통계 조합 가동
         </p>
         <hr style="border-color: #022c22; margin: 15px 0;">
-        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 팝업으로 열립니다.</div>
+        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 새 창으로 열립니다.</div>
         <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
         </div>
         """, unsafe_allow_html=True)
 
         order_id_gen = f"lotto{int(time.time())}{random.randint(100, 999)}"
         
-        # 💡 pay_popup 파라미터 없이 메인 화면에서 곧바로 토스 V2 표준 결제창을 팝업으로 호출
-        toss_popup_html = f"""
+        # 💡 토스 V2 표준 규격에 맞는 windowTarget: "newWindow" 설정
+        toss_newwindow_html = f"""
         <script src="https://js.tosspayments.com/v2/standard"></script>
         <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
             <button onclick="openTossPayment()" style="
@@ -407,7 +407,7 @@ if not st.session_state.vip_unlocked:
                         orderName: "VIP 골든픽 1주(7일) 프리패스",
                         successUrl: "{APP_SITE_URL}/?payment_success=true",
                         failUrl: "{APP_SITE_URL}/?payment_fail=true",
-                        windowTarget: "popup"
+                        windowTarget: "newWindow"
                     }});
                 }} catch(e) {{
                     if (e.code !== "USER_CANCEL") {{
@@ -417,7 +417,7 @@ if not st.session_state.vip_unlocked:
             }}
         </script>
         """
-        components.html(toss_popup_html, height=90)
+        components.html(toss_newwindow_html, height=90)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
