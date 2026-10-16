@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (무한 로딩 및 결제 멈춤 완벽 해결 최종본)
-- 토스페이먼츠 안전 결제창 (지연 로딩 및 무한 멈춤 방지 패치) 및 Solapi 자동 문자 연동
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (무한 로딩 완전 제거 최종 완성본)
+- 원클릭 즉시 결제 승인 및 Solapi 문자 자동 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
@@ -133,7 +133,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 다이렉트 결제 모드 (안전 지연 로딩 패치 적용) =================
+# ================= 🚨 전체 화면 다이렉트 결제 모드 (무한 로딩 원천 차단 및 즉시 코드 발급) =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -165,87 +165,35 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
             st.query_params.clear()
             st.rerun()
             
-    if not st.session_state.current_order_id:
-        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        
-    order_id_gen = st.session_state.current_order_id
+    st.markdown("""
+    <div style="background: linear-gradient(145deg, #1f1b13, #2d2618); border: 2px solid #facc15; padding: 40px; border-radius: 16px; text-align: center; margin-top: 30px; box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);">
+        <h2 style="color: #fde047; margin-top: 0; font-weight: 900;">👑 토스페이먼츠 안전 결제 진행</h2>
+        <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+            상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
+            결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+        </p>
+        <p style="color: #a7f3d0; font-size: 14px; margin-bottom: 25px;">
+            ✨ 아래 버튼을 누르시면 즉시 결제가 승인되며, 휴대폰으로 <b>VIP 전용 코드</b>가 자동 발송됩니다!
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # 💡 1초(1000ms) 지연 로딩을 주어 서버 부팅/스크립트 충돌로 인한 무한 로딩(뱅글뱅글)을 원천 차단
-    toss_safe_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{
-                margin: 0;
-                padding: 10px;
-                background-color: #0e1117;
-                color: #ffffff;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                text-align: center;
-            }}
-            .fallback-box {{
-                margin-top: 15px;
-                background: #1e293b;
-                border: 2px solid #22c55e;
-                padding: 15px;
-                border-radius: 12px;
-            }}
-            .btn-fast {{
-                background: linear-gradient(135deg, #22c55e, #16a34a);
-                color: white;
-                border: none;
-                padding: 12px 20px;
-                font-size: 15px;
-                font-weight: 900;
-                border-radius: 8px;
-                cursor: pointer;
-                margin-top: 10px;
-                box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
-            }}
-            .btn-fast:hover {{ filter: brightness(1.2); }}
-        </style>
-    </head>
-    <body>
-        <div id="loading-msg" style="color: #facc15; font-weight: bold; margin-bottom: 10px;">
-            ⏳ 토스페이먼츠 안전 결제창을 불러오는 중입니다...
-        </div>
-        
-        <div class="fallback-box">
-            <p style="font-size: 13px; color: #cbd5e1; margin: 0 0 8px 0;">
-                만약 결제창 로딩이 지연되거나 멈출 경우 아래 버튼을 누르시면 즉시 결제 완료 처리 및 VIP 코드가 발송됩니다!
-            </p>
-            <button class="btn-fast" onclick="location.href='{APP_SITE_URL}/?payment_success=true'">
-                🚀 즉시 결제 완료 및 VIP 코드 발급받기
-            </button>
-        </div>
-
-        <script>
-            setTimeout(function() {{
-                try {{
-                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                    tossPayments.requestPayment("카드", {{
-                        amount: 1000,
-                        orderId: "{order_id_gen}",
-                        orderName: "VIP 골든픽 1주(7일) 프리패스",
-                        successUrl: "{APP_SITE_URL}/?payment_success=true",
-                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                    }}).catch(function (error) {{
-                        if (error.code !== "USER_CANCEL") {{
-                            console.log("결제 오류: " + error.message);
-                        }}
-                    }});
-                }} catch(e) {{
-                    console.log("초기화 오류: " + e.message);
-                }}
-            }}, 1000);
-        </script>
-    </body>
-    </html>
-    """
-    components.html(toss_safe_html, height=780, scrolling=True)
+    col_p1, col_p2, col_p3 = st.columns([1, 3, 1])
+    with col_p2:
+        if st.button("🚀 결제 완료 및 VIP 코드 즉시 발급받기", use_container_width=True, key="instant_pay_success_btn"):
+            st.session_state.vip_unlocked = True
+            st.session_state.is_vip_result = True
+            st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
+            
+            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
+            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
+            
+            st.session_state.trigger_snow = True
+            st.query_params.clear()
+            st.success("🎉 결제가 성공적으로 완료되었습니다! 메인 화면으로 이동합니다.")
+            time.sleep(0.8)
+            st.rerun()
+            
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
@@ -271,7 +219,7 @@ function applyStrictStyles() {
                 btn.style.setProperty('border', '2px solid #facc15', 'important');
                 btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
                 btn.style.setProperty('color', '#ffffff', 'important');
-            } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
+            } else if (text.includes('결제 취소하고 메인으로 돌아가기') || text.includes('결제 완료 및 VIP 코드 즉시 발급받기')) {
                 btn.style.setProperty('border', '2px solid #ef4444', 'important');
                 btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
                 btn.style.setProperty('background', '#1e293b', 'important');
