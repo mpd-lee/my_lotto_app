@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- 메인 UI 및 테두리 100% 보존, 토스 공식 SDK 인라인 팝업 결제 연동
+- 버튼 테두리 깔끔하게 정돈 및 토스 결제 위젯 높이 최적화(잘림 현상 완전 해결)
 - 결제 성공 시 Solapi 자동 문자 발송 및 메인 창 VIP 코드 입력 시스템
 """
 
@@ -242,12 +242,14 @@ div.stButton > button {
     width: 100% !important;
     font-size: 16px !important;
     word-break: keep-all;
+    border: 2px solid #334155 !important;
     transition: all 0.2s ease-in-out !important;
 }
 div.stButton > button:hover {
     filter: brightness(1.3) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8) !important;
+    border-color: #64748b !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
 }
 
 div.stFormSubmitButton > button {
@@ -346,7 +348,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스 SDK 인라인 팝업 결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스 SDK 위젯 컴포넌트 - 높이 550px 최적화) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -381,7 +383,7 @@ if not st.session_state.vip_unlocked:
         
         order_id_gen = st.session_state.current_order_id
 
-        # 💡 토스 공식 SDK 기반의 깔끔하고 안전한 인라인 결제 버튼 컴포넌트
+        # 💡 결제 위젯 잘림 현상 방지를 위해 height를 550px로 넉넉하게 설정
         toss_sdk_html = f"""
         <!DOCTYPE html>
         <html>
@@ -391,9 +393,10 @@ if not st.session_state.vip_unlocked:
             <style>
                 body {{
                     margin: 0;
-                    padding: 0;
+                    padding: 10px 0;
                     background-color: transparent;
                     text-align: center;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }}
                 .btn-pay {{
                     background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -406,7 +409,6 @@ if not st.session_state.vip_unlocked:
                     cursor: pointer;
                     box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
                     width: 100%;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 }}
                 .btn-pay:hover {{ filter: brightness(1.2); }}
             </style>
@@ -437,7 +439,7 @@ if not st.session_state.vip_unlocked:
         </body>
         </html>
         """
-        components.html(toss_sdk_html, height=75)
+        components.html(toss_sdk_html, height=100)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
