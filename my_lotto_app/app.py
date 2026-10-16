@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제창 및 전체 기능 완벽 통합 최종본)
+- 토스페이먼츠 안전 결제창 (전체 화면 팝업 모드 완벽 복원) 및 Solapi 자동 문자 연동
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
+"""
+
 import random
 import time
 import os
@@ -126,13 +133,12 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 결제 모드 (pay_popup=true 시 구동) =================
-if "pay_popup" in st.query_params and st.query_params["pay_popup"] == "true" and not st.session_state.vip_unlocked:
+# ================= 🚨 전체 화면 결제 모드 (pay_popup=true 시 두 번째 사진처럼 완벽 구동) =================
+if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
     .block-container { max-width: 800px !important; padding-top: 1.5rem !important; }
     
-    /* 5번째 사진 스타일 완벽 반영된 결제 취소 버튼 커스텀 디자인 */
     div.stButton > button[kind="secondary"] {
         background: linear-gradient(135deg, #1e293b, #0f172a) !important;
         border: 2px solid #ef4444 !important;
@@ -251,8 +257,7 @@ setInterval(applyStrictStyles, 50);
 """, height=0)
 
 # ================= 커스텀 CSS 스타일 =================
-st.markdown(
-"""
+st.markdown("""
 <style>
 html, body, * {
     -webkit-text-size-adjust: 100% !important;
@@ -399,13 +404,10 @@ div.stFormSubmitButton > button:hover {
 .footer-btn-dhlottery { background-color: #15803d !important; border: 2px solid #ffffff !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important; }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # ================= 1. 타이틀 배너 =================
-st.markdown(
-"""
+st.markdown("""
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
     <tr>
         <td style="width: 12%; text-align: right; vertical-align: middle; padding-right: 2px;">
@@ -462,8 +464,7 @@ with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", ex
 
 # ================= 4. 금빛 VIP 시스템 =================
 if not st.session_state.vip_unlocked:
-    st.markdown(
-"""
+    st.markdown("""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
@@ -499,8 +500,7 @@ if not st.session_state.vip_unlocked:
             else:
                 st.error("❌ 올바르지 않은 코드입니다. 문자/카톡으로 받으신 코드를 확인해 주세요.")
 else:
-    st.markdown(
-"""
+    st.markdown("""
 <div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
 👑 VIP 계정 활성화 상태입니다. 아래에서 프리미엄 조합 추출을 실행해 주세요!
 </div>
@@ -567,8 +567,7 @@ with tab1:
             if st.session_state.extract_game_type == "lotto":
                 fixed_str = ", ".join(map(str, st.session_state.get("vip_fixed", [1, 2])))
                 excl_str = ", ".join(map(str, st.session_state.get("vip_excluded", [3, 4, 5])))
-                st.markdown(
-f"""
+                st.markdown(f"""
 <div style="background-color: #2b1f1f; border-left: 5px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
     <h5 style="color: #ef4444; margin-top: 0; margin-bottom: 8px;">🚫 금주의 VIP 완벽 제외수 10개</h5>
     <div style="color: white; font-size: 15px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 5px;">{excl_str}</div>
@@ -647,8 +646,7 @@ f"""
                 st.markdown(html_str, unsafe_allow_html=True)
 
         if not is_vip:
-            st.markdown(
-"""
+            st.markdown("""
 <div class="locked-feature-box">
     <div class="locked-feature-title">🔒 VIP 프리미엄 전용 콘텐츠</div>
     <div class="locked-feature-desc">결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
@@ -677,8 +675,7 @@ with tab2:
     st.bar_chart(chart_data, color="#3b82f6", height=250)
     
     if not st.session_state.vip_unlocked:
-        st.markdown(
-"""
+        st.markdown("""
 <div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:14px; font-weight: bold;'>
 🔒 VIP 전용: 미출현 장기 번호 및 회귀 추적 데이터 잠김
 </div>
@@ -686,8 +683,7 @@ with tab2:
 
 with tab3:
     st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📑 분석 연구 모델</h4>", unsafe_allow_html=True)
-    st.markdown(
-"""
+    st.markdown("""
 <div style="font-size: 15px; color: #f1f5f9; line-height: 1.8; font-weight: 600;">
 - Markov Chain Monte Carlo (MCMC) 모델<br>
 - Poisson Distribution 출현 간격 예측<br>
@@ -699,8 +695,7 @@ with tab3:
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
 
-st.markdown(
-"""
+st.markdown("""
 <div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
     <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
         📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
@@ -732,8 +727,7 @@ st.info("""
 """)
 
 # ================= 9. 법적 고지 및 사업자 정보 Footer =================
-st.markdown(
-"""
+st.markdown("""
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
 1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
