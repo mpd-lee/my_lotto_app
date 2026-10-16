@@ -1,4 +1,4 @@
-이 코드에서 다른 모든 것은 빠트리거나 빼지 말고~~~이 코드를 잘 분석 한 후 이걸 기초로 시작해서 Streamlit 서버에서 st.components.v1.html 내부에 들어간 자바스크립트(JS) 스크립트가 리렌더링 될 때마다 재 실행되면서, 토스 결제 SDK(TossPayments) 내부 팝업 자바스크립트 창이 무한 루프(스피너 뱅글뱅글 멈춤) 상태에 빠지지 않고 결제 후 vip코드가 핸드폰 문자나 카톡으로 가고 메인 창에서 vip코드를 입력해서 프리미어에서 즐길 수 있도록 코드를 완벽한게 만들어줘 야되!!!  지금가지 만든 코드는 이거깐 잘 보완 해서 완벽히 만들어줘!!!-----            import random
+import random
 import time
 import os
 from collections import Counter
