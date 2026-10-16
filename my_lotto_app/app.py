@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- 메인 UI 및 테두리 100% 보존, 토스 공식 SDK 기반 안정적인 팝업 결제 연동
+- 메인 UI 및 테두리 100% 보존, 토스 공식 SDK 인라인 팝업 결제 연동
 - 결제 성공 시 Solapi 자동 문자 발송 및 메인 창 VIP 코드 입력 시스템
 """
 
@@ -346,7 +346,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스 SDK 기반 안전 팝업 결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스 SDK 인라인 팝업 결제 연동) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -381,7 +381,7 @@ if not st.session_state.vip_unlocked:
         
         order_id_gen = st.session_state.current_order_id
 
-        # 💡 토스 공식 SDK를 정상 호출하여 에러 없이 깔끔하게 열리는 결제 버튼 컴포넌트
+        # 💡 토스 공식 SDK 기반의 깔끔하고 안전한 인라인 결제 버튼 컴포넌트
         toss_sdk_html = f"""
         <!DOCTYPE html>
         <html>
