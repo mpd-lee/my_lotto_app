@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- UI 테두리 100% 유지 및 새 창 팝업 방식의 완벽한 토스페이먼츠 결제 연동
+- 원본 UI와 테두리를 100% 보존하며 새 창 링크 방식으로 토스페이먼츠 결제 연동
 - 결제 성공 시 Solapi 자동 문자 발송 및 메인 창 VIP 코드 입력 시스템
 """
 
@@ -12,21 +12,20 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
 import hmac
 import hashlib
 from datetime import datetime, timezone
 
 # ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 토스 클라이언트 키
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"        # 고객센터 구글 폼 링크
-APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 실제 배포 주소
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
 
 # ================= 솔라피(Solapi) API 설정 =================
 SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
 SOLAPI_API_SECRET = "DWIXUPBFG7ZGPOCNYY8MVNYWRUW9XTTA"
-SOLAPI_SENDER_PHONE = "01052827017" # 발신번호
+SOLAPI_SENDER_PHONE = "01052827017" # 등록하신 발신번호
 
 def send_vip_sms(receiver_phone, vip_code):
     """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수"""
@@ -81,6 +80,7 @@ st.set_page_config(
     layout="centered"
 )
 
+# 구글 애드센스 소유권 확인 메타태그
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 
 # 세션 상태 초기화
@@ -345,7 +345,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (새 창 팝업 방식 토스페이먼츠 완벽 연동) =================
+# ================= 4. 금빛 VIP 시스템 (완벽한 UI 테두리 유지 및 새 창 토스 결제 연동) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -370,31 +370,17 @@ if not st.session_state.vip_unlocked:
         ✅ 프리미엄 빅데이터 통계 조합 가동
         </p>
         <hr style="border-color: #022c22; margin: 15px 0;">
-        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 토스페이먼츠 결제 팝업창이 안전하게 열립니다.</div>
-        <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다![cite: 36, 39]</div>
+        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 열립니다.</div>
+        <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
         </div>
         """, unsafe_allow_html=True)
 
-        if not st.session_state.current_order_id:
-            st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        
-        order_id_gen = st.session_state.current_order_id
-
-        # 💡 UI 테두리와 메인 화면을 100% 지키는 팝업창 연동 HTML/JS 컴포넌트
-        toss_popup_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <script src="https://js.tosspayments.com/v1/payment"></script>
-            <style>
-                body {{
-                    margin: 0;
-                    padding: 0;
-                    background-color: transparent;
-                    text-align: center;
-                }}
-                .btn-pay {{
+        # 💡 원본 UI 테두리를 100% 지키면서 뱅글뱅글 로딩 없이 새 창으로 토스 결제를 띄우는 HTML 버튼 링크
+        order_id_gen = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        toss_direct_link_html = f"""
+        <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+            <a href="https://pay.tosspayments.com/pay?amount=1000&orderId={order_id_gen}&orderName=VIP골든픽1주프리패스&successUrl={APP_SITE_URL}/?payment_success=true&failUrl={APP_SITE_URL}/?payment_fail=true" target="_blank" style="text-decoration: none;">
+                <button style="
                     background: linear-gradient(135deg, #059669 0%, #047857 100%);
                     color: white;
                     border: 2px solid #facc15;
@@ -405,38 +391,11 @@ if not st.session_state.vip_unlocked:
                     cursor: pointer;
                     box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
                     width: 100%;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }}
-                .btn-pay:hover {{ filter: brightness(1.2); }}
-            </style>
-        </head>
-        <body>
-            <button class="btn-pay" onclick="requestTossPayment()">💎 토스페이먼츠 안전 결제창 열기 (1,000원)</button>
-
-            <script>
-                function requestTossPayment() {{
-                    try {{
-                        var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                        tossPayments.requestPayment("카드", {{
-                            amount: 1000,
-                            orderId: "{order_id_gen}",
-                            orderName: "VIP 골든픽 1주(7일) 프리패스[cite: 35]",
-                            successUrl: "{APP_SITE_URL}/?payment_success=true",
-                            failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                        }}).catch(function (error) {{
-                            if (error.code !== "USER_CANCEL") {{
-                                alert("결제 오류: " + error.message);
-                            }}
-                        }});
-                    }} catch(e) {{
-                        alert("결제 초기화 오류: " + e.message);
-                    }}
-                }}
-            </script>
-        </body>
-        </html>
+                ">💎 토스페이먼츠 안전 결제창 열기 (1,000원)</button>
+            </a>
+        </div>
         """
-        components.html(toss_popup_html, height=75)
+        st.markdown(toss_direct_link_html, unsafe_allow_html=True)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
@@ -676,7 +635,7 @@ f"""
 st.markdown("---")
 st.markdown("<h3 style='color: #ffffff; font-weight: 900;'>💎 프리미엄 분석권 상품 안내 (Toss 심사 제출용)</h3>", unsafe_allow_html=True)
 st.info("""
-- **상품명:** VIP 골든픽 1주(7일) 프리패스[cite: 35]
+- **상품명:** VIP 골든픽 1주(7일) 프리패스
 - **가격:** 1,000원 (VAT 포함)
 - **제공 서비스:** AI 패턴 기반 S등급 고정수/제외수 리포트 및 초정밀 통계 조합 가동
 - **이용 기간:** 결제일로부터 7일간 무제한 이용
@@ -692,7 +651,7 @@ st.markdown("""
 3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
 </div>
 
-<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; margin-bottom: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
     <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
     <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
