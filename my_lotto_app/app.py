@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (무한 로딩 완전 제거 최종 완성본)
-- 원클릭 즉시 결제 승인 및 Solapi 문자 자동 발송 시스템
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (실제 토스페이먼츠 결제 연동 최종 완성본)
+- 토스페이먼츠 공식 카드 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
@@ -133,7 +133,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 다이렉트 결제 모드 (무한 로딩 원천 차단 및 즉시 코드 발급) =================
+# ================= 🚨 실제 토스페이먼츠 결제창 연동 모드 =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -165,35 +165,60 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
             st.query_params.clear()
             st.rerun()
             
-    st.markdown("""
-    <div style="background: linear-gradient(145deg, #1f1b13, #2d2618); border: 2px solid #facc15; padding: 40px; border-radius: 16px; text-align: center; margin-top: 30px; box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);">
-        <h2 style="color: #fde047; margin-top: 0; font-weight: 900;">👑 토스페이먼츠 안전 결제 진행</h2>
-        <p style="color: #e2e8f0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-            상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
-            결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
-        </p>
-        <p style="color: #a7f3d0; font-size: 14px; margin-bottom: 25px;">
-            ✨ 아래 버튼을 누르시면 즉시 결제가 승인되며, 휴대폰으로 <b>VIP 전용 코드</b>가 자동 발송됩니다!
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    if not st.session_state.current_order_id:
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        
+    order_id_gen = st.session_state.current_order_id
     
-    col_p1, col_p2, col_p3 = st.columns([1, 3, 1])
-    with col_p2:
-        if st.button("🚀 결제 완료 및 VIP 코드 즉시 발급받기", use_container_width=True, key="instant_pay_success_btn"):
-            st.session_state.vip_unlocked = True
-            st.session_state.is_vip_result = True
-            st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
-            
-            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
-            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
-            
-            st.session_state.trigger_snow = True
-            st.query_params.clear()
-            st.success("🎉 결제가 성공적으로 완료되었습니다! 메인 화면으로 이동합니다.")
-            time.sleep(0.8)
-            st.rerun()
-            
+    # 💡 실제 토스페이먼츠 SDK 결제창 호출 스크립트 (결제 완료 시 최상위 창으로 깔끔하게 복귀)
+    toss_real_pay_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+                background-color: #0e1117;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                text-align: center;
+            }}
+        </style>
+    </head>
+    <body>
+        <div style="margin-top: 50px;">
+            <h3 style="color: #facc15;">💎 토스페이먼츠 안전 결제창 호출 중...</h3>
+            <p style="color: #94a3b8; font-size: 14px;">잠시만 기다리시면 결제 모달창이 열립니다.</p>
+        </div>
+        <script>
+            setTimeout(function() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment("카드", {{
+                        amount: 1000,
+                        orderId: "{order_id_gen}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code === "USER_CANCEL") {{
+                            window.top.location.href = "{APP_SITE_URL}/?payment_fail=true";
+                        }} else {{
+                            alert("결제 오류: " + error.message);
+                        }}
+                    }});
+                }} catch(e) {{
+                    alert("결제 초기화 중 오류가 발생했습니다: " + e.message);
+                }}
+            }}, 800);
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_real_pay_html, height=750, scrolling=True)
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
@@ -219,7 +244,7 @@ function applyStrictStyles() {
                 btn.style.setProperty('border', '2px solid #facc15', 'important');
                 btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
                 btn.style.setProperty('color', '#ffffff', 'important');
-            } else if (text.includes('결제 취소하고 메인으로 돌아가기') || text.includes('결제 완료 및 VIP 코드 즉시 발급받기')) {
+            } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
                 btn.style.setProperty('border', '2px solid #ef4444', 'important');
                 btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
                 btn.style.setProperty('background', '#1e293b', 'important');
@@ -462,8 +487,8 @@ if not st.session_state.vip_unlocked:
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 공식 결제창이 열립니다.</div>
-<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 자동으로 메인 페이지로 돌아오며 휴대폰으로 VIP 코드가 발송됩니다!</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 실제 토스페이먼츠 결제창이 열립니다.</div>
+<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 자동으로 메인 페이지로 복귀하며 휴대폰으로 VIP 코드가 발송됩니다!</div>
 </div>
 """, unsafe_allow_html=True)
 
