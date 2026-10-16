@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (iframe 제약 완전 해결 최종 완성본)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (모든 고급 필터 & 결제 완벽 통합 풀버전)
 - 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (상세 조합 필터, 통계, 연구모델 완벽 탑재)
 """
 
 import random
@@ -144,7 +144,6 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         
     order_id_gen = st.session_state.current_order_id
     
-    # 💡 iframe 제약을 완전히 우회하여 브라우저 전체 창에서 토스페이먼츠를 호출하는 자바스크립트
     toss_fullscreen_html = f"""
     <!DOCTYPE html>
     <html>
@@ -491,8 +490,13 @@ f"""
     unsafe_allow_html=True,
 )
 
-with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
+# ================= 상세 조합 필터 설정 (확장 패널) =================
+with st.expander("⚙ 맞춤형 시스템 상세 설정 및 고급 필터", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
+    odd_even_filter = st.selectbox("홀짝 비율 필터 (홀:짝)", ["모든 조합 허용 (기본)", "3 : 3 (균형 최적화)", "4 : 2 (홀수 우세)", "2 : 4 (짝수 우세)"], index=0)
+    sum_range = st.slider("번호 총합 범위 설정", 20, 250, (100, 180))
+    ac_filter = st.checkbox("AC값(복잡도) 필터 적용 (AC >= 7)", value=True)
+    exclude_consecutive = st.checkbox("연속 번호(연번) 강력 제외 필터", value=False)
 
 # ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
 if not st.session_state.vip_unlocked:
