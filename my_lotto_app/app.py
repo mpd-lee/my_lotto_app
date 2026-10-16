@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (최종 완성본)
-- 버튼 테두리 깔끔하게 정돈 및 토스 결제 위젯 높이 최적화(잘림 현상 완전 해결)
-- 결제 성공 시 Solapi 자동 문자 발송 및 메인 창 VIP 코드 입력 시스템
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (뱅글뱅글 멈춤 현상 완벽 해결본)
+- 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
 import random
@@ -29,7 +29,7 @@ SOLAPI_API_SECRET = "DWIXUPBFG7ZGPOCNYY8MVNYWRUW9XTTA"
 SOLAPI_SENDER_PHONE = "01052827017" # 등록하신 발신번호
 
 def send_vip_sms(receiver_phone, vip_code):
-    """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수"""
+    """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수 (타임아웃 적용)"""
     url = "https://api.solapi.com/messages/v4/send"
     
     now = datetime.now(timezone.utc)
@@ -66,7 +66,7 @@ def send_vip_sms(receiver_phone, vip_code):
     }
     
     try:
-        response = requests.post(url, json=payload, headers=headers)
+        response = requests.post(url, json=payload, headers=headers, timeout=5)
         if response.status_code in [200, 201]:
             return True, "전송 성공"
         else:
@@ -93,6 +93,8 @@ if "current_order_id" not in st.session_state:
     st.session_state.current_order_id = ""
 if "latest_sent_code" not in st.session_state:
     st.session_state.latest_sent_code = ""
+if "payment_processed" not in st.session_state:
+    st.session_state.payment_processed = False
 
 if st.session_state.vip_unlocked:
     if time.time() > st.session_state.vip_expire_time:
@@ -112,24 +114,136 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
-# ================= 결제 성공/실패 쿼리 처리 =================
+# ================= 결제 성공/실패 쿼리 처리 (뱅글뱅글 멈춤 방지) =================
 try:
     if "payment_success" in st.query_params:
-        if not st.session_state.latest_sent_code:
-            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
-            st.session_state.latest_sent_code = generated_vip_code
-            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
-            
-        st.toast("🎉 토스 결제가 완료되었습니다! 문자로 VIP 코드가 발송되었습니다.", icon="✨")
-        st.query_params.clear()
+        if not st.session_state.payment_processed:
+            st.session_state.payment_processed = True
+            if not st.session_state.latest_sent_code:
+                generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
+                st.session_state.latest_sent_code = generated_vip_code
+                send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
+            st.toast("🎉 토스 결제가 완료되었습니다! 문자로 VIP 코드가 발송되었습니다.", icon="✨")
+        
+        # 쿼리 파라미터를 깔끔하게 비워 무한 루프 및 뱅글뱅글 차단
+        for q_key in list(st.query_params.keys()):
+            del st.query_params[q_key]
         st.rerun()
 
     elif "payment_fail" in st.query_params:
+        for q_key in list(st.query_params.keys()):
+            del st.query_params[q_key]
         st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
-        st.query_params.clear()
         st.rerun()
 except Exception:
     pass
+
+# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 =================
+if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
+    st.markdown("""
+    <style>
+    .block-container { max-width: 800px !important; padding-top: 2rem !important; }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    if not st.session_state.current_order_id:
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+        
+    order_id_gen = st.session_state.current_order_id
+    
+    toss_fullscreen_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{
+                margin: 0;
+                padding: 40px;
+                background-color: #0e1117;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                text-align: center;
+            }}
+            .pay-card {{
+                background: linear-gradient(145deg, #1f1b13, #2d2618);
+                border: 2px solid #facc15;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
+                max-width: 500px;
+                margin: 0 auto;
+            }}
+            .btn-pay {{
+                background: linear-gradient(135deg, #059669, #047857);
+                color: white;
+                border: 2px solid #facc15;
+                padding: 16px 24px;
+                font-size: 18px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 20px;
+                box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+                width: 100%;
+            }}
+            .btn-pay:hover {{ filter: brightness(1.2); }}
+            .btn-cancel {{
+                background: #1e293b;
+                color: #f87171;
+                border: 2px solid #f87171;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 15px;
+                width: 100%;
+            }}
+            .btn-cancel:hover {{ background: #dc2626; color: white; }}
+        </style>
+    </head>
+    <body>
+        <div class="pay-card">
+            <h2 style="color: #fde047; margin-top: 0;">👑 토스페이먼츠 안전 결제</h2>
+            <p style="color: #e2e8f0; font-size: 15px; line-height: 1.6;">
+                상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
+                결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+            </p>
+            <p style="color: #a7f3d0; font-size: 13px; margin-bottom: 20px;">
+                아래 버튼을 누르시면 안전한 토스 결제창이 열립니다.
+            </p>
+            <button class="btn-pay" onclick="requestTossPayment()">💎 토스 결제창 열기 (1,000원)</button>
+            <br>
+            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
+        </div>
+
+        <script>
+            function requestTossPayment() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment("카드", {{
+                        amount: 1000,
+                        orderId: "{order_id_gen}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code !== "USER_CANCEL") {{
+                            alert("결제 오류: " + error.message);
+                        }}
+                    }});
+                }} catch(e) {{
+                    alert("결제 초기화 오류: " + e.message);
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    components.html(toss_fullscreen_html, height=700, scrolling=True)
+    st.stop()
 
 # ================= 세레모니 실행 처리 =================
 if st.session_state.trigger_snow:
@@ -139,6 +253,46 @@ if st.session_state.trigger_snow:
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
+
+# ================= 자바스크립트 기반 버튼 및 네온 스타일 강제 적용 =================
+components.html("""
+<script>
+function applyStrictStyles() {
+    try {
+        const doc = window.parent.document;
+        const buttons = doc.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const text = btn.innerText || btn.textContent || "";
+            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
+                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+                btn.style.setProperty('border', '2px solid #facc15', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
+                btn.style.setProperty('color', '#ffffff', 'important');
+            } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
+                btn.style.setProperty('border', '2px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
+                btn.style.setProperty('background', '#1e293b', 'important');
+                btn.style.setProperty('color', '#ffffff', 'important');
+                btn.style.setProperty('font-weight', '900', 'important');
+            } else if (text.includes('로또 6/45 분석')) {
+                btn.style.setProperty('border', '3px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #ef4444, inset 0 0 8px #ef4444', 'important');
+            } else if (text.includes('연금복권 720+')) {
+                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #3b82f6, inset 0 0 8px #3b82f6', 'important');
+            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
+                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #38bdf8, inset 0 0 8px #38bdf8', 'important');
+            } else if (text.includes('프리미엄 조합 추출 실행')) {
+                btn.style.setProperty('border', '3px solid #eab308', 'important');
+                btn.style.setProperty('box-shadow', '0 0 16px #eab308, inset 0 0 8px #eab308', 'important');
+            }
+        });
+    } catch(e) {}
+}
+setInterval(applyStrictStyles, 50);
+</script>
+""", height=0)
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown("""
@@ -242,14 +396,12 @@ div.stButton > button {
     width: 100% !important;
     font-size: 16px !important;
     word-break: keep-all;
-    border: 2px solid #334155 !important;
     transition: all 0.2s ease-in-out !important;
 }
 div.stButton > button:hover {
     filter: brightness(1.3) !important;
     transform: translateY(-2px) !important;
-    border-color: #64748b !important;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.8) !important;
 }
 
 div.stFormSubmitButton > button {
@@ -348,7 +500,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스 SDK 위젯 컴포넌트 - 높이 550px 최적화) =================
+# ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -378,68 +530,10 @@ if not st.session_state.vip_unlocked:
         </div>
         """, unsafe_allow_html=True)
 
-        if not st.session_state.current_order_id:
+        if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
             st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        
-        order_id_gen = st.session_state.current_order_id
-
-        # 💡 결제 위젯 잘림 현상 방지를 위해 height를 550px로 넉넉하게 설정
-        toss_sdk_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <script src="https://js.tosspayments.com/v1/payment"></script>
-            <style>
-                body {{
-                    margin: 0;
-                    padding: 10px 0;
-                    background-color: transparent;
-                    text-align: center;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }}
-                .btn-pay {{
-                    background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                    color: white;
-                    border: 2px solid #facc15;
-                    padding: 16px 20px;
-                    font-size: 17px;
-                    font-weight: 900;
-                    border-radius: 12px;
-                    cursor: pointer;
-                    box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
-                    width: 100%;
-                }}
-                .btn-pay:hover {{ filter: brightness(1.2); }}
-            </style>
-        </head>
-        <body>
-            <button class="btn-pay" onclick="requestTossPayment()">💎 토스페이먼츠 안전 결제창 열기 (1,000원)</button>
-
-            <script>
-                function requestTossPayment() {{
-                    try {{
-                        var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                        tossPayments.requestPayment("카드", {{
-                            amount: 1000,
-                            orderId: "{order_id_gen}",
-                            orderName: "VIP 골든픽 1주(7일) 프리패스",
-                            successUrl: "{APP_SITE_URL}/?payment_success=true",
-                            failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                        }}).catch(function (error) {{
-                            if (error.code !== "USER_CANCEL") {{
-                                alert("결제 오류: " + error.message);
-                            }}
-                        }});
-                    }} catch(e) {{
-                        alert("결제 초기화 오류: " + e.message);
-                    }}
-                }}
-            </script>
-        </body>
-        </html>
-        """
-        components.html(toss_sdk_html, height=100)
+            st.query_params["pay_popup"] = "true"
+            st.rerun()
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
@@ -695,7 +789,7 @@ st.markdown("""
 3. 복권은 소액으로 건전하게 즐기시길 바라며, 과도한 몰입은 일상생활에 지장을 줄 수 있습니다. (도박중독 예방치유센터: 1336)
 </div>
 
-<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
+<div style="text-align: center; color: #94a3b8; font-size: 11px; margin-top: 20px; margin-bottom: 20px; line-height: 1.8; padding-top: 20px; border-top: 1px solid #333;">
     <b>상호:</b> 엠피디뮤직 (MPD music) &nbsp;|&nbsp; <b>대표:</b> 이근영 &nbsp;|&nbsp; <b>사업자등록번호:</b> 162-23-01932<br>
     <b>사업장 주소:</b> 경기도 고양시 덕양구 능곡로 16, 101동 501호(토당동, 숲예찬)<br>
     <b>고객센터:</b> 010-5282-7017 &nbsp;|&nbsp; <b>이메일:</b> leegysa@naver.com<br><br>
