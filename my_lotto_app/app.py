@@ -1,263 +1,540 @@
 # -*- coding: utf-8 -*-
-"""
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제창 및 전체 기능 완벽 통합 최종본)
-- 토스페이먼츠 안전 결제창 (전체 화면 팝업 모드 완벽 복원) 및 Solapi 자동 문자 연동
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
+"""로또픽: 기존 화면 유지 + 안전한 토스 결제 확인 + VIP 코드/SMS 발급.
+결제창은 st.components.v1.html iframe에서 자동 실행하지 않습니다.
 """
 
 import random
 import time
 import os
+import re
+import json
+import sqlite3
+import secrets
+import uuid
+import base64
+import hashlib
+import hmac
+from contextlib import contextmanager
 from collections import Counter
+from datetime import datetime, timezone
+from urllib.parse import quote
+
 import numpy as np
 import pandas as pd
-import streamlit as st
-import streamlit.components.v1 as components
 import requests
-import hmac
-import hashlib
-from datetime import datetime, timezone
+import streamlit as st
 
-# ================= URL 및 키 관리 =================
-TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
-GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
-APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
-
-# ================= 솔라피(Solapi) API 설정 =================
-SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
-SOLAPI_API_SECRET = "DWIXUPBFG7ZGPOCNYY8MVNYWRUW9XTTA"
-SOLAPI_SENDER_PHONE = "01052827017" # 등록하신 발신번호
-
-def send_vip_sms(receiver_phone, vip_code):
-    """표준 requests와 HMAC 서명을 통한 초안정 문자 발송 함수"""
-    url = "https://api.solapi.com/messages/v4/send"
-    
-    now = datetime.now(timezone.utc)
-    date = now.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-    salt = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz0123456789', k=16))
-    data = date + salt
-    
-    signature = hmac.new(
-        SOLAPI_API_SECRET.encode('utf-8'),
-        data.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
-    
-    authorization = f"HMAC-SHA256 apiKey={SOLAPI_API_KEY}, date={date}, salt={salt}, signature={signature}"
-    
-    headers = {
-        "Authorization": authorization,
-        "Content-Type": "application/json; charset=utf-8"
-    }
-    
-    message_text = (
-        f"[로또픽] VIP 프리패스 코드가 발급되었습니다.\n\n"
-        f"🔑 VIP 전용 코드: {vip_code}\n"
-        f"⏱ 이용 기간: 발급일로부터 7일간\n\n"
-        f"🍀 금주의 행운을 기원합니다!"
-    )
-    
-    payload = {
-        "message": {
-            "to": receiver_phone,
-            "from": SOLAPI_SENDER_PHONE,
-            "text": message_text
-        }
-    }
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        if response.status_code in [200, 201]:
-            return True, "전송 성공"
-        else:
-            return False, f"코드: {response.status_code}, 내용: {response.text}"
-    except Exception as e:
-        return False, str(e)
-
-# ================= 0. 페이지 기본 설정 =================
+# Streamlit의 첫 호출은 페이지 설정입니다.
 st.set_page_config(
-    page_title="로또픽(Lotto Pick) - 초정밀 통계·조합 분석 시스템", 
-    page_icon="🍀", 
-    layout="centered"
+    page_title="로또픽(Lotto Pick) - 초정밀 통계·조합 분석 시스템",
+    page_icon="🍀",
+    layout="centered",
 )
 
-# 구글 애드센스 소유권 확인 메타태그
+# ================= URL 및 상품 설정 =================
+GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"
+PRODUCT_NAME = "VIP 골든픽 1주(7일) 프리패스"
+PRODUCT_AMOUNT = 1000
+VIP_DAYS = 7
+DB_PATH = os.getenv("LOTTO_PICK_DB_PATH", "vip_store.sqlite3")
+DEFAULT_APP_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app"
+
+
+def get_secret(name: str, default: str = "") -> str:
+    """Streamlit Secrets first, then environment variables. No embedded credentials."""
+    try:
+        value = st.secrets.get(name, os.getenv(name, default))
+    except Exception:
+        value = os.getenv(name, default)
+    return str(value or "").strip()
+
+
+APP_SITE_URL = get_secret("APP_BASE_URL", DEFAULT_APP_URL).rstrip("/")
+TOSS_CLIENT_KEY = get_secret("TOSS_CLIENT_KEY")
+TOSS_SECRET_KEY = get_secret("TOSS_SECRET_KEY")
+SOLAPI_API_KEY = get_secret("SOLAPI_API_KEY")
+SOLAPI_API_SECRET = get_secret("SOLAPI_API_SECRET")
+SOLAPI_SENDER_PHONE = re.sub(r"\D", "", get_secret("SOLAPI_SENDER_PHONE"))
+
+# ================= DB/주문 관리 =================
+@contextmanager
+def db_session():
+    conn = sqlite3.connect(DB_PATH, timeout=20, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA busy_timeout = 20000")
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def init_db():
+    with db_session() as conn:
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS vip_orders (
+                order_id TEXT PRIMARY KEY,
+                phone TEXT NOT NULL,
+                amount INTEGER NOT NULL,
+                status TEXT NOT NULL,
+                payment_key TEXT,
+                vip_code TEXT,
+                vip_code_hash TEXT,
+                expires_at REAL,
+                created_at REAL,
+                paid_at REAL,
+                sms_status TEXT DEFAULT 'PENDING',
+                sms_error TEXT
+            )"""
+        )
+        # Backward-compatible migration for a database created by an earlier version.
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(vip_orders)").fetchall()}
+        if "sms_status" not in columns:
+            conn.execute("ALTER TABLE vip_orders ADD COLUMN sms_status TEXT DEFAULT 'PENDING'")
+        if "sms_error" not in columns:
+            conn.execute("ALTER TABLE vip_orders ADD COLUMN sms_error TEXT")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_vip_orders_code_hash ON vip_orders(vip_code_hash)")
+
+
+def normalize_phone(raw: str) -> str:
+    phone = re.sub(r"\D", "", raw or "")
+    if phone.startswith("82") and len(phone) in (11, 12, 13):
+        phone = "0" + phone[2:]
+    return phone
+
+
+def create_order(phone: str) -> str:
+    phone = normalize_phone(phone)
+    if not re.fullmatch(r"01[016789]\d{7,8}", phone):
+        raise ValueError("올바른 국내 휴대폰 번호가 아닙니다.")
+    order_id = "VIP" + uuid.uuid4().hex.upper()
+    now = time.time()
+    with db_session() as conn:
+        conn.execute(
+            "INSERT INTO vip_orders (order_id, phone, amount, status, created_at, sms_status) VALUES (?, ?, ?, 'PENDING', ?, 'PENDING')",
+            (order_id, phone, PRODUCT_AMOUNT, now),
+        )
+    return order_id
+
+
+def get_order(order_id: str):
+    if not order_id:
+        return None
+    with db_session() as conn:
+        return conn.execute("SELECT * FROM vip_orders WHERE order_id = ?", (order_id,)).fetchone()
+
+
+def create_vip_code() -> str:
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    raw = "".join(secrets.choice(alphabet) for _ in range(12))
+    return "MPD-" + raw[:4] + "-" + raw[4:8] + "-" + raw[8:]
+
+
+def normalize_vip_code(raw: str) -> str:
+    return re.sub(r"\s+", "", (raw or "")).upper()
+
+
+def vip_code_hash(raw: str) -> str:
+    return hashlib.sha256(normalize_vip_code(raw).encode("utf-8")).hexdigest()
+
+# ================= Solapi SMS =================
+def send_vip_sms(receiver_phone: str, vip_code: str):
+    """Submit a transactional SMS request to Solapi. This is not a carrier delivery receipt."""
+    if not SOLAPI_API_KEY or not SOLAPI_API_SECRET or not SOLAPI_SENDER_PHONE:
+        return False, "Solapi Secrets(API_KEY/API_SECRET/SENDER_PHONE)가 설정되지 않았습니다."
+    receiver_phone = normalize_phone(receiver_phone)
+    if not re.fullmatch(r"01[016789]\d{7,8}", receiver_phone):
+        return False, "받는 휴대폰 번호 형식이 올바르지 않습니다."
+
+    url = "https://api.solapi.com/messages/v4/send"
+    date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    salt = secrets.token_hex(16)
+    signature = hmac.new(
+        SOLAPI_API_SECRET.encode("utf-8"),
+        (date + salt).encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    headers = {
+        "Authorization": f"HMAC-SHA256 apiKey={SOLAPI_API_KEY}, date={date}, salt={salt}, signature={signature}",
+        "Content-Type": "application/json; charset=utf-8",
+    }
+    message = (
+        f"[로또픽] VIP 프리패스 코드가 발급되었습니다.\n\n"
+        f"VIP 전용 코드: {vip_code}\n"
+        f"이용 기간: 결제 승인 시점부터 7일\n\n"
+        f"로또픽 메인 화면에서 코드를 입력해 주세요."
+    )
+    payload = {"message": {"to": receiver_phone, "from": SOLAPI_SENDER_PHONE, "text": message}}
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
+        if response.status_code in (200, 201, 202):
+            return True, "Solapi 발송 요청 접수"
+        try:
+            body = response.json()
+            detail = body.get("message") or body.get("errorMessage") or body.get("errorCode") or f"HTTP {response.status_code}"
+        except Exception:
+            detail = f"HTTP {response.status_code}"
+        return False, str(detail)[:300]
+    except requests.RequestException as exc:
+        return False, f"Solapi 통신 오류: {type(exc).__name__}"
+
+
+def send_sms_for_order(order_id: str, allow_retry: bool = False):
+    """Claim an SMS attempt so reruns do not automatically issue duplicate texts."""
+    with db_session() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute("SELECT * FROM vip_orders WHERE order_id=?", (order_id,)).fetchone()
+        if not row or row["status"] != "PAID":
+            return False, "결제 승인된 주문을 찾을 수 없습니다."
+        if row["sms_status"] == "SENT":
+            return True, "이미 문자 발송 요청이 접수되었습니다."
+        claimable = ("PENDING", "FAILED") if not allow_retry else ("PENDING", "FAILED", "SENDING")
+        placeholders = ",".join("?" for _ in claimable)
+        cur = conn.execute(
+            f"UPDATE vip_orders SET sms_status='SENDING', sms_error=NULL WHERE order_id=? AND status='PAID' AND sms_status IN ({placeholders})",
+            (order_id, *claimable),
+        )
+        if cur.rowcount != 1:
+            refreshed = conn.execute("SELECT sms_status FROM vip_orders WHERE order_id=?", (order_id,)).fetchone()
+            state = refreshed["sms_status"] if refreshed else "UNKNOWN"
+            return False, f"문자 발송 상태가 {state}입니다. 중복 발송을 방지했습니다."
+        phone, code = row["phone"], row["vip_code"]
+
+    ok, detail = send_vip_sms(phone, code)
+    with db_session() as conn:
+        if ok:
+            conn.execute("UPDATE vip_orders SET sms_status='SENT', sms_error=NULL WHERE order_id=? AND status='PAID'", (order_id,))
+        else:
+            conn.execute("UPDATE vip_orders SET sms_status='FAILED', sms_error=? WHERE order_id=? AND status='PAID'", (detail[:500], order_id))
+    return ok, detail
+
+# ================= Toss server-side confirmation =================
+def toss_auth_headers():
+    token = base64.b64encode((TOSS_SECRET_KEY + ":").encode("utf-8")).decode("ascii")
+    return {"Authorization": f"Basic {token}", "Content-Type": "application/json"}
+
+
+def payment_matches_order(payment: dict, order_id: str, expected_amount: int, payment_key: str) -> bool:
+    if not isinstance(payment, dict):
+        return False
+    try:
+        actual_amount = int(payment.get("totalAmount", -1))
+    except (TypeError, ValueError):
+        return False
+    return bool(
+        payment.get("status") == "DONE"
+        and payment.get("orderId") == order_id
+        and payment.get("paymentKey") == payment_key
+        and actual_amount == int(expected_amount)
+    )
+
+
+def toss_confirm_or_fetch(payment_key: str, order_id: str, amount: int):
+    """Confirm through Toss. If confirmation already happened, verify by fetching payment details."""
+    if not TOSS_SECRET_KEY:
+        return False, "토스 시크릿 키가 설정되지 않았습니다."
+    headers = toss_auth_headers()
+    confirm_error = "토스 결제 승인 요청이 실패했습니다."
+    try:
+        response = requests.post(
+            "https://api.tosspayments.com/v1/payments/confirm",
+            json={"paymentKey": payment_key, "orderId": order_id, "amount": int(amount)},
+            headers=headers,
+            timeout=15,
+        )
+        try:
+            body = response.json()
+        except Exception:
+            body = {}
+        if response.status_code == 200 and payment_matches_order(body, order_id, amount, payment_key):
+            return True, body
+        confirm_error = str(body.get("message") or body.get("code") or f"승인 API HTTP {response.status_code}")[:300]
+    except requests.RequestException as exc:
+        confirm_error = f"토스 승인 API 통신 오류: {type(exc).__name__}"
+
+    # Retry-safe recovery: the confirm API may already have succeeded while the browser timed out.
+    try:
+        detail_response = requests.get(
+            "https://api.tosspayments.com/v1/payments/" + quote(payment_key, safe=""),
+            headers=headers,
+            timeout=15,
+        )
+        detail = detail_response.json() if detail_response.content else {}
+        if detail_response.status_code == 200 and payment_matches_order(detail, order_id, amount, payment_key):
+            return True, detail
+    except (requests.RequestException, ValueError):
+        pass
+    return False, confirm_error
+
+
+def complete_paid_order(order_id: str, payment_key: str, requested_amount: str):
+    """Check DB order, amount and Toss status before issuing a code. Idempotent on repeat return URLs."""
+    if not order_id or not payment_key:
+        return False, {"message": "결제 결과에 주문번호 또는 paymentKey가 없습니다."}
+    try:
+        amount = int(str(requested_amount))
+    except (TypeError, ValueError):
+        return False, {"message": "결제 금액 형식이 올바르지 않습니다."}
+
+    with db_session() as conn:
+        order = conn.execute("SELECT * FROM vip_orders WHERE order_id=?", (order_id,)).fetchone()
+    if not order:
+        return False, {"message": "서버에 등록된 주문이 아닙니다. 새 주문을 만들어 주세요."}
+    if amount != PRODUCT_AMOUNT or amount != int(order["amount"]):
+        return False, {"message": "결제 금액이 주문 금액과 일치하지 않습니다."}
+
+    if order["status"] == "PAID":
+        if order["payment_key"] != payment_key:
+            return False, {"message": "이 주문에는 다른 paymentKey가 이미 연결되어 있습니다."}
+        sms_status = order["sms_status"]
+        if sms_status in (None, "PENDING", "FAILED"):
+            send_sms_for_order(order_id)
+        refreshed = get_order(order_id)
+        return True, {"code": refreshed["vip_code"], "sms_status": refreshed["sms_status"], "order_id": order_id}
+    if order["status"] != "PENDING":
+        return False, {"message": f"주문 상태가 {order['status']}이므로 승인 처리할 수 없습니다."}
+
+    ok, result = toss_confirm_or_fetch(payment_key, order_id, amount)
+    if not ok:
+        return False, {"message": f"토스 서버 승인 확인에 실패했습니다: {result}"}
+
+    code = create_vip_code()
+    code_hash = vip_code_hash(code)
+    now = time.time()
+    with db_session() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        latest = conn.execute("SELECT * FROM vip_orders WHERE order_id=?", (order_id,)).fetchone()
+        if not latest:
+            return False, {"message": "주문 정보가 승인 처리 중 사라졌습니다."}
+        if latest["status"] == "PAID":
+            if latest["payment_key"] != payment_key:
+                return False, {"message": "주문에 연결된 paymentKey가 일치하지 않습니다."}
+            code = latest["vip_code"]
+        elif latest["status"] == "PENDING":
+            cur = conn.execute(
+                "UPDATE vip_orders SET status='PAID', payment_key=?, vip_code=?, vip_code_hash=?, expires_at=?, paid_at=?, sms_status='PENDING', sms_error=NULL WHERE order_id=? AND status='PENDING'",
+                (payment_key, code, code_hash, now + VIP_DAYS * 86400, now, order_id),
+            )
+            if cur.rowcount != 1:
+                latest = conn.execute("SELECT * FROM vip_orders WHERE order_id=?", (order_id,)).fetchone()
+                if not latest or latest["status"] != "PAID" or latest["payment_key"] != payment_key:
+                    return False, {"message": "주문 상태가 변경되어 코드 발급을 완료하지 못했습니다. 고객센터에 문의해 주세요."}
+                code = latest["vip_code"]
+        else:
+            return False, {"message": "주문 상태가 변경되어 코드 발급을 완료하지 못했습니다."}
+
+    sms_ok, sms_detail = send_sms_for_order(order_id)
+    refreshed = get_order(order_id)
+    # The code is always shown after verified payment, even if SMS submission fails.
+    return True, {
+        "code": refreshed["vip_code"],
+        "sms_status": refreshed["sms_status"],
+        "sms_detail": sms_detail,
+        "order_id": order_id,
+    }
+
+
+def validate_vip_code(raw_code: str):
+    normalized = normalize_vip_code(raw_code)
+    if not normalized:
+        return False, 0, "VIP 코드를 입력해 주세요."
+    digest = vip_code_hash(normalized)
+    with db_session() as conn:
+        row = conn.execute(
+            "SELECT expires_at FROM vip_orders WHERE vip_code_hash=? AND status='PAID'",
+            (digest,),
+        ).fetchone()
+    if not row:
+        return False, 0, "실제 결제 승인으로 발급된 코드를 찾을 수 없습니다."
+    if not row["expires_at"] or time.time() > float(row["expires_at"]):
+        return False, 0, "VIP 이용 기간 7일이 만료되었습니다."
+    return True, float(row["expires_at"]), "승인 완료"
+
+
+def render_toss_payment_button(order_id: str, phone: str) -> str:
+    """Top-level st.html button. Payment is started only after the user click, never on load."""
+    if not TOSS_CLIENT_KEY:
+        return "<div style='padding:12px;color:#fecaca'>토스 클라이언트 키가 설정되지 않았습니다.</div>"
+    client_key_js = json.dumps(TOSS_CLIENT_KEY)
+    order_id_js = json.dumps(order_id)
+    order_name_js = json.dumps(PRODUCT_NAME)
+    phone_js = json.dumps(normalize_phone(phone))
+    success_url_js = json.dumps(APP_SITE_URL + "/?payment_success=1")
+    fail_url_js = json.dumps(APP_SITE_URL + "/?payment_fail=1")
+    btn_id = "toss-pay-" + re.sub(r"[^A-Za-z0-9_-]", "", order_id)
+    return f"""<div style="max-width:520px;margin:8px auto;padding:16px;background:#111827;border:2px solid #eab308;border-radius:14px;text-align:center;color:#fff">
+      <div style="font-weight:900;color:#fde047;font-size:17px;margin-bottom:8px">🍀 VIP 골든픽 1주 프리패스</div>
+      <div style="font-size:23px;font-weight:900;margin-bottom:12px">1,000원</div>
+      <button id="{btn_id}" type="button" style="width:100%;padding:15px;border:2px solid #fde047;border-radius:11px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:16px;font-weight:900;cursor:pointer">💳 토스페이먼츠 결제하기</button>
+      <div id="{btn_id}-msg" aria-live="polite" style="font-size:12px;color:#cbd5e1;margin-top:8px">결제 버튼을 한 번 눌러 진행해 주세요. 자동 결제는 실행되지 않습니다.</div>
+    </div>
+    <script src="https://js.tosspayments.com/v2/payment"></script>
+    <script>
+    (function() {{
+      const btn = document.getElementById({json.dumps(btn_id)});
+      const msg = document.getElementById({json.dumps(btn_id + '-msg')});
+      if (!btn || btn.dataset.handlerBound === '1') return;
+      btn.dataset.handlerBound = '1';
+      btn.addEventListener('click', async function() {{
+        if (btn.dataset.busy === '1') return;
+        btn.dataset.busy = '1';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        msg.textContent = '토스 결제창을 준비하고 있습니다...';
+        try {{
+          if (typeof TossPayments !== 'function') throw new Error('토스 SDK를 불러오지 못했습니다. 페이지를 새로고침해 주세요.');
+          const tossPayments = TossPayments({client_key_js});
+          const payment = tossPayments.payment({{ customerKey: 'ANONYMOUS' }});
+          await payment.requestPayment({{
+            method: 'CARD',
+            amount: {{ currency: 'KRW', value: {PRODUCT_AMOUNT} }},
+            orderId: {order_id_js},
+            orderName: {order_name_js},
+            customerMobilePhone: {phone_js},
+            successUrl: {success_url_js},
+            failUrl: {fail_url_js},
+            windowTarget: 'self'
+          }});
+        }} catch (error) {{
+          btn.dataset.busy = '0';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          const code = error && error.code ? String(error.code) : '';
+          if (code === 'USER_CANCEL' || code === 'PAY_PROCESS_CANCELED') {{
+            msg.textContent = '결제가 취소되었습니다. 원하시면 다시 시도해 주세요.';
+          }} else {{
+            msg.textContent = '결제창 오류: ' + (error && error.message ? error.message : '알 수 없는 오류');
+          }}
+        }}
+      }});
+    }})();
+    </script>"""
+
+
+# ================= 페이지 설정/DB 초기화 =================
+init_db()
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 
-# 세션 상태 초기화
-if "vip_unlocked" not in st.session_state:
+# ================= 세션 상태 기본값 =================
+def init_state(key, default):
+    if key not in st.session_state:
+        st.session_state[key] = default
+
+
+init_state("vip_unlocked", False)
+init_state("vip_expire_time", 0.0)
+init_state("selected_game", "lotto")
+init_state("extract_results", [])
+init_state("extract_game_type", "lotto")
+init_state("is_vip_result", False)
+init_state("trigger_snow", False)
+init_state("trigger_balloons", False)
+init_state("pending_order_id", "")
+init_state("last_completed_order_id", "")
+init_state("payment_flash", None)
+
+if st.session_state.vip_unlocked and time.time() > float(st.session_state.vip_expire_time or 0):
     st.session_state.vip_unlocked = False
-if "vip_expire_time" not in st.session_state:
-    st.session_state.vip_expire_time = 0
-if "current_order_id" not in st.session_state:
-    st.session_state.current_order_id = ""
+    st.session_state.vip_expire_time = 0.0
+    st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 계속 이용하시려면 재결제를 진행해 주세요.")
 
-if st.session_state.vip_unlocked:
-    if time.time() > st.session_state.vip_expire_time:
-        st.session_state.vip_unlocked = False
-        st.warning("⏱ VIP 이용 기간(7일)이 만료되었습니다. 계속 이용하시려면 재결제를 진행해 주세요.")
-
-if "selected_game" not in st.session_state:
-    st.session_state.selected_game = "lotto"
-if "extract_results" not in st.session_state:
-    st.session_state.extract_results = []
-if "extract_game_type" not in st.session_state:
-    st.session_state.extract_game_type = "lotto"
-if "is_vip_result" not in st.session_state:
-    st.session_state.is_vip_result = False
-if "trigger_snow" not in st.session_state:
-    st.session_state.trigger_snow = False
-if "trigger_balloons" not in st.session_state:
-    st.session_state.trigger_balloons = False
-
-# ================= 결제 성공/실패 쿼리 처리 =================
-try:
-    if "payment_success" in st.query_params:
-        if not st.session_state.vip_unlocked:
-            st.session_state.vip_unlocked = True
-            st.session_state.is_vip_result = True
-            st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
-            
-            generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
-            send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
-            
-        st.toast("🎉 토스 결제가 완료되었습니다! VIP 프리패스가 활성화되었습니다.", icon="✨")
-        st.session_state.trigger_snow = True
-        st.query_params.clear()
-        st.rerun()
-
-    elif "payment_fail" in st.query_params:
-        st.error("❌ 결제가 취소되었거나 실패했습니다. 다시 시도해 주세요.")
-        st.query_params.clear()
-        st.rerun()
-except Exception:
-    pass
-
-# ================= 🚨 전체 화면 결제 모드 (pay_popup=true 시 두 번째 사진처럼 완벽 구동) =================
-if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
-    st.markdown("""
-    <style>
-    .block-container { max-width: 800px !important; padding-top: 1.5rem !important; }
-    
-    div.stButton > button[kind="secondary"] {
-        background: linear-gradient(135deg, #1e293b, #0f172a) !important;
-        border: 2px solid #ef4444 !important;
-        color: #ffffff !important;
-        font-weight: 900 !important;
-        font-size: 16px !important;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
-        border-radius: 12px !important;
-        padding: 14px 10px !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    div.stButton > button[kind="secondary"]:hover {
-        background: #dc2626 !important;
-        border-color: #fca5a5 !important;
-        box-shadow: 0 0 25px rgba(239, 68, 68, 1) !important;
-        transform: translateY(-2px) !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    col_c1, col_c2, col_c3 = st.columns([1, 4, 1])
-    with col_c2:
-        if st.button("❌ 결제 취소하고 메인으로 돌아가기", use_container_width=True, key="cancel_pay_mode"):
-            st.query_params.clear()
-            st.rerun()
-            
-    if not st.session_state.current_order_id:
-        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        
-    order_id_gen = st.session_state.current_order_id
-    
-    toss_button_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <script src="https://js.tosspayments.com/v1/payment"></script>
-        <style>
-            body {{ margin: 0; padding: 0; background-color: transparent; }}
-        </style>
-    </head>
-    <body>
-        <script>
-            window.onload = function() {{
-                try {{
-                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                    tossPayments.requestPayment("카드", {{
-                        amount: 1000,
-                        orderId: "{order_id_gen}",
-                        orderName: "VIP 골든픽 1주(7일) 프리패스",
-                        successUrl: "{APP_SITE_URL}/?payment_success=true",
-                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                    }}).catch(function (error) {{
-                        if (error.code !== "USER_CANCEL") {{
-                            alert("결제 알림: " + error.message);
-                        }}
-                    }});
-                }} catch(e) {{
-                    alert("결제창 초기화 중 오류가 발생했습니다: " + e.message);
-                }}
-            }};
-        </script>
-    </body>
-    </html>
-    """
-    components.html(toss_button_html, height=680, scrolling=True)
-    st.stop()
+# ================= 결제 리다이렉트 처리 =================
+# Never grant VIP from a query flag alone. The order must exist and Toss must confirm it.
+query = st.query_params
+if "payment_success" in query:
+    payment_key = str(query.get("paymentKey", ""))
+    order_id = str(query.get("orderId", ""))
+    amount = str(query.get("amount", ""))
+    ok, result = complete_paid_order(order_id, payment_key, amount)
+    if ok:
+        st.session_state.payment_flash = {
+            "ok": True,
+            "code": result.get("code", ""),
+            "sms_status": result.get("sms_status", "FAILED"),
+            "sms_detail": result.get("sms_detail", ""),
+            "order_id": order_id,
+        }
+        st.session_state.last_completed_order_id = order_id
+        st.session_state.pending_order_id = order_id
+    else:
+        st.session_state.payment_flash = {"ok": False, "message": result.get("message", "결제를 확인하지 못했습니다.")}
+    st.query_params.clear()
+    st.rerun()
+elif "payment_fail" in query:
+    error_code = str(query.get("code", query.get("errorCode", "")))
+    order_id = str(query.get("orderId", ""))
+    if order_id:
+        with db_session() as conn:
+            conn.execute("UPDATE vip_orders SET status='CANCELLED' WHERE order_id=? AND status='PENDING'", (order_id,))
+    st.session_state.payment_flash = {"ok": False, "message": f"결제가 취소되었거나 실패했습니다. 오류 코드: {error_code or '사용자 취소'}"}
+    st.query_params.clear()
+    st.rerun()
+elif str(query.get("pay_popup", "")).lower() == "true":
+    # Old iframe-based URL must never trigger the old auto-running checkout again.
+    st.session_state.payment_flash = {"ok": False, "message": "이전 결제 주소(pay_popup=true)는 더 이상 사용하지 않습니다. 메인 화면에서 새 주문을 생성해 주세요."}
+    st.query_params.clear()
+    st.rerun()
 
 # ================= 세레모니 실행 처리 =================
 if st.session_state.trigger_snow:
     st.snow()
     st.session_state.trigger_snow = False
-
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
 
-# ================= 자바스크립트 기반 버튼 및 네온 스타일 강제 적용 =================
-components.html("""
+# 기존 버튼 네온 스타일을 유지하되 50ms setInterval/iframe 접근은 사용하지 않습니다.
+st.html("""
 <script>
-function applyStrictStyles() {
+(function() {
+  function applyStrictStyles() {
     try {
-        const doc = window.parent.document;
-        const buttons = doc.querySelectorAll('button');
-        buttons.forEach(btn => {
-            const text = btn.innerText || btn.textContent || "";
-            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
-                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
-                btn.style.setProperty('border', '2px solid #facc15', 'important');
-                btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
-                btn.style.setProperty('color', '#ffffff', 'important');
-            } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
-                btn.style.setProperty('border', '2px solid #ef4444', 'important');
-                btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
-                btn.style.setProperty('background', '#1e293b', 'important');
-                btn.style.setProperty('color', '#ffffff', 'important');
-                btn.style.setProperty('font-weight', '900', 'important');
-            } else if (text.includes('로또 6/45 분석')) {
-                btn.style.setProperty('border', '3px solid #ef4444', 'important');
-                btn.style.setProperty('box-shadow', '0 0 16px #ef4444, inset 0 0 8px #ef4444', 'important');
-            } else if (text.includes('연금복권 720+')) {
-                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
-                btn.style.setProperty('box-shadow', '0 0 16px #3b82f6, inset 0 0 8px #3b82f6', 'important');
-            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
-                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
-                btn.style.setProperty('box-shadow', '0 0 16px #38bdf8, inset 0 0 8px #38bdf8', 'important');
-            } else if (text.includes('프리미엄 조합 추출 실행')) {
-                btn.style.setProperty('border', '3px solid #eab308', 'important');
-                btn.style.setProperty('box-shadow', '0 0 16px #eab308, inset 0 0 8px #eab308', 'important');
-            }
-        });
-    } catch(e) {}
-}
-setInterval(applyStrictStyles, 50);
+      document.querySelectorAll('button').forEach(function(btn) {
+        const text = btn.innerText || btn.textContent || '';
+        if (text.includes('토스페이먼츠 안전 결제창 열기') || text.includes('VIP 주문 생성')) {
+          btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+          btn.style.setProperty('border', '2px solid #facc15', 'important');
+          btn.style.setProperty('box-shadow', '0 0 20px rgba(250, 204, 21, 0.8)', 'important');
+          btn.style.setProperty('color', '#ffffff', 'important');
+        } else if (text.includes('결제 취소하고 메인으로 돌아가기')) {
+          btn.style.setProperty('border', '2px solid #ef4444', 'important');
+          btn.style.setProperty('box-shadow', '0 0 15px rgba(239, 68, 68, 0.8)', 'important');
+          btn.style.setProperty('background', '#1e293b', 'important');
+          btn.style.setProperty('color', '#ffffff', 'important');
+          btn.style.setProperty('font-weight', '900', 'important');
+        } else if (text.includes('로또 6/45 분석')) {
+          btn.style.setProperty('border', '3px solid #ef4444', 'important');
+          btn.style.setProperty('box-shadow', '0 0 16px #ef4444, inset 0 0 8px #ef4444', 'important');
+        } else if (text.includes('연금복권 720+')) {
+          btn.style.setProperty('border', '3px solid #3b82f6', 'important');
+          btn.style.setProperty('box-shadow', '0 0 16px #3b82f6, inset 0 0 8px #3b82f6', 'important');
+        } else if (text.includes('일반 번호 조합 무료추출 실행')) {
+          btn.style.setProperty('border', '3px solid #38bdf8', 'important');
+          btn.style.setProperty('box-shadow', '0 0 16px #38bdf8, inset 0 0 8px #38bdf8', 'important');
+        } else if (text.includes('프리미엄 조합 추출 실행')) {
+          btn.style.setProperty('border', '3px solid #eab308', 'important');
+          btn.style.setProperty('box-shadow', '0 0 16px #eab308, inset 0 0 8px #eab308', 'important');
+        }
+      });
+    } catch (e) {}
+  }
+  applyStrictStyles();
+  if (!window.__lottoPickStyleObserverBound) {
+    window.__lottoPickStyleObserverBound = true;
+    const observer = new MutationObserver(applyStrictStyles);
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.__lottoPickStyleObserver = observer;
+  }
+})();
 </script>
-""", height=0)
+""", unsafe_allow_javascript=True)
 
 # ================= 커스텀 CSS 스타일 =================
-st.markdown("""
+st.markdown(
+"""
 <style>
 html, body, * {
     -webkit-text-size-adjust: 100% !important;
@@ -404,10 +681,13 @@ div.stFormSubmitButton > button:hover {
 .footer-btn-dhlottery { background-color: #15803d !important; border: 2px solid #ffffff !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important; }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ================= 1. 타이틀 배너 =================
-st.markdown("""
+st.markdown(
+"""
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
     <tr>
         <td style="width: 12%; text-align: right; vertical-align: middle; padding-right: 2px;">
@@ -462,9 +742,29 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 =================
+# ================= 4. 금빛 VIP 시스템 (토스 서버 승인 확인 방식) =================
+if "payment_flash" in st.session_state and st.session_state.payment_flash:
+    flash = st.session_state.payment_flash
+    if flash.get("ok"):
+        st.success("✅ 토스 결제 서버 승인 확인이 완료되었습니다.")
+        st.markdown(f"**발급된 VIP 코드:** `{flash.get('code', '')}`")
+        if flash.get("sms_status") == "SENT":
+            st.info("📱 Solapi에 문자 발송 요청이 접수되었습니다. 통신사 사정에 따라 실제 수신까지 시간이 걸릴 수 있습니다.")
+        elif flash.get("sms_status") == "SENDING":
+            st.info("📨 VIP 코드 문자 발송 처리 중입니다. 잠시 후 문자 수신 여부를 확인해 주세요.")
+        else:
+            st.warning("⚠️ 결제 승인은 확인되었지만 문자 발송이 완료되지 않았습니다. 화면에 표시된 코드를 입력하실 수 있고, 아래 재발송 버튼도 이용할 수 있습니다.")
+            if flash.get("sms_detail"):
+                st.caption(f"문자 발송 진단: {flash.get('sms_detail')}")
+        if flash.get("order_id"):
+            st.session_state.last_completed_order_id = flash["order_id"]
+    else:
+        st.error(f"❌ 결제 처리 결과: {flash.get('message', '처리하지 못했습니다. 주문 상태를 확인해 주세요.')}")
+    st.session_state.payment_flash = None
+
 if not st.session_state.vip_unlocked:
-    st.markdown("""
+    st.markdown(
+"""
 <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
 <h4 style="margin-top: 0; font-size: 18px; margin-bottom: 15px; color: #fde047; font-weight: 900;">👑 VIP 프리패스 혜택 안내</h4>
 <p style="font-size: 14px; line-height: 1.6; text-align: left; color: #ecfdf5;">
@@ -473,34 +773,75 @@ if not st.session_state.vip_unlocked:
 ✅ 프리미엄 빅데이터 통계 조합 가동
 </p>
 <hr style="border-color: #022c22; margin: 15px 0;">
-<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 공식 결제창이 열립니다.</div>
-<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 자동으로 메인 페이지로 돌아오며 휴대폰으로 VIP 코드가 발송됩니다!</div>
+<div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 휴대폰 번호로 주문을 생성한 뒤 토스 결제를 진행해 주세요.</div>
+<div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">결제 인증 후 서버에서 실제 승인 여부를 확인한 뒤 VIP 코드가 발급됩니다.</div>
 </div>
 """, unsafe_allow_html=True)
 
-    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
-        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-        st.query_params["pay_popup"] = "true"
-        st.rerun()
+    with st.form("vip_order_form"):
+        buyer_phone = st.text_input("📱 VIP 코드를 받을 휴대폰 번호", placeholder="01012345678", max_chars=20, key="buyer_phone_input")
+        sms_consent = st.checkbox("VIP 코드 발송을 위해 입력한 휴대폰 번호로 SMS를 보내는 데 동의합니다.", key="vip_sms_consent")
+        order_submitted = st.form_submit_button("🧾 1,000원 VIP 주문 생성", use_container_width=True)
+
+    if order_submitted:
+        normalized_phone = normalize_phone(buyer_phone)
+        if not re.fullmatch(r"01[016789]\d{7,8}", normalized_phone):
+            st.error("❌ 010 등 올바른 국내 휴대폰 번호를 입력해 주세요.")
+        elif not sms_consent:
+            st.error("❌ VIP 코드 문자 발송 동의에 체크해 주세요.")
+        elif not TOSS_CLIENT_KEY or not TOSS_SECRET_KEY:
+            st.error("❌ 토스 클라이언트 키 또는 시크릿 키가 설정되지 않았습니다. Streamlit Cloud의 App Settings → Secrets를 확인해 주세요.")
+        else:
+            try:
+                new_order_id = create_order(normalized_phone)
+                st.session_state.pending_order_id = new_order_id
+                st.success("✅ 주문이 생성되었습니다. 아래의 결제 버튼을 한 번 눌러 진행해 주세요.")
+            except Exception as exc:
+                st.error(f"주문 생성에 실패했습니다. 잠시 후 다시 시도해 주세요. ({type(exc).__name__})")
+
+    pending_order_id = st.session_state.get("pending_order_id", "")
+    if pending_order_id:
+        pending_order = get_order(pending_order_id)
+        if pending_order and pending_order["status"] == "PENDING":
+            st.markdown("<div style='margin-top:12px'></div>", unsafe_allow_html=True)
+            st.markdown(f"**주문번호:** `{pending_order_id}` · **결제금액:** 1,000원")
+            st.html(render_toss_payment_button(pending_order_id, pending_order["phone"]), unsafe_allow_javascript=True)
+            st.caption("결제창은 현재 브라우저 페이지에서 열립니다. 결제 완료 후 같은 주소로 돌아오며, 승인 확인 전에는 VIP 코드가 발급되지 않습니다.")
+        elif pending_order and pending_order["status"] == "PAID":
+            st.info("이 주문은 이미 결제 승인되었습니다. VIP 코드 입력란에서 문자로 받은 코드를 입력해 주세요.")
+        elif pending_order and pending_order["status"] in ("FAILED", "CANCELLED"):
+            st.warning("이 주문은 진행할 수 없는 상태입니다. 새 주문을 생성해 주세요.")
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
-        vip_input = st.text_input("🔑 문자로 받으신 VIP 코드를 입력하세요 (예: MPD2026)", type="password", key="vip_code_input")
+        vip_input = st.text_input("🔑 문자로 받으신 VIP 코드를 입력하세요", type="password", key="vip_code_input")
         submitted = st.form_submit_button("🔓 VIP 코드 입력하여 잠금 해제", use_container_width=True)
-        
-        if submitted:
-            if vip_input.strip() in ["MPD2026", "VIP2026"] or vip_input.strip().startswith("MPD-"):
-                st.session_state.vip_unlocked = True
-                st.session_state.is_vip_result = True
-                st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
-                st.session_state.trigger_snow = True
-                st.success("🎉 VIP 프리패스가 성공적으로 활성화되었습니다!")
-                time.sleep(0.4)
-                st.rerun()
-            else:
-                st.error("❌ 올바르지 않은 코드입니다. 문자/카톡으로 받으신 코드를 확인해 주세요.")
+
+    if submitted:
+        code_ok, expiry, msg = validate_vip_code(vip_input)
+        if code_ok:
+            st.session_state.vip_unlocked = True
+            st.session_state.is_vip_result = True
+            st.session_state.vip_expire_time = expiry
+            st.session_state.trigger_snow = True
+            st.success("🎉 VIP 프리패스가 성공적으로 활성화되었습니다!")
+            st.rerun()
+        else:
+            st.error(f"❌ {msg}")
+
+    last_order_id = st.session_state.get("last_completed_order_id", "")
+    if last_order_id:
+        last_order = get_order(last_order_id)
+        if last_order and last_order["status"] == "PAID" and last_order["sms_status"] != "SENT":
+            if st.button("📨 VIP 코드 문자 재발송", use_container_width=True, key="resend_vip_sms"):
+                ok, detail = send_sms_for_order(last_order_id, allow_retry=True)
+                if ok:
+                    st.success("✅ Solapi에 문자 재발송 요청을 접수했습니다.")
+                else:
+                    st.error(f"문자 재발송을 처리하지 못했습니다: {detail}")
 else:
-    st.markdown("""
+    st.markdown(
+"""
 <div style="background-color: #064e3b; border: 2px solid #facc15; padding: 15px; border-radius: 10px; text-align: center; color: #fde047; font-weight: bold; margin-bottom: 20px;">
 👑 VIP 계정 활성화 상태입니다. 아래에서 프리미엄 조합 추출을 실행해 주세요!
 </div>
@@ -567,7 +908,8 @@ with tab1:
             if st.session_state.extract_game_type == "lotto":
                 fixed_str = ", ".join(map(str, st.session_state.get("vip_fixed", [1, 2])))
                 excl_str = ", ".join(map(str, st.session_state.get("vip_excluded", [3, 4, 5])))
-                st.markdown(f"""
+                st.markdown(
+f"""
 <div style="background-color: #2b1f1f; border-left: 5px solid #ef4444; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
     <h5 style="color: #ef4444; margin-top: 0; margin-bottom: 8px;">🚫 금주의 VIP 완벽 제외수 10개</h5>
     <div style="color: white; font-size: 15px; font-weight: bold; letter-spacing: 1.5px; margin-bottom: 5px;">{excl_str}</div>
@@ -646,7 +988,8 @@ with tab1:
                 st.markdown(html_str, unsafe_allow_html=True)
 
         if not is_vip:
-            st.markdown("""
+            st.markdown(
+"""
 <div class="locked-feature-box">
     <div class="locked-feature-title">🔒 VIP 프리미엄 전용 콘텐츠</div>
     <div class="locked-feature-desc">결제 후 이 자리에 <b>[금주 완벽 제외수 10개]</b>와<br><b>[S등급 상세 분석 리포트]</b>가 즉시 해제됩니다.</div>
@@ -675,7 +1018,8 @@ with tab2:
     st.bar_chart(chart_data, color="#3b82f6", height=250)
     
     if not st.session_state.vip_unlocked:
-        st.markdown("""
+        st.markdown(
+"""
 <div style='text-align:center; padding: 10px; background:#1e1b18; border:1px solid #eab308; border-radius:8px; color:#facc15; font-size:14px; font-weight: bold;'>
 🔒 VIP 전용: 미출현 장기 번호 및 회귀 추적 데이터 잠김
 </div>
@@ -683,7 +1027,8 @@ with tab2:
 
 with tab3:
     st.markdown("<h4 style='color: #ffffff; font-weight: 800;'>📑 분석 연구 모델</h4>", unsafe_allow_html=True)
-    st.markdown("""
+    st.markdown(
+"""
 <div style="font-size: 15px; color: #f1f5f9; line-height: 1.8; font-weight: 600;">
 - Markov Chain Monte Carlo (MCMC) 모델<br>
 - Poisson Distribution 출현 간격 예측<br>
@@ -695,7 +1040,8 @@ with tab3:
 st.markdown("---")
 st.markdown("<h4 style='color: #ffffff; font-weight: 900; margin-bottom: 8px;'>📞 고객 센터</h4>", unsafe_allow_html=True)
 
-st.markdown("""
+st.markdown(
+"""
 <div style="background-color: #1e293b !important; border: 2px solid #38bdf8 !important; padding: 14px 16px; border-radius: 10px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
     <div style="color: #38bdf8 !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.5;">
         📢 결제 오류 및 서비스 관련 문의는 아래 버튼을 통해 접수해 주세요.
@@ -727,7 +1073,8 @@ st.info("""
 """)
 
 # ================= 9. 법적 고지 및 사업자 정보 Footer =================
-st.markdown("""
+st.markdown(
+"""
 <div style="background-color: #1a1a1a; padding: 15px; border-radius: 8px; margin-top: 25px; border: 1px solid #333; color: #a1a1aa; font-size: 11px; line-height: 1.6; word-break: keep-all;">
 <b>[법적 고지 및 주의사항]</b><br>
 1. 본 서비스(로또픽)에서 제공하는 번호 조합 및 통계 분석 자료는 과거의 데이터를 기반으로 한 확률적 추정치이며, <b>실제 복권 당첨을 절대 보장하지 않습니다.</b><br>
