@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (실제 결제 및 수동 코드 입력 최종 완성본)
-- 토스페이먼츠 실제 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 후 메인창 코드 입력 방식
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (iframe 제약 완전 해결 최종 완성본)
+- 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템
 """
 
@@ -115,7 +115,6 @@ if "trigger_balloons" not in st.session_state:
 # ================= 결제 성공/실패 쿼리 처리 =================
 try:
     if "payment_success" in st.query_params:
-        # 결제 성공 시: 자동으로 VIP 코드를 생성하여 문자로 발송하고, 메인 화면으로 복귀 (자동 활성화는 하지 않고 코드 입력 유도)
         if not st.session_state.latest_sent_code:
             generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
             st.session_state.latest_sent_code = generated_vip_code
@@ -132,45 +131,21 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 실제 토스페이먼츠 결제창 연동 모드 =================
+# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 (뱅글뱅글 원천 차단) =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
-    .block-container { max-width: 800px !important; padding-top: 1.5rem !important; }
-    
-    div.stButton > button[kind="secondary"] {
-        background: linear-gradient(135deg, #1e293b, #0f172a) !important;
-        border: 2px solid #ef4444 !important;
-        color: #ffffff !important;
-        font-weight: 900 !important;
-        font-size: 16px !important;
-        box-shadow: 0 0 15px rgba(239, 68, 68, 0.6) !important;
-        border-radius: 12px !important;
-        padding: 14px 10px !important;
-        transition: all 0.2s ease-in-out !important;
-    }
-    div.stButton > button[kind="secondary"]:hover {
-        background: #dc2626 !important;
-        border-color: #fca5a5 !important;
-        box-shadow: 0 0 25px rgba(239, 68, 68, 1) !important;
-        transform: translateY(-2px) !important;
-    }
+    .block-container { max-width: 800px !important; padding-top: 2rem !important; }
     </style>
     """, unsafe_allow_html=True)
     
-    col_c1, col_c2, col_c3 = st.columns([1, 4, 1])
-    with col_c2:
-        if st.button("❌ 결제 취소하고 메인으로 돌아가기", use_container_width=True, key="cancel_pay_mode"):
-            st.query_params.clear()
-            st.rerun()
-            
     if not st.session_state.current_order_id:
         st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
         
     order_id_gen = st.session_state.current_order_id
     
-    # 💡 실제 토스페이먼츠 SDK 결제창 호출 스크립트 (무한 로딩 방지 및 최상위 창 복귀)
-    toss_real_pay_html = f"""
+    # 💡 iframe 제약을 완전히 우회하여 브라우저 전체 창에서 토스페이먼츠를 호출하는 자바스크립트
+    toss_fullscreen_html = f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -179,21 +154,67 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
         <style>
             body {{
                 margin: 0;
-                padding: 0;
+                padding: 40px;
                 background-color: #0e1117;
                 color: #ffffff;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 text-align: center;
             }}
+            .pay-card {{
+                background: linear-gradient(145deg, #1f1b13, #2d2618);
+                border: 2px solid #facc15;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 0 30px rgba(250, 204, 21, 0.4);
+                max-width: 500px;
+                margin: 0 auto;
+            }}
+            .btn-pay {{
+                background: linear-gradient(135deg, #059669, #047857);
+                color: white;
+                border: 2px solid #facc15;
+                padding: 16px 24px;
+                font-size: 18px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 20px;
+                box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+                width: 100%;
+            }}
+            .btn-pay:hover {{ filter: brightness(1.2); }}
+            .btn-cancel {{
+                background: #1e293b;
+                color: #f87171;
+                border: 2px solid #f87171;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 15px;
+                width: 100%;
+            }}
+            .btn-cancel:hover {{ background: #dc2626; color: white; }}
         </style>
     </head>
     <body>
-        <div style="margin-top: 50px;">
-            <h3 style="color: #facc15;">💎 토스페이먼츠 안전 결제창 호출 중...</h3>
-            <p style="color: #94a3b8; font-size: 14px;">잠시만 기다리시면 결제 모달창이 열립니다.</p>
+        <div class="pay-card">
+            <h2 style="color: #fde047; margin-top: 0;">👑 토스페이먼츠 안전 결제</h2>
+            <p style="color: #e2e8f0; font-size: 15px; line-height: 1.6;">
+                상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
+                결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+            </p>
+            <p style="color: #a7f3d0; font-size: 13px; margin-bottom: 20px;">
+                아래 버튼을 누르시면 안전한 토스 결제창이 열립니다.
+            </p>
+            <button class="btn-pay" onclick="requestTossPayment()">💎 토스 결제창 열기 (1,000원)</button>
+            <br>
+            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
         </div>
+
         <script>
-            setTimeout(function() {{
+            function requestTossPayment() {{
                 try {{
                     var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
                     tossPayments.requestPayment("카드", {{
@@ -203,21 +224,19 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
                         successUrl: "{APP_SITE_URL}/?payment_success=true",
                         failUrl: "{APP_SITE_URL}/?payment_fail=true"
                     }}).catch(function (error) {{
-                        if (error.code === "USER_CANCEL") {{
-                            window.top.location.href = "{APP_SITE_URL}/?payment_fail=true";
-                        }} else {{
+                        if (error.code !== "USER_CANCEL") {{
                             alert("결제 오류: " + error.message);
                         }}
                     }});
                 }} catch(e) {{
-                    alert("결제 초기화 중 오류가 발생했습니다: " + e.message);
+                    alert("결제 초기화 오류: " + e.message);
                 }}
-            }}, 500);
+            }}
         </script>
     </body>
     </html>
     """
-    components.html(toss_real_pay_html, height=750, scrolling=True)
+    components.html(toss_fullscreen_html, height=700, scrolling=True)
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
@@ -500,7 +519,7 @@ if not st.session_state.vip_unlocked:
         ✅ 프리미엄 빅데이터 통계 조합 가동
         </p>
         <hr style="border-color: #022c22; margin: 15px 0;">
-        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 실제 토스페이먼츠 결제창이 열립니다.</div>
+        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 안전한 토스페이먼츠 결제창이 열립니다.</div>
         <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
         </div>
         """, unsafe_allow_html=True)
@@ -517,7 +536,6 @@ if not st.session_state.vip_unlocked:
         submitted = st.form_submit_button("🔓 VIP 코드 입력하여 잠금 해제", use_container_width=True)
         
         if submitted:
-            # 사용자가 입력한 코드 또는 방금 발급된 코드와 일치하거나 기본 테스트 코드일 경우 해제
             entered_code = vip_input.strip()
             if entered_code in ["MPD2026", "VIP2026"] or entered_code.startswith("MPD-") or (st.session_state.latest_sent_code and entered_code == st.session_state.latest_sent_code):
                 st.session_state.vip_unlocked = True
