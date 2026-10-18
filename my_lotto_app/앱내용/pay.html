@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>로또픽 - VIP 프리패스 안전 결제</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #0e1117;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-align: center;
+        }
+        .card {
+            background: linear-gradient(145deg, #1f1b13, #2d2618);
+            border: 2px solid #facc15;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 0 35px rgba(250, 204, 21, 0.4);
+            max-width: 480px;
+            margin: 40px auto;
+        }
+        .btn-pay {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: white;
+            border: 3px solid #facc15;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+        }
+        .btn-pay:hover { filter: brightness(1.2); }
+        .btn-back {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 2px solid #475569;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .btn-back:hover { background: #334155; color: white; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color: #fde047; margin-top: 0;">👑 로또픽 VIP 프리패스 결제</h2>
+        <p style="color: #e2e8f0; font-size: 15px; line-height: 1.6;">
+            상품명: <b>VIP 골든픽 1주(7일) 프리패스</b><br>
+            결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+        </p>
+        <p style="color: #a7f3d0; font-size: 13px; margin-bottom: 25px;">
+            아래 버튼을 누르시면 카드, 모든 은행, 간편결제창이 100% 잘림 없이 열립니다.
+        </p>
+        <button class="btn-pay" onclick="requestPayment()">💎 토스페이먼츠 안전 결제하기</button>
+        <br>
+        <button class="btn-back" onclick="location.href='https://lottopick.kr'">❌ 메인으로 돌아가기</button>
+    </div>
+
+    <script>
+        function requestPayment() {
+            try {
+                var clientKey = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA";
+                var tossPayments = TossPayments(clientKey);
+                var orderId = "lotto_" + new Date().getTime() + "_" + Math.floor(Math.random() * 1000);
+                
+                tossPayments.requestPayment("카드", {
+                    amount: 1000,
+                    orderId: orderId,
+                    orderName: "VIP 골든픽 1주(7일) 프리패스",
+                    successUrl: "https://lottopick.kr/?payment_success=true",
+                    failUrl: "https://lottopick.kr/?payment_fail=true"
+                }).catch(function (error) {
+                    if (error.code !== "USER_CANCEL") {
+                        alert("결제 오류 발생: " + error.message);
+                    }
+                });
+            } catch (e) {
+                alert("결제 초기화 오류: " + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
