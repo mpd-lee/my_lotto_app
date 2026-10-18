@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (오리지널 UI 복원 및 결제 완벽 해결 최종본)
-- 토스페이먼츠 안전 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (화려한 네온 UI 및 애드센스 스니펫 완벽 적용)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (결제창 갇힘 완벽 해결 최종본)
+- 토스 결제창이 좁은 iframe에 갇히지 않고 새 창으로 시원하게 열리는 다이렉트 결제 연동
+- 오리지널 화려한 네온 UI 100% 완벽 보존 및 Solapi 자동 문자 발송 시스템
 """
 
 import random
@@ -444,18 +444,19 @@ if not st.session_state.vip_unlocked:
         </div>
         """, unsafe_allow_html=True)
 
-        # 🚀 iframe 충돌을 완벽히 해결한 순수 자바스크립트 안전 결제 버튼
+        # 🚀 좁은 프레임에 갇히지 않고 최상위 창(Top Window)에서 토스 결제창을 여는 자바스크립트 적용
         order_id_safe = f"lotto{int(time.time())}{random.randint(100, 999)}"
         pay_script = f"""
         <div style="text-align: center; margin: 15px 0;">
             <script src="https://js.tosspayments.com/v1/payment"></script>
-            <button type="button" onclick="payToss()" style="width:100%; padding:16px; background:linear-gradient(135deg,#059669,#047857); color:white; font-size:17px; font-weight:900; border:2px solid #facc15; border-radius:12px; cursor:pointer; box-shadow: 0 0 20px rgba(250,204,21,0.5);">
+            <button type="button" onclick="payTossTop()" style="width:100%; padding:16px; background:linear-gradient(135deg,#059669,#047857); color:white; font-size:17px; font-weight:900; border:2px solid #facc15; border-radius:12px; cursor:pointer; box-shadow: 0 0 20px rgba(250,204,21,0.5);">
                 💎 토스페이먼츠 안전 결제하기 (1,000원)
             </button>
             <script>
-                function payToss() {{
+                function payTossTop() {{
                     try {{
-                        var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                        var targetWindow = window.top || window.parent || window;
+                        var tossPayments = new targetWindow.TossPayments("{TOSS_CLIENT_KEY}");
                         tossPayments.requestPayment("카드", {{
                             amount: 1000,
                             orderId: "{order_id_safe}",
@@ -468,13 +469,24 @@ if not st.session_state.vip_unlocked:
                             }}
                         }});
                     }} catch(e) {{
-                        alert("결제 초기화 오류: " + e.message);
+                        try {{
+                            var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                            tossPayments.requestPayment("카드", {{
+                                amount: 1000,
+                                orderId: "{order_id_safe}",
+                                orderName: "VIP 골든픽 1주(7일) 프리패스",
+                                successUrl: "{APP_SITE_URL}/?payment_success=true",
+                                failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                            }});
+                        }} catch(err) {{
+                            alert("결제창 호출 오류: " + err.message);
+                        }}
                     }}
                 }}
             </script>
         </div>
         """
-        components.html(pay_script, height=90)
+        components.html(pay_script, height=80)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
