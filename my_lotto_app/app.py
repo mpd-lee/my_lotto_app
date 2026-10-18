@@ -2,7 +2,7 @@
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
 - 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 소유권 확인 및 스니펫 완벽 적용)
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 스크립트 스니펫 완벽 적용)
 """
 
 import random
@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 # ================= URL 및 키 관리 =================
 TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
-APP_SITE_URL = "https://lottopick.kr"                      # 📌 맞춤 도메인 주소 반영 완료
+APP_SITE_URL = "https://mylottoapp-3mygrnqs6j7ard8n3zrvj9.streamlit.app" # 📌 실제 배포 주소
 
 # ================= 솔라피(Solapi) API 설정 =================
 SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
