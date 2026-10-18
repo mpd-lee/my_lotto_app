@@ -81,7 +81,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 구글 애드센스 소유권 확인 메타태그 및 자바스크립트 스니펫 삽입
+# 구글 애드센스 소유권 확인 메타태그 및 자바스크립트 스니펫 완벽 삽입
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 st.markdown('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2324282297166072" crossorigin="anonymous"></script>', unsafe_allow_html=True)
 
@@ -248,7 +248,7 @@ if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
 
-# ================= 💡 네온 테두리 자바스크립트 =================
+# ================= 💡 화려한 네온 테두리 자바스크립트 =================
 components.html("""
 <script>
 function applyNeonStyles() {
@@ -436,6 +436,7 @@ div.stFormSubmitButton > button:hover {
 .footer-btn-dhlottery { background-color: #15803d !important; border: 2px solid #ffffff !important; box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important; }
 .footer-btn:hover { transform: translateY(-2px); filter: brightness(1.15); }
 
+/* 애드센스 광고 영역 스타일 */
 .adsense-box {
     background-color: #161b22;
     border: 1px dashed #30363d;
@@ -520,7 +521,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
+# ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
