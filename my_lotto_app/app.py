@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (토스페이먼츠 결제 멈춤 완벽 해결 최종본)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (SyntaxError 완벽 해결 최종본)
 - 토스페이먼츠 다이렉트 리다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 소유권 확인 및 스니펫 완벽 적용)
 """
@@ -387,7 +387,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 다이렉트 자바스크립트 결제 연동) =================
+# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 안전 결제 연동 - SyntaxError 원천 방지) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -422,15 +422,15 @@ if not st.session_state.vip_unlocked:
         
         current_order_id = st.session_state.current_order_id
 
-        # 토스페이먼츠 SDK 스크립트를 포함한 직접 결제 호출 버튼 영역 (iframe 무한 로딩 원천 차단)
-        toss_payment_html = f"""
+        # 순수 문자열 템플릿과 replace를 사용하여 파이썬 f-string 중괄호 충돌(SyntaxError)을 100% 원천 차단
+        toss_payment_template = """
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <script src="https://js.tosspayments.com/v1/payment"></script>
             <style>
-                .btn-toss-pay {{
+                .btn-toss-pay {
                     background: linear-gradient(135deg, #059669 0%, #047857 100%);
                     color: white;
                     border: 3px solid #facc15;
@@ -444,38 +444,44 @@ if not st.session_state.vip_unlocked:
                     text-align: center;
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                     margin-top: 10px;
-                }}
-                .btn-toss-pay:hover {{
+                }
+                .btn-toss-pay:hover {
                     filter: brightness(1.2);
                     transform: translateY(-2px);
-                }}
+                }
             </style>
         </head>
         <body>
             <button class="btn-toss-pay" onclick="payWithToss()">💎 토스페이먼츠 안전 결제창 열기 (1,000원)</button>
             <script>
-                function payWithToss() {{
-                    try {{
-                        var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
-                        tossPayments.requestPayment("카드", {{
+                function payWithToss() {
+                    try {
+                        var tossPayments = TossPayments("REPLACE_CLIENT_KEY");
+                        tossPayments.requestPayment("카드", {
                             amount: 1000,
-                            orderId: "{current_order_id}",
+                            orderId: "REPLACE_ORDER_ID",
                             orderName: "VIP 골든픽 1주(7일) 프리패스",
-                            successUrl: "{APP_SITE_URL}/?payment_success=true",
-                            failUrl: "{APP_SITE_URL}/?payment_fail=true"
-                        }}).catch(function (error) {{
-                            if (error.code !== "USER_CANCEL") {{
+                            successUrl: "REPLACE_SUCCESS_URL",
+                            failUrl: "REPLACE_FAIL_URL"
+                        }).catch(function (error) {
+                            if (error.code !== "USER_CANCEL") {
                                 alert("결제 오류 발생: " + error.message);
-                            }}
-                        }});
-                    } catch (e) {{
+                            }
+                        });
+                    } catch (e) {
                         alert("결제 초기화 오류: " + e.message);
-                    }}
-                }}
+                    }
+                }
             </script>
         </body>
         </html>
         """
+        
+        toss_payment_html = toss_payment_template.replace("REPLACE_CLIENT_KEY", TOSS_CLIENT_KEY)
+        toss_payment_html = toss_payment_html.replace("REPLACE_ORDER_ID", current_order_id)
+        toss_payment_html = toss_payment_html.replace("REPLACE_SUCCESS_URL", f"{APP_SITE_URL}/?payment_success=true")
+        toss_payment_html = toss_payment_html.replace("REPLACE_FAIL_URL", f"{APP_SITE_URL}/?payment_fail=true")
+
         st.components.v1.html(toss_payment_html, height=85, scrolling=False)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
