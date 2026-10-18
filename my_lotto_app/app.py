@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (외부 독립 결제 연동 최종 완성본)
-- 토스페이먼츠 외부 독립 결제 페이지 연동 및 결제 성공 시 자동 VIP 승인 & Solapi 문자 발송
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 소유권 확인 스니펫 완벽 적용)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (단일 파일 풀스크린 결제 통합본)
+- 토스페이먼츠 전체 화면 결제 연동 및 결제 성공 시 자동 VIP 승인 & Solapi 문자 발송
 """
 
 import random
@@ -12,15 +11,16 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import hmac
 import hashlib
 from datetime import datetime, timezone
 
 # ================= URL 및 키 관리 =================
+TOSS_CLIENT_KEY = "test_ck_kYG57Eba3GblXWjwLeyw8pWDOxmA"    # 📌 토스 클라이언트 키
 GOOGLE_FORM_URL = "https://forms.gle/RA8i731z2QFi7ByMA"    # 📌 고객센터 구글 폼 링크
 APP_SITE_URL = "https://lottopick.kr"                      # 📌 맞춤 도메인 주소 반영 완료
-EXTERNAL_PAY_URL = "https://lottopick.kr/pay.html"         # 📌 독립 결제 페이지 주소 (배포 주소에 맞춰 수정 가능)
 
 # ================= 솔라피(Solapi) API 설정 =================
 SOLAPI_API_KEY = "NCSKDYPYYPOSNLNV"
@@ -80,7 +80,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 구글 애드센스 소유권 확인 메타태그 및 자바스크립트 스니펫 완벽 삽입
+# 구글 애드센스 소유권 확인 메타태그 및 스니펫 삽입
 st.markdown('<meta name="google-adsense-account" content="ca-pub-2324282297166072">', unsafe_allow_html=True)
 st.markdown('<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2324282297166072" crossorigin="anonymous"></script>', unsafe_allow_html=True)
 
@@ -89,6 +89,8 @@ if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "vip_expire_time" not in st.session_state:
     st.session_state.vip_expire_time = 0
+if "current_order_id" not in st.session_state:
+    st.session_state.current_order_id = ""
 if "latest_sent_code" not in st.session_state:
     st.session_state.latest_sent_code = ""
 if "payment_processed" not in st.session_state:
@@ -120,13 +122,11 @@ try:
             generated_vip_code = f"MPD-{random.randint(1000, 9999)}"
             st.session_state.latest_sent_code = generated_vip_code
             
-            # 결제 성공 즉시 VIP 자동 해제 처리
             st.session_state.vip_unlocked = True
             st.session_state.is_vip_result = True
             st.session_state.vip_expire_time = time.time() + (7 * 24 * 60 * 60)
             st.session_state.trigger_snow = True
             
-            # 문자 발송 실행
             send_vip_sms(SOLAPI_SENDER_PHONE, generated_vip_code)
                 
             st.toast("🎉 결제 완료! VIP 프리패스가 즉시 자동 활성화되었습니다.", icon="✨")
@@ -147,6 +147,108 @@ try:
             st.rerun()
 except Exception:
     pass
+
+# ================= 🚨 독립 결제 전용 뷰 라우팅 (?view=pay) =================
+if st.query_params.get("view") == "pay" and not st.session_state.vip_unlocked:
+    st.markdown("<h2 style='text-align: center; color: #facc15;'>👑 토스페이먼츠 안전 결제 페이지</h2>", unsafe_allow_html=True)
+    
+    if not st.session_state.current_order_id:
+        st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
+    order_id_gen = st.session_state.current_order_id
+
+    # 순수 HTML/JS 토스 결제창을 안전하게 풀스크린 렌더링
+    pay_html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://js.tosspayments.com/v1/payment"></script>
+        <style>
+            body {{
+                margin: 0;
+                padding: 20px;
+                background-color: #0e1117;
+                color: #ffffff;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                text-align: center;
+            }}
+            .pay-card {{
+                background: linear-gradient(145deg, #1f1b13, #2d2618);
+                border: 2px solid #facc15;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 0 35px rgba(250, 204, 21, 0.5);
+                max-width: 480px;
+                margin: 20px auto;
+            }}
+            .btn-pay {{
+                background: linear-gradient(135deg, #059669, #047857);
+                color: white;
+                border: 3px solid #facc15;
+                padding: 18px 24px;
+                font-size: 18px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 20px;
+                box-shadow: 0 0 25px rgba(250, 204, 21, 0.8);
+                width: 100%;
+            }}
+            .btn-pay:hover {{ filter: brightness(1.2); }}
+            .btn-cancel {{
+                background: #1e293b;
+                color: #f87171;
+                border: 2px solid #f87171;
+                padding: 12px 20px;
+                font-size: 15px;
+                font-weight: 900;
+                border-radius: 12px;
+                cursor: pointer;
+                margin-top: 15px;
+                width: 100%;
+            }}
+            .btn-cancel:hover {{ background: #dc2626; color: white; }}
+        </style>
+    </head>
+    <body>
+        <div class="pay-card">
+            <h3 style="color: #fde047; margin-top: 0;">VIP 골든픽 1주(7일) 프리패스</h3>
+            <p style="color: #e2e8f0; font-size: 16px;">
+                결제 금액: <span style="color: #4ade80; font-size: 20px; font-weight: bold;">1,000원</span>
+            </p>
+            <p style="color: #a7f3d0; font-size: 13px; margin-bottom: 25px;">
+                카드, 모든 은행, 간편결제를 100% 잘림 없이 선택할 수 있습니다.
+            </p>
+            <button class="btn-pay" onclick="requestTossPayment()">💎 토스페이먼츠 결제하기</button>
+            <br>
+            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
+        </div>
+
+        <script>
+            function requestTossPayment() {{
+                try {{
+                    var tossPayments = TossPayments("{TOSS_CLIENT_KEY}");
+                    tossPayments.requestPayment("카드", {{
+                        amount: 1000,
+                        orderId: "{order_id_gen}",
+                        orderName: "VIP 골든픽 1주(7일) 프리패스",
+                        successUrl: "{APP_SITE_URL}/?payment_success=true",
+                        failUrl: "{APP_SITE_URL}/?payment_fail=true"
+                    }}).catch(function (error) {{
+                        if (error.code !== "USER_CANCEL") {{
+                            alert("결제 오류: " + error.message);
+                        }}
+                    }});
+                }} catch(e) {{
+                    alert("결제 초기화 오류: " + e.message);
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    components.html(pay_html_content, height=650, scrolling=True)
+    st.stop()
 
 # ================= 세레모니 실행 처리 =================
 if st.session_state.trigger_snow:
@@ -392,7 +494,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (독립 결제 페이지 연동 버튼) =================
+# ================= 4. 금빛 VIP 시스템 (단일 파일 내부 라우팅 연동) =================
 if not st.session_state.vip_unlocked:
     st.markdown("""
     <div class="keep-all" style="background-color: #064e3b; border: 2px solid #eab308; padding: 20px; border-radius: 12px; animation: gold-glow 2s infinite; margin: 20px auto 15px auto; color: #fef08a; text-align: center;">
@@ -403,21 +505,15 @@ if not st.session_state.vip_unlocked:
     ✅ 프리미엄 빅데이터 통계 조합 가동
     </p>
     <hr style="border-color: #022c22; margin: 15px 0;">
-    <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 모든 카드·은행·간편결제가 100% 잘림 없이 지원되는 <b>안전 결제 페이지</b>로 이동합니다.</div>
+    <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 버튼을 누르시면 카드, 모든 은행, 간편결제 선택이 가능한 <b>안전 결제 창</b>으로 전환됩니다.</div>
     <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 즉시 메인 페이지로 자동 복귀하며, 코드 입력 없이 곧바로 VIP가 활성화됩니다!</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 독립 결제 페이지로 안전하게 이동하는 링크 버튼 (target="_blank" 지원)
-    st.markdown(f"""
-    <div style="margin-bottom: 20px;">
-        <a href="{EXTERNAL_PAY_URL}" target="_blank" style="text-decoration: none;">
-            <button style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: 3px solid #facc15; padding: 16px 20px; font-size: 18px; font-weight: 900; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 0 25px rgba(250, 204, 21, 0.8);">
-                💎 토스페이먼츠 안전 결제창 열기 (1,000원)
-            </button>
-        </a>
-    </div>
-    """, unsafe_allow_html=True)
+    # 같은 앱 내의 ?view=pay 주소로 이동하여 404 에러 원천 차단
+    if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_pay_view"):
+        st.query_params["view"] = "pay"
+        st.rerun()
 
     with st.form("vip_unlock_form"):
         vip_input = st.text_input("🔑 혹시 문자로 받으신 VIP 코드가 있다면 직접 입력하세요", type="password", key="vip_code_input")
