@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 안정화 버전)
-- 토스페이먼츠 표준 결제창 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- 토스페이먼츠 전체 수단 지원 위젯 & 결제 성공 시 Solapi 자동 문자 발송
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 소유권 확인 및 스니펫 완벽 적용)
 """
 
@@ -12,6 +12,7 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import hmac
 import hashlib
@@ -114,7 +115,7 @@ if "trigger_snow" not in st.session_state:
 if "trigger_balloons" not in st.session_state:
     st.session_state.trigger_balloons = False
 
-# ================= 결제 성공/실패 쿼리 안전 처리 =================
+# ================= 결제 성공/실패 쿼리 방어 처리 =================
 try:
     if "payment_success" in st.query_params:
         if not st.session_state.payment_processed:
@@ -151,6 +152,39 @@ if st.session_state.trigger_snow:
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
+
+# ================= 💡 네온 스타일링 자바스크립트 =================
+components.html("""
+<script>
+function applyNeonStyles() {
+    try {
+        const doc = window.parent.document;
+        const buttons = doc.querySelectorAll('button');
+        buttons.forEach(btn => {
+            const text = btn.innerText || btn.textContent || "";
+            if (text.includes('로또 6/45 분석')) {
+                btn.style.setProperty('border', '3px solid #ef4444', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px #ef4444, inset 0 0 10px #ef4444', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('연금복권 720+')) {
+                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
+                btn.style.setProperty('box-shadow', '0 0 20px #3b82f6, inset 0 0 10px #3b82f6', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
+                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
+                btn.style.setProperty('box-shadow', '0 0 22px #38bdf8, inset 0 0 10px #38bdf8', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            } else if (text.includes('프리미엄 조합 추출 실행')) {
+                btn.style.setProperty('border', '3px solid #eab308', 'important');
+                btn.style.setProperty('box-shadow', '0 0 22px #eab308, inset 0 0 10px #eab308', 'important');
+                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
+            }
+        });
+    } catch(e) {}
+}
+setInterval(applyNeonStyles, 40);
+</script>
+""", height=0)
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown("""
@@ -387,7 +421,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (토스페이먼츠 표준 결제 위젯) =================
+# ================= 4. 금빛 VIP 시스템 (모든 결제 수단 스크롤 가능 토스 위젯) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -412,8 +446,8 @@ if not st.session_state.vip_unlocked:
         ✅ 프리미엄 빅데이터 통계 조합 가동
         </p>
         <hr style="border-color: #022c22; margin: 15px 0;">
-        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래에서 선호하시는 결제 수단(카드, 간편결제 등)을 선택해 주세요.</div>
-        <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 즉시 발송되며, 아래 입력창에 입력하여 바로 이용하실 수 있습니다!</div>
+        <div style="font-size: 13px; color: #a7f3d0; margin-bottom: 5px;">🔒 아래 결제 창에서 선호하시는 수단(카드, 은행, 간편결제 등)을 선택해 주세요.</div>
+        <div style="font-size: 12px; color: #fde047; font-weight: bold; margin-top: 4px;">✨ 결제 완료 시 문자로 VIP 코드가 발송되며, 메인 창에서 코드를 입력해 프리미엄을 이용하실 수 있습니다!</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -422,7 +456,7 @@ if not st.session_state.vip_unlocked:
         
         current_order_id = st.session_state.current_order_id
 
-        # 토스페이먼츠 표준 결제 위젯 템플릿 (replace를 통한 안전한 변수 주입)
+        # 높이를 650px로 넉넉하게 확보하고 스크롤을 켜서 결제창 및 모든 수단(카드/은행) 선택이 시원하게 잘리지 않게 설정
         toss_payment_template = """
         <!DOCTYPE html>
         <html>
@@ -432,31 +466,32 @@ if not st.session_state.vip_unlocked:
             <style>
                 body {
                     margin: 0;
-                    padding: 0;
+                    padding: 10px;
                     background-color: #0e1117;
+                    color: white;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    text-align: center;
                 }
                 .btn-toss-pay {
                     background: linear-gradient(135deg, #059669 0%, #047857 100%);
                     color: white;
                     border: 3px solid #facc15;
                     padding: 16px 20px;
-                    font-size: 17px;
+                    font-size: 18px;
                     font-weight: 900;
                     border-radius: 12px;
                     cursor: pointer;
                     width: 100%;
                     box-shadow: 0 0 25px rgba(250, 204, 21, 0.8);
-                    text-align: center;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin-top: 10px;
                 }
                 .btn-toss-pay:hover {
                     filter: brightness(1.2);
-                    transform: translateY(-2px);
                 }
             </style>
         </head>
         <body>
-            <button class="btn-toss-pay" onclick="payWithToss()">💎 토스페이먼츠 안전 결제창 열기 (1,000원)</button>
+            <button class="btn-toss-pay" onclick="payWithToss()">💎 토스페이먼츠 안전 결제 진행 (1,000원)</button>
             <script>
                 function payWithToss() {
                     try {
@@ -486,7 +521,7 @@ if not st.session_state.vip_unlocked:
         toss_payment_html = toss_payment_html.replace("REPLACE_SUCCESS_URL", f"{APP_SITE_URL}/?payment_success=true")
         toss_payment_html = toss_payment_html.replace("REPLACE_FAIL_URL", f"{APP_SITE_URL}/?payment_fail=true")
 
-        st.components.v1.html(toss_payment_html, height=75, scrolling=False)
+        components.html(toss_payment_html, height=120, scrolling=False)
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
