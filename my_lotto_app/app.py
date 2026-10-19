@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (네이티브 링크 버튼 결제 연동 최종본)
-- Streamlit 공식 st.link_button을 통한 완벽한 토스 결제창 전환
-- 결제 성공 시 Solapi 자동 문자 발송 및 메인창 VIP 코드 입력 시스템 100% 보존
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
+- 토스페이먼츠 새창 안전 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 스크립트 스니펫 완벽 적용)
 """
 
 import random
@@ -12,7 +12,6 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
 import hmac
 import hashlib
@@ -132,7 +131,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 화면 다이렉트 토스페이먼츠 결제 모드 =================
+# ================= 🚨 전체 화면 다이렉트 토스페이먼츠 결제 팝업 모드 =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -236,7 +235,7 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
     </body>
     </html>
     """
-    components.html(toss_fullscreen_html, height=700, scrolling=True)
+    st.markdown(toss_fullscreen_html, unsafe_allow_html=True)
     st.stop()
 
 # ================= 세레모니 실행 처리 =================
@@ -483,7 +482,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (Streamlit 공식 link_button을 통한 확실한 결제창 전환) =================
+# ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -513,9 +512,9 @@ if not st.session_state.vip_unlocked:
         </div>
         """, unsafe_allow_html=True)
 
-        # 🚀 Streamlit 공식 link_button으로 깔끔하게 결제창 라우팅 (?pay_popup=true)
+        # 🚀 Streamlit 공식 link_button을 사용하여 새창/새탭으로 결제 페이지 깔끔하게 호출
         st.link_button(
-            "💎 토스페이먼츠 안전 결제하기 (1,000원)", 
+            "💎 토스페이먼츠 안전 결제창 열기 (1,000원)", 
             f"{APP_SITE_URL}/?pay_popup=true", 
             use_container_width=True
         )
