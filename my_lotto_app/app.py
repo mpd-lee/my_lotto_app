@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
-- 토스페이먼츠 전체 창 다이렉트 결제 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
-- 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 스크립트 스니펫 완벽 적용)
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (토스 팝업 무한로딩 완벽 해결 최종본)
+- Top-Window 리다이렉트를 통한 토스페이먼츠 다이렉트 결제 연동
+- 결제 성공 시 Solapi 자동 문자 발송 및 메인창 VIP 코드 입력 시스템 100% 사수
 """
 
 import random
@@ -132,7 +132,7 @@ try:
 except Exception:
     pass
 
-# ================= 🚨 전체 창 다이렉트 토스페이먼츠 결제 모드 =================
+# ================= 🚨 전체 화면 다이렉트 토스페이먼츠 결제 모드 =================
 if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unlocked:
     st.markdown("""
     <style>
@@ -210,7 +210,7 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
             </p>
             <button class="btn-pay" onclick="requestTossPayment()">💎 토스 결제창 열기 (1,000원)</button>
             <br>
-            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
+            <button class="btn-cancel" onclick="if(window.top) {{ window.top.location.href='{APP_SITE_URL}'; }} else {{ location.href='{APP_SITE_URL}'; }}">❌ 메인으로 돌아가기</button>
         </div>
 
         <script>
@@ -248,20 +248,31 @@ if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
 
-# ================= 💡 화려한 네온 테두리 자바스크립트 =================
+# ================= 💡 최상위 창 강제 리다이렉트 결제 버튼 자바스크립트 =================
 components.html("""
 <script>
-function applyNeonStyles() {
+function setupDirectPayButton() {
     try {
         const doc = window.parent.document;
         const buttons = doc.querySelectorAll('button');
         buttons.forEach(btn => {
             const text = btn.innerText || btn.textContent || "";
             if (text.includes('토스페이먼츠 안전 결제창 열기')) {
-                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
-                btn.style.setProperty('border', '3px solid #facc15', 'important');
-                btn.style.setProperty('box-shadow', '0 0 25px rgba(250, 204, 21, 0.9), inset 0 0 10px rgba(250, 204, 21, 0.6)', 'important');
-                btn.style.setProperty('color', '#ffffff', 'important');
+                // 기존 클릭 이벤트 중복 방지를 위해 속성 부여
+                if (!btn.getAttribute('data-toss-bound')) {
+                    btn.setAttribute('data-toss-bound', 'true');
+                    btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+                    btn.style.setProperty('border', '3px solid #facc15', 'important');
+                    btn.style.setProperty('box-shadow', '0 0 25px rgba(250, 204, 21, 0.9), inset 0 0 10px rgba(250, 204, 21, 0.6)', 'important');
+                    btn.style.setProperty('color', '#ffffff', 'important');
+                    
+                    btn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // iframe을 탈출하여 최상위 주소로 이동 (pay_popup=true 모드 발동)
+                        window.top.location.href = window.top.location.origin + window.top.location.pathname + '?pay_popup=true';
+                    };
+                }
             } else if (text.includes('로또 6/45 분석')) {
                 btn.style.setProperty('border', '3px solid #ef4444', 'important');
                 btn.style.setProperty('box-shadow', '0 0 20px #ef4444, inset 0 0 10px #ef4444', 'important');
@@ -282,7 +293,7 @@ function applyNeonStyles() {
         });
     } catch(e) {}
 }
-setInterval(applyNeonStyles, 40);
+setInterval(setupDirectPayButton, 50);
 </script>
 """, height=0)
 
