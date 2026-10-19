@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
-- GitHub Pages 독립 결제창(pay.html) 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- GitHub Pages 독립 결제창(pay.html) 다이렉트 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 스크립트 스니펫 완벽 적용)
 """
 
@@ -91,8 +91,6 @@ if "vip_unlocked" not in st.session_state:
     st.session_state.vip_unlocked = False
 if "vip_expire_time" not in st.session_state:
     st.session_state.vip_expire_time = 0
-if "current_order_id" not in st.session_state:
-    st.session_state.current_order_id = ""
 if "latest_sent_code" not in st.session_state:
     st.session_state.latest_sent_code = ""
 
@@ -445,11 +443,16 @@ if not st.session_state.vip_unlocked:
         </div>
         """, unsafe_allow_html=True)
 
-        # 🚀 GitHub Pages에 구축한 독립 결제창(pay.html)으로 깔끔하게 이동
-        st.link_button(
-            "💎 토스페이먼츠 안전 결제창 열기 (1,000원)", 
-            PAYMENT_PAGE_URL, 
-            use_container_width=True
+        # 🚀 GitHub Pages 독립 결제창(pay.html)으로 한 번에 다이렉트 연결되는 안전한 HTML 버튼
+        st.markdown(
+            f"""
+            <div style="margin: 15px 0;">
+                <a href="{PAYMENT_PAGE_URL}" target="_blank" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #059669, #047857); color: white; border: 3px solid #facc15; padding: 16px 20px; font-size: 18px; font-weight: 900; border-radius: 12px; text-decoration: none; box-shadow: 0 0 25px rgba(250, 204, 21, 0.7); text-align: center; word-break: keep-all;">
+                    💎 토스페이먼츠 안전 결제창 열기 (1,000원)
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
