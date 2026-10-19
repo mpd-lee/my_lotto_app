@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (토스 팝업 무한로딩 완벽 해결 최종본)
-- Top-Window 리다이렉트를 통한 토스페이먼츠 다이렉트 결제 연동
-- 결제 성공 시 Solapi 자동 문자 발송 및 메인창 VIP 코드 입력 시스템 100% 사수
+로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (네이티브 링크 버튼 결제 연동 최종본)
+- Streamlit 공식 st.link_button을 통한 완벽한 토스 결제창 전환
+- 결제 성공 시 Solapi 자동 문자 발송 및 메인창 VIP 코드 입력 시스템 100% 보존
 """
 
 import random
@@ -210,7 +210,7 @@ if st.query_params.get("pay_popup") == "true" and not st.session_state.vip_unloc
             </p>
             <button class="btn-pay" onclick="requestTossPayment()">💎 토스 결제창 열기 (1,000원)</button>
             <br>
-            <button class="btn-cancel" onclick="if(window.top) {{ window.top.location.href='{APP_SITE_URL}'; }} else {{ location.href='{APP_SITE_URL}'; }}">❌ 메인으로 돌아가기</button>
+            <button class="btn-cancel" onclick="location.href='{APP_SITE_URL}'">❌ 메인으로 돌아가기</button>
         </div>
 
         <script>
@@ -247,55 +247,6 @@ if st.session_state.trigger_snow:
 if st.session_state.trigger_balloons:
     st.balloons()
     st.session_state.trigger_balloons = False
-
-# ================= 💡 최상위 창 강제 리다이렉트 결제 버튼 자바스크립트 =================
-components.html("""
-<script>
-function setupDirectPayButton() {
-    try {
-        const doc = window.parent.document;
-        const buttons = doc.querySelectorAll('button');
-        buttons.forEach(btn => {
-            const text = btn.innerText || btn.textContent || "";
-            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
-                // 기존 클릭 이벤트 중복 방지를 위해 속성 부여
-                if (!btn.getAttribute('data-toss-bound')) {
-                    btn.setAttribute('data-toss-bound', 'true');
-                    btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
-                    btn.style.setProperty('border', '3px solid #facc15', 'important');
-                    btn.style.setProperty('box-shadow', '0 0 25px rgba(250, 204, 21, 0.9), inset 0 0 10px rgba(250, 204, 21, 0.6)', 'important');
-                    btn.style.setProperty('color', '#ffffff', 'important');
-                    
-                    btn.onclick = function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // iframe을 탈출하여 최상위 주소로 이동 (pay_popup=true 모드 발동)
-                        window.top.location.href = window.top.location.origin + window.top.location.pathname + '?pay_popup=true';
-                    };
-                }
-            } else if (text.includes('로또 6/45 분석')) {
-                btn.style.setProperty('border', '3px solid #ef4444', 'important');
-                btn.style.setProperty('box-shadow', '0 0 20px #ef4444, inset 0 0 10px #ef4444', 'important');
-                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
-            } else if (text.includes('연금복권 720+')) {
-                btn.style.setProperty('border', '3px solid #3b82f6', 'important');
-                btn.style.setProperty('box-shadow', '0 0 20px #3b82f6, inset 0 0 10px #3b82f6', 'important');
-                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
-            } else if (text.includes('일반 번호 조합 무료추출 실행')) {
-                btn.style.setProperty('border', '3px solid #38bdf8', 'important');
-                btn.style.setProperty('box-shadow', '0 0 22px #38bdf8, inset 0 0 10px #38bdf8', 'important');
-                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
-            } else if (text.includes('프리미엄 조합 추출 실행')) {
-                btn.style.setProperty('border', '3px solid #eab308', 'important');
-                btn.style.setProperty('box-shadow', '0 0 22px #eab308, inset 0 0 10px #eab308', 'important');
-                btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
-            }
-        });
-    } catch(e) {}
-}
-setInterval(setupDirectPayButton, 50);
-</script>
-""", height=0)
 
 # ================= 커스텀 CSS 스타일 =================
 st.markdown("""
@@ -532,7 +483,7 @@ f"""
 with st.expander("⚙ 맞춤형 시스템 상세 설정 (무료/VIP 공통)", expanded=False):
     game_count = st.slider("추천 게임 수", 1, 10, 5)
 
-# ================= 4. 금빛 VIP 시스템 (결제 완료 후 문자 발송 및 코드 입력 방식) =================
+# ================= 4. 금빛 VIP 시스템 (Streamlit 공식 link_button을 통한 확실한 결제창 전환) =================
 if not st.session_state.vip_unlocked:
     if st.session_state.latest_sent_code:
         st.markdown(f"""
@@ -562,10 +513,12 @@ if not st.session_state.vip_unlocked:
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("💎 토스페이먼츠 안전 결제창 열기 (1,000원)", use_container_width=True, key="open_full_pay_btn"):
-            st.session_state.current_order_id = f"lotto{int(time.time())}{random.randint(100, 999)}"
-            st.query_params["pay_popup"] = "true"
-            st.rerun()
+        # 🚀 Streamlit 공식 link_button으로 깔끔하게 결제창 라우팅 (?pay_popup=true)
+        st.link_button(
+            "💎 토스페이먼츠 안전 결제하기 (1,000원)", 
+            f"{APP_SITE_URL}/?pay_popup=true", 
+            use_container_width=True
+        )
 
     st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
     with st.form("vip_unlock_form"):
