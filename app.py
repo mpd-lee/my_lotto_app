@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 로또픽 (Lotto Pick) - 초정밀 통계·조합 분석 시스템 (100% 통합 최종 완성본)
-- GitHub Pages 독립 결제창(pay.html) 다이렉트 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
+- GitHub Pages 독립 결제창(pay.html) 다이렉트 링크 연동 및 결제 성공 시 Solapi 자동 문자 발송 시스템
 - 로또 6/45 및 연금복권 720+ 통합 프리미엄 시스템 (애드센스 스크립트 스니펫 완벽 적용)
 """
 
@@ -146,15 +146,10 @@ components.html("""
 function applyNeonStyles() {
     try {
         const doc = window.parent.document;
-        const buttons = doc.querySelectorAll('button, a');
+        const buttons = doc.querySelectorAll('button');
         buttons.forEach(btn => {
             const text = btn.innerText || btn.textContent || "";
-            if (text.includes('토스페이먼츠 안전 결제창 열기')) {
-                btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
-                btn.style.setProperty('border', '3px solid #facc15', 'important');
-                btn.style.setProperty('box-shadow', '0 0 25px rgba(250, 204, 21, 0.9), inset 0 0 10px rgba(250, 204, 21, 0.6)', 'important');
-                btn.style.setProperty('color', '#ffffff', 'important');
-            } else if (text.includes('로또 6/45 분석')) {
+            if (text.includes('로또 6/45 분석')) {
                 btn.style.setProperty('border', '3px solid #ef4444', 'important');
                 btn.style.setProperty('box-shadow', '0 0 20px #ef4444, inset 0 0 10px #ef4444', 'important');
                 btn.style.setProperty('background', 'linear-gradient(135deg, #1e293b, #0f172a)', 'important');
